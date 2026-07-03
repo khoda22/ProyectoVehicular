@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | Sistema de Crédito Vehicular</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-content">
+            <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
+            <span class="panel-tag">| Panel de Configuración</span>
+        </div>
+        <div class="user-info">
+            <button onclick="window.location.href='simulador.html'" class="btn-secondary">Volver al Inicio</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <div class="login-card" style="max-width: 500px; margin: 0 auto;">
+            <div class="login-header">
+                <h1>Ajustes de Moneda</h1>
+                <p>Seleccione la moneda base para los cálculos del sistema</p>
+            </div>
+
+            <div class="settings-group">
+                <label class="radio-container">
+                    Soles (S/)
+                    <input type="radio" name="currency" value="PEN" id="radio-pen">
+                    <span class="checkmark"></span>
+                </label>
+                
+                <label class="radio-container">
+                    Dólares (US$)
+                    <input type="radio" name="currency" value="USD" id="radio-usd">
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button id="save-config" class="btn-login">Guardar Preferencias</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Lógica específica para esta página
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentCurrency = localStorage.getItem('system_currency') || 'PEN';
+            if (currentCurrency === 'PEN') document.getElementById('radio-pen').checked = true;
+            else document.getElementById('radio-usd').checked = true;
+        });
+
+        document.getElementById('save-config').addEventListener('click', () => {
+            const selected = document.querySelector('input[name="currency"]:checked').value;
+            localStorage.setItem('system_currency', selected);
+            alert('Configuración de moneda actualizada exitosamente.');
+            window.location.href = 'simulador.html';
+        });
+    </script>
+</body>
+</html>

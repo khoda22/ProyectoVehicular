@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | Sistema de Crédito Vehicular</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body class="login-body">
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Crear Cuenta</h1>
+                <p>Regístrese como administrador del sistema</p>
+            </div>
+
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="reg-fullname">Nombre Completo</label>
+                    <input type="text" id="reg-fullname" placeholder="Ej. Juan Pérez" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-username">Nombre de Usuario</label>
+                    <input type="text" id="reg-username" placeholder="Usuario para login" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="reg-password">Contraseña</label>
+                    <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <button type="submit" class="btn-login">Finalizar Registro</button>
+                
+                <div class="login-footer">
+                    <span>¿Ya tiene cuenta?</span>
+                    <a href="login.html">Iniciar sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

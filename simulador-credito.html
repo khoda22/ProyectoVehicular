@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulaciones | Sistema Vehicular</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-content">
+            <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
+            <span class="panel-tag">| Gestión de Simulaciones</span>
+        </div>
+        <div class="user-info">
+            <button onclick="window.location.href='simulador.html'" class="btn-secondary">Volver al Panel</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container" style="max-width: 1200px;">
+        
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('tab-crear')">Crear Simulación</button>
+            <button class="tab-btn" onclick="switchTab('tab-historial')">Mostrar Simulaciones</button>
+        </div>
+
+        <div id="tab-crear" class="tab-content active">
+            <div class="login-card" style="margin-bottom: 30px;">
+                <div class="login-header" style="text-align: left; margin-bottom: 20px;">
+                    <h2>Configuración de la Nueva Simulación</h2>
+                    <p>Complete secuencialmente los parámetros financieros requeridos</p>
+                </div>
+
+                <form id="simulation-engine-form">
+                    <div class="form-grid">
+                        
+                        <div class="form-section">
+                            <h3>1. Entidades y Búsqueda</h3>
+                            <div class="input-group">
+                                <label>DNI del Cliente</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="sim-client-id" required>
+                                    <button type="button" id="btn-find-client" class="btn-secondary">Buscar</button>
+                                </div>
+                                <div id="sim-client-info" class="status-msg"></div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>Código del Vehículo</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="sim-car-id" required>
+                                    <button type="button" id="btn-find-car" class="btn-secondary">Buscar</button>
+                                </div>
+                                <div id="sim-car-info" class="status-msg"></div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Entidad Financiera</label>
+                                <input type="text" id="sim-bank" placeholder="Ej. Banco Continental" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>2. Estructura Financiera</h3>
+                            <div class="input-group">
+                                <label>Moneda del Contrato</label>
+                                <select id="sim-currency">
+                                    <option value="PEN">Soles (S/)</option>
+                                    <option value="USD">Dólares (US$ - T.C. 3.40)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Cuota Inicial (%)</label>
+                                <select id="sim-downpayment">
+                                    <option value="10">10 %</option>
+                                    <option value="20">20 %</option>
+                                    <option value="30">30 %</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Periodo de Pago</label>
+                                <select id="sim-period">
+                                    <option value="30">Mensual (30 días)</option>
+                                    <option value="15">Quincenal (15 días)</option>
+                                    <option value="7">Semanal (7 días)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-grid-2">
+                                <div class="input-group">
+                                    <label>Plazo (Años)</label>
+                                    <select id="sim-years">
+                                        <option value="3">3 años</option>
+                                        <option value="5">5 años</option>
+                                        <option value="7">7 años</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Tipo de Tasa</label>
+                                    <select id="sim-rate-type">
+                                        <option value="TE">Efectiva</option>
+                                        <option value="TN">Nominal</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Valor de Tasa (%)</label>
+                                <select id="sim-rate-val">
+                                    </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button type="submit" id="btn-calc-simulation" class="btn-login" style="width: auto; padding: 12px 40px;" disabled>Generar Plan de Pagos</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Simulation Report Section 
+             
+            -->
+
+            <div id="simulation-report-section" class="login-card" style="display: none; margin-top: 30px;">
+                
+                <div id="risk-semaphore-container" style="padding: 20px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-weight: 600;">
+                    <span id="risk-client-badge" style="font-size: 18px; display: block;"></span>
+                    <span id="risk-client-ratio" style="font-size: 14px; font-weight: 400; color: #475569; display: block; margin-top: 5px;"></span>
+                </div>
+
+                <div class="form-section" style="margin-bottom: 25px;">
+                    <h3>Indicadores Obligatorios de Transparencia (SBS)</h3>
+                    <div class="gracia-controls" style="grid-template-columns: repeat(3, 1fr); background-color: #f8fafc;">
+                        <div class="input-group" style="margin: 0; text-align: center;">
+                            <label style="color: var(--text-muted);">TCEA Estimada</label>
+                            <span id="sbs-tcea" style="font-size: 20px; font-weight: 700; color: var(--dark-blue); display: block; margin-top: 5px;">0.00 %</span>
+                        </div>
+                        <div class="input-group" style="margin: 0; text-align: center;">
+                            <label style="color: var(--text-muted);">VAN del Deudor</label>
+                            <span id="sbs-van" style="font-size: 20px; font-weight: 700; color: #0f172a; display: block; margin-top: 5px;">0.00</span>
+                        </div>
+                        <div class="input-group" style="margin: 0; text-align: center;">
+                            <label style="color: var(--text-muted);">TIR de la Operación</label>
+                            <span id="sbs-tir" style="font-size: 20px; font-weight: 700; color: #0f172a; display: block; margin-top: 5px;">0.00 %</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="login-header" style="text-align: left;">
+                    <h2>Plan de Pagos / Cronograma de Cuotas</h2>
+                    <p id="report-summary-text"></p>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="banking-table" id="table-cronograma">
+
+
+                        <thead>
+                            <tr>
+                                <th>Nro Cuota</th>
+                                <th>Saldo Inicial</th>
+                                <th>Interés</th>
+                                <th>Cuota</th>
+                                <th>Amortizac.</th>
+                                <th>Saldo Final</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div id="gracia-module" style="margin-top: 35px; padding-top: 25px; border-top: 1px solid var(--border-color);">
+                    <h3 style="color: var(--primary-blue); font-size: 16px; margin-bottom: 15px;">Aplicar Periodo de Gracia Adicional</h3>
+                    <div class="gracia-controls">
+                        <div class="input-group">
+                            <label>Tipo de Gracia</label>
+                            <select id="gracia-type">
+                                <option value="NINGUNO">No aplicar / Rechazar</option>
+                                <option value="TOTAL">Total (Cuota y Amortización 0)</option>
+                                <option value="PARCIAL">Parcial (Amortización 0)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Nro. de Cuota(s) a aplicar</label>
+                            <input type="text" id="gracia-target" placeholder="Ej. 3, 4 (separar por comas)">
+                        </div>
+                        <div style="display: flex; align-items: flex-end; padding-bottom: 20px;">
+                            <button type="button" id="btn-apply-gracia" class="btn-secondary" style="width: 100%;">Procesar Reajuste</button>
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button type="button" id="btn-save-final" class="btn-login" style="width: auto; padding: 12px 30px;">Guardar Simulación Definitiva</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-historial" class="tab-content">
+            <div class="login-card">
+                <div class="login-header" style="text-align: left;">
+                    <h2>Búsqueda en Historial Financiero</h2>
+                    <p>Filtre las simulaciones guardadas por el DNI del cliente</p>
+                </div>
+                
+                <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 30px;">
+                    <input type="text" id="search-history-dni" placeholder="Ingrese DNI del cliente">
+                    <button type="button" id="btn-filter-history" class="btn-secondary" style="padding: 12px 25px;">Buscar</button>
+                </div>
+
+                <div id="history-list-container">
+                    </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/simulador-credito.js"></script>
+</body>
+</html>
