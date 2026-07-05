@@ -36,23 +36,38 @@
           <form id="client-form">
             <div class="input-group">
               <label>DNI / CE</label>
-              <input type="text" id="client-id" required />
+              <div class="help-container">
+                <input type="text" id="client-id" placeholder="Ej. 74589632" required />
+                <span class="help-icon" data-tooltip="Documento de identidad del cliente. Debe contener 8 dígitos para DNI o 9 caracteres para Carné de Extranjería.">?</span>
+              </div>
             </div>
             <div class="input-group">
               <label>Nombres y Apellidos</label>
-              <input type="text" id="client-name" required />
+              <div class="help-container">
+                <input type="text" id="client-name" placeholder="Ej. Carlos Mendoza Ramos" required />
+                <span class="help-icon" data-tooltip="Ingrese los nombres completos y apellidos del solicitante tal como aparecen en su documento de identidad.">?</span>
+              </div>
             </div>
             <div class="input-group">
               <label>Correo Electrónico</label>
-              <input type="email" id="client-email" required />
+              <div class="help-container">
+                <input type="email" id="client-email" placeholder="ejemplo@correo.com" required />
+                <span class="help-icon" data-tooltip="Buzón de correo electrónico del cliente donde se enviará digitalmente la simulación del cronograma.">?</span>
+              </div>
             </div>
             <div class="input-group">
               <label>Teléfono</label>
-              <input type="text" id="client-phone" />
+              <div class="help-container">
+                <input type="text" id="client-phone" placeholder="Ej. 987654321" />
+                <span class="help-icon" data-tooltip="Número celular de contacto (9 dígitos) para coordinaciones comerciales o alertas del crédito.">?</span>
+              </div>
             </div>
             <div class="input-group">
               <label>Ingresos Mensuales Netos</label>
-              <input type="number" id="client-income" min="0" required />
+              <div class="help-container">
+                <input type="number" id="client-income" min="0" placeholder="Ej. 3500" required />
+                <span class="help-icon" data-tooltip="Sueldo neto percibido en cuenta bancaria demostrable. Sirve para evaluar el ratio de endeudamiento permitido.">?</span>
+              </div>
             </div>
             <button type="submit" class="btn-login">Registrar Cliente</button>
           </form>

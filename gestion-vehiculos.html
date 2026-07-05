@@ -36,25 +36,24 @@
           <form id="vehicle-form">
             <div class="input-group">
               <label>Código Interno / ID de Auto</label>
-              <input
-                type="text"
-                id="car-id"
-                placeholder="Ej. TOY-001"
-                required
-              />
+              <div class="help-container">
+                <input type="text" id="car-id" placeholder="Ej. TOY-001" required />
+                <span class="help-icon" data-tooltip="Código alfanumérico único para el control de inventario y stock del catálogo del simulador.">?</span>
+              </div>
             </div>
             <div class="input-group">
               <label>Marca y Modelo</label>
-              <input
-                type="text"
-                id="car-model"
-                placeholder="Ej. Toyota Corolla"
-                required
-              />
+              <div class="help-container">
+                <input type="text" id="car-model" placeholder="Ej. Toyota Corolla" required />
+                <span class="help-icon" data-tooltip="Nombre comercial de fábrica de la unidad vehicular (Ej. Hyundai Elantra, Nissan Sentra).">?</span>
+              </div>
             </div>
             <div class="input-group">
               <label>Precio Base</label>
-              <input type="number" id="car-price" placeholder="0.00" required />
+              <div class="help-container">
+                <input type="number" id="car-price" placeholder="0.00" required />
+                <span class="help-icon" data-tooltip="Valor de venta de lista total del auto sobre el cual se estructurará la cuota inicial y el financiamiento.">?</span>
+              </div>
             </div>
             <button type="submit" class="btn-login">Registrar Vehículo</button>
           </form>

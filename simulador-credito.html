@@ -40,25 +40,34 @@
                             <h3>1. Entidades y Búsqueda</h3>
                             <div class="input-group">
                                 <label>DNI del Cliente</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="sim-client-id" required>
-                                    <button type="button" id="btn-find-client" class="btn-secondary">Buscar</button>
+                                <div class="help-container">
+                                    <div style="display: flex; gap: 8px; width: 100%;">
+                                        <input type="text" id="sim-client-id" placeholder="Ej. 72154389" required style="flex: 1;">
+                                        <button type="button" id="btn-find-client" class="btn-secondary">Buscar</button>
+                                    </div>
+                                    <span class="help-icon" data-tooltip="Ingrese el Documento Nacional de Identidad (8 dígitos) o Carné de Extranjería del cliente previamente registrado.">?</span>
                                 </div>
                                 <div id="sim-client-info" class="status-msg"></div>
                             </div>
                             
                             <div class="input-group">
                                 <label>Código del Vehículo</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="sim-car-id" required>
-                                    <button type="button" id="btn-find-car" class="btn-secondary">Buscar</button>
+                                <div class="help-container">
+                                    <div style="display: flex; gap: 8px; width: 100%;">
+                                        <input type="text" id="sim-car-id" placeholder="Ej. TOY-001" required style="flex: 1;">
+                                        <button type="button" id="btn-find-car" class="btn-secondary">Buscar</button>
+                                    </div>
+                                    <span class="help-icon" data-tooltip="Escriba el identificador único del automóvil en stock para jalar automáticamente su precio base.">?</span>
                                 </div>
                                 <div id="sim-car-info" class="status-msg"></div>
                             </div>
 
                             <div class="input-group">
                                 <label>Entidad Financiera</label>
-                                <input type="text" id="sim-bank" placeholder="Ej. Banco Continental" required>
+                                <div class="help-container">
+                                    <input type="text" id="sim-bank" placeholder="Ej. Banco Continental" required>
+                                    <span class="help-icon" data-tooltip="Escriba el nombre comercial del banco o financiera que otorga y evalúa la tasa del crédito vehicular.">?</span>
+                                </div>
                             </div>
                         </div>
 
@@ -66,52 +75,70 @@
                             <h3>2. Estructura Financiera</h3>
                             <div class="input-group">
                                 <label>Moneda del Contrato</label>
-                                <select id="sim-currency">
-                                    <option value="PEN">Soles (S/)</option>
-                                    <option value="USD">Dólares (US$ - T.C. 3.40)</option>
-                                </select>
+                                <div class="help-container">
+                                    <select id="sim-currency" style="width: 100%;">
+                                        <option value="PEN">Soles (S/)</option>
+                                        <option value="USD">Dólares (US$ - T.C. 3.40)</option>
+                                    </select>
+                                    <span class="help-icon" data-tooltip="Seleccione la divisa oficial en la que se emitirá el contrato y se calcularán las cuotas del cronograma.">?</span>
+                                </div>
                             </div>
 
                             <div class="input-group">
                                 <label>Cuota Inicial (%)</label>
-                                <select id="sim-downpayment">
-                                    <option value="10">10 %</option>
-                                    <option value="20">20 %</option>
-                                    <option value="30">30 %</option>
-                                </select>
+                                <div class="help-container">
+                                    <select id="sim-downpayment" style="width: 100%;">
+                                        <option value="10">10 %</option>
+                                        <option value="20">20 %</option>
+                                        <option value="30">30 %</option>
+                                    </select>
+                                    <span class="help-icon" data-tooltip="Porcentaje de enganche obligatorio calculado sobre el precio total del vehículo. Varía de 10% a 30%.">?</span>
+                                </div>
                             </div>
 
                             <div class="input-group">
                                 <label>Periodo de Pago</label>
-                                <select id="sim-period">
-                                    <option value="30">Mensual (30 días)</option>
-                                    <option value="15">Quincenal (15 días)</option>
-                                    <option value="7">Semanal (7 días)</option>
-                                </select>
+                                <div class="help-container">
+                                    <select id="sim-period" style="width: 100%;">
+                                        <option value="30">Mensual (30 días)</option>
+                                        <option value="15">Quincenal (15 días)</option>
+                                        <option value="7">Semanal (7 días)</option>
+                                    </select>
+                                    <span class="help-icon" data-tooltip="Establece la frecuencia con la que el cliente deberá abonar los pagos (cada 30, 15 o 7 días).">?</span>
+                                </div>
                             </div>
 
                             <div class="input-grid-2">
                                 <div class="input-group">
                                     <label>Plazo (Años)</label>
-                                    <select id="sim-years">
-                                        <option value="3">3 años</option>
-                                        <option value="5">5 años</option>
-                                        <option value="7">7 años</option>
-                                    </select>
+                                    <div class="help-container">
+                                        <select id="sim-years" style="width: 100%;">
+                                            <option value="3">3 años</option>
+                                            <option value="5">5 años</option>
+                                            <option value="7">7 años</option>
+                                        </select>
+                                        <span class="help-icon" data-tooltip="Duración total del préstamo del simulador. Al finalizar este periodo se abona la cuota Balloon.">?</span>
+                                    </div>
                                 </div>
                                 <div class="input-group">
                                     <label>Tipo de Tasa</label>
-                                    <select id="sim-rate-type">
-                                        <option value="TE">Efectiva</option>
-                                        <option value="TN">Nominal</option>
-                                    </select>
+                                    <div class="help-container">
+                                        <select id="sim-rate-type" style="width: 100%;">
+                                            <option value="TE">Efectiva</option>
+                                            <option value="TN">Nominal</option>
+                                        </select>
+                                        <span class="help-icon" data-tooltip="Tasa Efectiva Anual (TEA) o Tasa Nominal Anual (TNA). Define la metodología de capitalización de intereses.">?</span>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="input-group">
                                 <label>Valor de Tasa (%)</label>
-                                <select id="sim-rate-val">
-                                    </select>
+                                <div class="help-container">
+                                    <select id="sim-rate-val" style="width: 100%;">
+                                        </select>
+                                    <span class="help-icon" data-tooltip="Porcentaje numérico de interés cobrado anualmente por la entidad financiera elegida.">?</span>
+                                </div>
                             </div>
                         </div>
                     </div>
