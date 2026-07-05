@@ -94,10 +94,11 @@
                                 <label>Moneda del Contrato
                                     <span class="help-tip" data-tip="El cronograma y todos los montos se calculan en la moneda elegida (Soles o Dólares).">?</span>
                                 </label>
-                                <select id="sim-currency">
-                                    <option value="PEN">Soles (S/)</option>
-                                    <option value="USD">Dólares (US$)</option>
-                                </select>
+                                <div class="pill-group full" id="currency-toggle" role="group" aria-label="Moneda del contrato">
+                                    <button type="button" class="active" data-value="PEN">Soles (S/)</button>
+                                    <button type="button" data-value="USD">Dólares (US$)</button>
+                                </div>
+                                <input type="hidden" id="sim-currency" value="PEN">
                             </div>
 
                             <div class="input-group">
@@ -123,22 +124,11 @@
                             </div>
 
                             <div class="input-group">
-                                <label>Bono / Descuento (monto)
-                                    <span class="help-tip" data-tip="Descuento o bono buen pagador aplicado al precio. Reduce el monto a financiar.">?</span>
-                                </label>
-                                <input type="text" id="sim-bono" placeholder="0.00" value="0">
-                                <div class="error-msg" id="err-bono"></div>
-                            </div>
-
-                            <div class="input-group">
                                 <label>Periodo de Pago
-                                    <span class="help-tip" data-tip="Frecuencia de las cuotas. El estándar del enunciado es mensual (mes de 30 días).">?</span>
+                                    <span class="help-tip" data-tip="El crédito vehicular en Perú se paga en cuotas mensuales de 30 días (método francés vencido ordinario). Es el estándar de BBVA y la SBS.">?</span>
                                 </label>
-                                <select id="sim-period">
-                                    <option value="30">Mensual (30 días)</option>
-                                    <option value="15">Quincenal (15 días)</option>
-                                    <option value="7">Semanal (7 días)</option>
-                                </select>
+                                <input type="text" value="Mensual (30 días)" disabled>
+                                <input type="hidden" id="sim-period" value="30">
                             </div>
 
                             <div class="input-group">
@@ -150,6 +140,20 @@
                                 </div>
                                 <input type="range" id="sim-years" min="1" max="7" step="1" value="3">
                                 <div class="slider-limits"><span>1 año</span><span>7 años</span></div>
+                            </div>
+
+                            <div class="input-group">
+                                <div class="slider-row">
+                                    <label>Bono / Descuento
+                                        <span class="help-tip" data-tip="Descuento o bono buen pagador (BBVA lo llama 'subvención'). Reduce el monto a financiar. Actívalo solo si el cliente aplica.">?</span>
+                                    </label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="sim-bono-toggle">
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <input type="text" id="sim-bono" placeholder="Monto del bono (ej. 2000.00)" value="0" style="display: none; margin-top: 10px;">
+                                <div class="error-msg" id="err-bono"></div>
                             </div>
                         </div>
 
@@ -192,13 +196,13 @@
                                     <label>Seg. Desgravamen (% mensual)
                                         <span class="help-tip" data-tip="Cubre la deuda ante fallecimiento del titular. Se calcula sobre el saldo pendiente cada mes.">?</span>
                                     </label>
-                                    <input type="number" id="sim-seg-desgravamen" min="0" step="0.0001" value="0.0280">
+                                    <input type="number" id="sim-seg-desgravamen" min="0" step="0.0001" value="0.0714">
                                 </div>
                                 <div class="input-group">
                                     <label>Seg. Vehicular (% mensual)
                                         <span class="help-tip" data-tip="Seguro del vehículo. Se calcula sobre el valor del auto cada mes.">?</span>
                                     </label>
-                                    <input type="number" id="sim-seg-vehicular" min="0" step="0.0001" value="0.0300">
+                                    <input type="number" id="sim-seg-vehicular" min="0" step="0.0001" value="0.3200">
                                 </div>
                             </div>
                         </div>

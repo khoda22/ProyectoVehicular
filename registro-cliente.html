@@ -60,41 +60,40 @@
             </div>
             <div class="input-grid-2">
               <div class="input-group">
-                <label>Teléfono 1
-                  <span class="help-tip" data-tip="Solo números. Contacto principal del cliente.">?</span>
+                <label>Celular
+                  <span class="help-tip" data-tip="Número de celular del cliente. Solo dígitos.">?</span>
                 </label>
                 <input type="text" id="client-phone" required />
                 <div class="error-msg" id="err-client-phone"></div>
               </div>
               <div class="input-group">
-                <label>Teléfono 2
-                  <span class="help-tip" data-tip="Contacto alternativo, opcional.">?</span>
-                </label>
+                <label>Teléfono alternativo <span class="label-opt">(opcional)</span></label>
                 <input type="text" id="client-phone2" />
               </div>
             </div>
             <div class="input-group">
-              <label>Ingresos Mensuales Netos
-                <span class="help-tip" data-tip="Ingreso neto mensual. La SBS recomienda que la cuota no supere el 40% del ingreso.">?</span>
+              <label>Ingresos mensuales netos <span class="label-opt">(opcional)</span>
+                <span class="help-tip" data-tip="Permite evaluar la capacidad de pago: la SBS recomienda que la cuota no supere el 40% del ingreso.">?</span>
               </label>
-              <input type="text" id="client-income" placeholder="0.00" required />
+              <input type="text" id="client-income" placeholder="0.00" />
               <div class="error-msg" id="err-client-income"></div>
             </div>
 
             <div class="input-group">
-              <label>Consentimiento de datos (Ley N° 29733)</label>
-              <label style="font-weight:400; display:flex; gap:8px; align-items:flex-start; margin-bottom:8px;">
-                <input type="checkbox" id="consent-simulacion" style="width:auto; margin-top:4px;" required />
-                <span>Autorizo el uso de mis datos personales para la simulación y cotización del crédito (obligatorio).</span>
+              <label>Autorización de datos</label>
+              <label class="consent-item">
+                <input type="checkbox" id="consent-simulacion" required />
+                <span>He leído y acepto la <a href="#" onclick="return false;">Política de Privacidad</a> y autorizo el tratamiento de mis datos personales para evaluar y gestionar mi solicitud de crédito.</span>
               </label>
-              <label style="font-weight:400; display:flex; gap:8px; align-items:flex-start; margin-bottom:8px;">
-                <input type="checkbox" id="consent-difusion" style="width:auto; margin-top:4px;" />
-                <span>Autorizo el uso de mis datos para difusión de contenidos de la empresa.</span>
+              <label class="consent-item">
+                <input type="checkbox" id="consent-difusion" />
+                <span>Autorizo el uso de mis datos para recibir ofertas, promociones y publicidad de productos y servicios.</span>
               </label>
-              <label style="font-weight:400; display:flex; gap:8px; align-items:flex-start;">
-                <input type="checkbox" id="consent-partners" style="width:auto; margin-top:4px;" />
-                <span>Autorizo compartir mis datos con partners o terceros de la empresa.</span>
+              <label class="consent-item">
+                <input type="checkbox" id="consent-partners" />
+                <span>Autorizo compartir mis datos con empresas aliadas para ofertas conjuntas.</span>
               </label>
+              <p class="consent-note">Tratamos tus datos conforme a la Ley N.° 29733 de Protección de Datos Personales.</p>
             </div>
 
             <button type="submit" class="btn-login">Registrar Cliente</button>
@@ -145,11 +144,11 @@
             </div>
             <div class="input-grid-2">
               <div class="input-group">
-                <label>Teléfono 1</label>
+                <label>Celular</label>
                 <input type="text" id="edit-phone" disabled />
               </div>
               <div class="input-group">
-                <label>Teléfono 2</label>
+                <label>Teléfono alternativo</label>
                 <input type="text" id="edit-phone2" disabled />
               </div>
             </div>
@@ -192,8 +191,8 @@
                                 <th>DNI / CE</th>
                                 <th>Nombres y Apellidos</th>
                                 <th>Correo Electrónico</th>
-                                <th>Teléfono 1</th>
-                                <th>Teléfono 2</th>
+                                <th>Celular</th>
+                                <th>Alternativo</th>
                                 <th>Ingresos Netos</th>
                                 <th>Consentimiento</th>
                                 <th>Acción</th>

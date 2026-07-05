@@ -29,36 +29,42 @@ function attachMoneyFormat(input) {
     });
 }
 
-// Validación en vivo: validator devuelve true si es válido, o un mensaje de error si no
+// Validación con patrón "touched": no molesta mientras el usuario escribe por primera vez.
+// Valida al salir del campo (blur); a partir de ahí da feedback en vivo (limpia el error apenas es válido).
 function attachValidation(input, errorEl, validator) {
     if (!input) return () => true;
-    const run = () => {
-        if (input.value.trim() === '') {
+    let touched = false;
+    const run = (show) => {
+        const val = input.value.trim();
+        if (val === '') {
             input.classList.remove('invalid');
             if (errorEl) errorEl.textContent = '';
             return false;
         }
-        const res = validator(input.value.trim());
+        const res = validator(val);
         if (res === true) {
             input.classList.remove('invalid');
             if (errorEl) errorEl.textContent = '';
             return true;
         }
-        input.classList.add('invalid');
-        if (errorEl) errorEl.textContent = res;
+        if (show) {
+            input.classList.add('invalid');
+            if (errorEl) errorEl.textContent = res;
+        }
         return false;
     };
-    input.addEventListener('input', run);
-    input.addEventListener('blur', run);
-    return run;
+    input.addEventListener('blur', () => { touched = true; run(true); });
+    input.addEventListener('input', () => run(touched));
+    // Para validar al enviar el formulario: fuerza mostrar el error
+    return () => { touched = true; return run(true); };
 }
 
-// Validadores comunes reutilizables
+// Validadores comunes reutilizables — mensajes de una sola línea (evitan saltos de layout)
 const validators = {
-    dni: v => /^\d{8}$/.test(v) || /^[a-zA-Z0-9]{9,12}$/.test(v) || 'DNI (8 dígitos) o CE (9-12 caracteres).',
-    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo electrónico no válido.',
-    phone: v => /^\d{6,12}$/.test(v.replace(/\s/g, '')) || 'Teléfono: solo números (6 a 12 dígitos).',
-    positive: v => (parseMoney(v) > 0) || 'Debe ser un monto mayor a 0.',
+    dni: v => /^\d{8}$/.test(v) || /^[a-zA-Z0-9]{9,12}$/.test(v) || 'Ingresa un DNI o CE válido.',
+    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo no válido.',
+    phone: v => /^\d{6,12}$/.test(v.replace(/\s/g, '')) || 'Teléfono no válido.',
+    positive: v => (parseMoney(v) > 0) || 'Ingresa un monto válido.',
     year: v => { const y = parseInt(v); return (y >= 1900 && y <= 2027) || 'Año entre 1900 y 2027.'; }
 };
 

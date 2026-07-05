@@ -84,6 +84,28 @@ SLIDERS.forEach(([id, outId, unit]) => {
 });
 paintAllSliders();
 
+// Toggle de moneda (segmented control) → escribe en el hidden #sim-currency
+document.querySelectorAll('#currency-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#currency-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('sim-currency').value = btn.dataset.value;
+        updateLiveSummary();
+    });
+});
+
+// Switch de bono/descuento: el input solo aparece si se activa
+const bonoToggle = document.getElementById('sim-bono-toggle');
+const bonoInput = document.getElementById('sim-bono');
+if (bonoToggle && bonoInput) {
+    bonoToggle.addEventListener('change', () => {
+        bonoInput.style.display = bonoToggle.checked ? '' : 'none';
+        if (bonoToggle.checked) bonoInput.focus();
+        else bonoInput.value = '0';
+        updateLiveSummary();
+    });
+}
+
 // La capitalización solo aplica cuando la tasa es nominal (exigencia del enunciado)
 const rateTypeSelect = document.getElementById('sim-rate-type');
 rateTypeSelect.addEventListener('change', () => {
@@ -442,6 +464,10 @@ function resetSimulationWorkspace() {
     document.getElementById('sim-car-info').innerHTML = '';
     document.getElementById('sim-capitalization').disabled = true;
     paintAllSliders();
+    // Restablecer toggles de UI (form.reset no toca clases ni display)
+    document.querySelectorAll('#currency-toggle button').forEach(b => b.classList.toggle('active', b.dataset.value === 'PEN'));
+    document.getElementById('sim-currency').value = 'PEN';
+    if (bonoToggle && bonoInput) { bonoToggle.checked = false; bonoInput.style.display = 'none'; }
     activeClient = null;
     activeVehicle = null;
     activeBank = '';
