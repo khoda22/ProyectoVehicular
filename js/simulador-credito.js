@@ -69,6 +69,10 @@ const SLIDERS = [
 function paintSlider(id, outId, unit) {
     const el = document.getElementById(id);
     if (!el) return;
+    const min = Number(el.min) || 0;
+    const max = Number(el.max) || 100;
+    const pct = max === min ? 0 : ((Number(el.value) - min) / (max - min)) * 100;
+    el.style.setProperty('--_p', pct + '%');
     const out = document.getElementById(outId);
     if (out) out.textContent = (unit === ' años' && el.value === '1') ? '1 año' : el.value + unit;
 }
@@ -345,6 +349,89 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
     localStorage.setItem('system_simulations', JSON.stringify(history));
     notify.ok(`Simulación ${sim.id} guardada exitosamente en el historial del cliente.`);
     resetSimulationWorkspace();
+});
+
+// GENERAR PDF — hoja resumen estilo entidad financiera (transparencia SBS)
+document.getElementById('btn-download-pdf').addEventListener('click', () => {
+    if (!currentParams || !workingSchedule.length) {
+        notify.err('Genere primero una simulación.');
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const p = currentParams;
+    const sign = p.currency === 'PEN' ? 'S/' : '$';
+    const totalPagado = workingSchedule.reduce((a, r) => a + r.cuotaTotal, 0);
+    const crimson = [192, 32, 60];
+
+    let y = 44;
+    doc.setFontSize(17); doc.setFont(undefined, 'bold'); doc.setTextColor(23, 23, 28);
+    doc.text('Cotización de Crédito Vehicular', 40, y);
+    doc.setFontSize(10); doc.setFont(undefined, 'normal'); doc.setTextColor(120);
+    doc.text(activeBank || 'Entidad Financiera', 40, y + 16);
+    doc.setTextColor(150);
+    doc.text('Compra Inteligente', 555, y + 16, { align: 'right' });
+
+    y += 46;
+    doc.setTextColor(120); doc.setFontSize(10);
+    doc.text('Importe financiado', 40, y);
+    doc.setTextColor(192, 32, 60); doc.setFontSize(24); doc.setFont(undefined, 'bold');
+    doc.text(`${sign} ${formatMoney(p.montoFinanciar)}`, 40, y + 26);
+
+    const resumen = [
+        ['Cliente', `${activeClient.name} (DNI ${activeClient.id})`],
+        ['Vehículo', `${activeVehicle.brand || ''} ${activeVehicle.model}`],
+        ['Moneda', p.currency === 'PEN' ? 'Soles' : 'Dólares'],
+        ['Cuota estimada', `${sign} ${formatMoney(workingSchedule[0].cuotaTotal)}`],
+        ['Plazo', `${p.n} cuotas`],
+        ['Tasa Efectiva Anual (TEA)', `${(p.TEA * 100).toFixed(2)} %`],
+        ['TCEA Referencial', document.getElementById('sbs-tcea').innerText],
+        ['Cuota final (balloon)', `${sign} ${formatMoney(p.balloon)}`],
+        ['Total a pagar', `${sign} ${formatMoney(totalPagado)}`]
+    ];
+    doc.autoTable({
+        startY: y + 44,
+        theme: 'plain',
+        styles: { fontSize: 10, cellPadding: 3 },
+        columnStyles: { 0: { textColor: 120 }, 1: { halign: 'right', fontStyle: 'bold', textColor: 40 } },
+        body: resumen
+    });
+
+    doc.setFontSize(12); doc.setFont(undefined, 'bold'); doc.setTextColor(23, 23, 28);
+    doc.text('Cronograma de pagos', 40, doc.lastAutoTable.finalY + 22);
+
+    doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 30,
+        head: [['Nro', 'Saldo Inicial', 'Interés', 'Amortiz.', 'Desgrav.', 'Seg. Veh.', 'Cuota Total', 'Saldo Final']],
+        body: workingSchedule.map(r => [
+            r.num,
+            formatMoney(r.saldoInicial),
+            formatMoney(r.interes),
+            formatMoney(r.amortizacion),
+            formatMoney(r.segDesg),
+            formatMoney(r.segVeh),
+            formatMoney(r.cuotaTotal),
+            formatMoney(r.saldoFinal)
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: crimson, fontSize: 7.5 },
+        styles: { fontSize: 7, cellPadding: 2, halign: 'right' },
+        columnStyles: { 0: { halign: 'center' } }
+    });
+
+    let ny = doc.lastAutoTable.finalY + 20;
+    doc.setFontSize(9); doc.setFont(undefined, 'bold'); doc.setTextColor(23, 23, 28);
+    doc.text('IMPORTANTE', 40, ny);
+    doc.setFont(undefined, 'normal'); doc.setFontSize(8); doc.setTextColor(120);
+    [
+        'Los datos emitidos por este simulador son referenciales.',
+        'El otorgamiento del préstamo está sujeto a evaluación crediticia.',
+        'La simulación no incluye el ITF. La tasa de interés es fija.',
+        'La TCEA incluye intereses y seguros según la norma de transparencia de la SBS.'
+    ].forEach((t, i) => doc.text('•  ' + t, 40, ny + 14 + i * 12));
+
+    doc.save(`cotizacion-${activeClient.id}.pdf`);
+    notify.ok('PDF generado.');
 });
 
 function resetSimulationWorkspace() {

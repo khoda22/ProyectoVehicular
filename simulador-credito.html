@@ -12,6 +12,8 @@
     <script src="js/notify.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/layout.js"></script>
+    <script src="js/jspdf.umd.min.js"></script>
+    <script src="js/jspdf.autotable.min.js"></script>
 </head>
 <body>
 
@@ -265,7 +267,8 @@
                             <button type="button" id="btn-apply-gracia" class="btn-secondary" style="width: 100%;">Procesar Reajuste</button>
                         </div>
                     </div>
-                    <div style="text-align: right; margin-top: 20px;">
+                    <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" id="btn-download-pdf" class="btn-secondary" style="padding: 12px 24px;">Descargar PDF</button>
                         <button type="button" id="btn-save-final" class="btn-login" style="width: auto; padding: 12px 30px;">Guardar Simulación Definitiva</button>
                     </div>
                 </div>
