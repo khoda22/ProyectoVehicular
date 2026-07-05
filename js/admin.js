@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
     if (!user || user.rol !== 'admin') {
         notify.err('Acceso exclusivo para administradores.');
-        setTimeout(() => location.href = 'simulador.html', 1300);
+        setTimeout(() => location.href = 'simulador-credito.html', 1300);
         return;
     }
     renderUsers();

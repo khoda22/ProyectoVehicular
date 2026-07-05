@@ -285,12 +285,58 @@ body {
 .slider-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
 .slider-value { font-weight: 800; color: var(--primary); font-size: 15px; }
 
-/* Slider nativo: accent-color colorea el track lleno y el thumb sin calcular nada */
+/* Slider custom: sin tema nativo para controlar track tenue, fill primario y thumb blanco.
+   --_p (0-100%) lo actualiza el JS para el relleno en WebKit; Firefox usa ::-moz-range-progress. */
 input[type="range"] {
+    --_track-h: 6px;
+    --_thumb: 18px;
+    --_p: 0%;
     width: 100%;
     height: 24px;
-    accent-color: var(--primary);
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    border: none;
     cursor: pointer;
+}
+input[type="range"]:focus { outline: none; box-shadow: none; }
+
+/* WebKit/Blink */
+input[type="range"]::-webkit-slider-runnable-track {
+    height: var(--_track-h);
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--primary) var(--_p), var(--primary-soft) var(--_p));
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--_thumb);
+    height: var(--_thumb);
+    margin-top: calc((var(--_track-h) - var(--_thumb)) / 2);
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-track {
+    height: var(--_track-h);
+    border-radius: 999px;
+    background: var(--primary-soft);
+}
+input[type="range"]::-moz-range-progress {
+    height: var(--_track-h);
+    border-radius: 999px;
+    background: var(--primary);
+}
+input[type="range"]::-moz-range-thumb {
+    width: var(--_thumb);
+    height: var(--_thumb);
+    border: 3px solid var(--primary);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
 .slider-limits { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
@@ -334,17 +380,36 @@ input[type="range"] {
     border-radius: 50%; background: var(--primary-soft); color: var(--primary-dark);
     font-size: 11px; font-weight: 700; cursor: help; position: relative;
 }
+/* Globo y flecha comparten fade + desplazamiento: se mueven como una sola pieza */
+.help-tip::before,
+.help-tip::after {
+    opacity: 0; pointer-events: none; z-index: 50;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+/* Globo */
 .help-tip::after {
     content: attr(data-tip);
-    position: absolute; bottom: 145%; left: 50%; transform: translateX(-50%);
-    width: max-content; max-width: 240px;
+    position: absolute; bottom: 145%; left: 50%;
+    transform: translate(-50%, 4px);
+    width: max-content; max-width: 260px;
     background: var(--accent-dark); color: #fff;
-    font-size: 11.5px; font-weight: 400; line-height: 1.45; text-align: left;
-    padding: 8px 11px; border-radius: 8px;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 50;
+    font-size: 13px; font-weight: 400; line-height: 1.5; text-align: left;
+    padding: 10px 13px; border-radius: 8px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
-.help-tip:hover::after { opacity: 1; }
+/* Flecha: triángulo apuntando al badge, mismo color que el globo */
+.help-tip::before {
+    content: "";
+    position: absolute; bottom: calc(145% - 12px); left: 50%;
+    transform: translate(-50%, 4px);
+    border: 6px solid transparent;
+    border-top-color: var(--accent-dark);
+}
+.help-tip:hover::before,
+.help-tip:hover::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
 
 /* ---------- Pestañas ---------- */
 .tabs-container {
@@ -439,8 +504,20 @@ body.has-sidebar { padding-left: 248px; }
 .sidebar-link:hover { background: var(--primary-soft); color: var(--primary-dark); }
 .sidebar-link.active { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(192, 32, 60, 0.25); }
 
+.sidebar-footer { border-top: 1px solid var(--border-soft); padding-top: 12px; margin-top: 8px; }
+.sidebar-user { display: flex; align-items: center; gap: 10px; padding: 6px 8px 10px; }
+.sidebar-avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+}
+.sidebar-user-meta { display: flex; flex-direction: column; line-height: 1.25; overflow: hidden; }
+.sidebar-user-meta strong { font-size: 13.5px; color: var(--accent-dark); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-meta small { font-size: 11.5px; color: var(--text-muted); }
+
 .sidebar-logout {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: center; gap: 12px; width: 100%;
     padding: 11px 14px; border-radius: 12px;
     border: none; background: none; color: var(--primary);
     font-weight: 600; font-size: 14px; cursor: pointer;
@@ -449,29 +526,21 @@ body.has-sidebar { padding-left: 248px; }
 .sidebar-logout i { font-size: 19px; }
 .sidebar-logout:hover { background: var(--primary-soft); }
 
-.app-topbar {
-    position: sticky; top: 0; z-index: 40;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 40px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-soft);
-}
-.topbar-title { font-weight: 800; color: var(--accent-dark); font-size: 18px; }
-.topbar-user { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-main); font-size: 14px; }
-.topbar-avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--primary); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 14px;
-}
+.has-sidebar .dashboard-container,
+.has-sidebar main { margin-top: 32px; }
 
-.has-sidebar .dashboard-container { margin-top: 24px; }
+/* Transición suave entre páginas (View Transitions API, MPA) — sin flick blanco */
+@view-transition { navigation: auto; }
+.app-sidebar { view-transition-name: app-sidebar; }
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+::view-transition-old(root) { animation: vt-fade-out 0.16s ease both; }
+::view-transition-new(root) { animation: vt-fade-in 0.22s ease both; }
 
 @media (max-width: 900px) {
     body.has-sidebar { padding-left: 72px; }
     .app-sidebar { width: 72px; padding: 18px 10px; }
-    .sidebar-link span, .sidebar-logout span, .brand-text { display: none; }
+    .sidebar-link span, .sidebar-logout span, .brand-text, .sidebar-user-meta { display: none; }
     .sidebar-link, .sidebar-logout { justify-content: center; }
-    .app-topbar { padding: 14px 20px; }
+    .sidebar-user { justify-content: center; padding: 6px 0 10px; }
 }

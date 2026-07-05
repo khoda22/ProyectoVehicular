@@ -43,7 +43,7 @@ if (loginForm) {
 
         if (validUser) {
             sessionStorage.setItem('activeUser', JSON.stringify(validUser));
-            window.location.href = 'simulador.html';
+            window.location.href = 'simulador-credito.html';
         } else {
             notify.err('Usuario o contraseña incorrectos.');
         }
