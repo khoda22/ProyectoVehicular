@@ -186,35 +186,39 @@
                             <p>Parámetros definidos por la entidad; ajusta la tasa según el perfil del cliente</p>
                         </div>
 
-                        <div class="config-note">
-                            <span>Tasa <strong id="disp-rate-type">—</strong> · Capitalización <strong id="disp-cap">—</strong> · seguros fijados por la entidad.</span>
-                            <a href="configuracion.html">Editar en Configuración</a>
-                        </div>
                         <input type="hidden" id="sim-rate-type">
                         <input type="hidden" id="sim-capitalization">
 
                         <div class="input-group">
-                            <label>Valor de tasa anual (%)
-                                <span class="help-tip" data-tip="TEA sugerida por la entidad (desde Configuración). Puedes ajustarla según el perfil crediticio del cliente.">?</span>
+                            <label>Valor de tasa anual (%) <span class="tc-hint">— ajustable por operación</span>
+                                <span class="help-tip" data-tip="TEA sugerida por la entidad (se precarga desde Configuración). Este es el único parámetro que ajustas por operación, según el perfil crediticio del cliente.">?</span>
                             </label>
                             <input type="number" id="sim-rate-val" min="0" step="0.01">
                             <div class="error-msg" id="err-rate"></div>
+                            <p class="field-note">Tipo de tasa: <strong id="disp-rate-type">—</strong> · Capitalización: <strong id="disp-cap">—</strong>.</p>
                         </div>
 
-                        <div class="input-grid-2">
-                            <div class="input-group">
-                                <label>Seg. desgravamen (% mensual) <i class="hgi-stroke hgi-square-lock-02 lock-icon"></i>
-                                    <span class="help-tip" data-tip="Lo fija la entidad. Se calcula sobre el saldo pendiente cada mes y ya va incluido en la cuota nivelada (por eso las cuotas son iguales). Para cambiarlo, ve a Configuración.">?</span>
-                                </label>
-                                <input type="number" id="sim-seg-desgravamen" readonly>
+                        <!-- Seguros: solo lectura, los fija la entidad en Configuración -->
+                        <div class="readonly-info">
+                            <div class="readonly-info-head">
+                                <span><i class="hgi-stroke hgi-square-lock-02"></i> Seguros fijados por la entidad</span>
+                                <a href="configuracion.html">Editar en Configuración</a>
                             </div>
-                            <div class="input-group">
-                                <label>Seg. vehicular (% mensual) <i class="hgi-stroke hgi-square-lock-02 lock-icon"></i>
-                                    <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el valor del auto cada mes. Para cambiarlo, ve a Configuración.">?</span>
-                                </label>
-                                <input type="number" id="sim-seg-vehicular" readonly>
+                            <div class="readonly-info-body">
+                                <div>
+                                    <span>Seg. desgravamen</span>
+                                    <strong><span id="disp-seg-desg">—</span> % mensual</strong>
+                                    <small>sobre el saldo pendiente</small>
+                                </div>
+                                <div>
+                                    <span>Seg. vehicular</span>
+                                    <strong><span id="disp-seg-veh">—</span> % mensual</strong>
+                                    <small>sobre el precio del vehículo</small>
+                                </div>
                             </div>
                         </div>
+                        <input type="hidden" id="sim-seg-desgravamen">
+                        <input type="hidden" id="sim-seg-vehicular">
 
                         <div class="wizard-nav">
                             <button type="button" class="btn-secondary btn-inline" data-prev="2"><i class="hgi-stroke hgi-arrow-left-01"></i> Atrás</button>

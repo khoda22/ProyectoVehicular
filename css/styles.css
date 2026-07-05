@@ -269,6 +269,25 @@ body {
 /* Bono / descuento: bloque agrupado (toggle + monto), no suelto */
 .bono-block { border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px 16px; background: #fdfbfc; }
 
+.field-note { font-size: 12px; color: var(--text-muted); margin-top: 7px; }
+.field-note strong { color: var(--text-main); font-weight: 600; }
+
+/* Bloque de solo lectura (parámetros fijados por la entidad; se ven, no se editan) */
+.readonly-info { border: 1px dashed var(--border-color); border-radius: var(--radius-sm); background: #faf7f8; padding: 14px 16px; }
+.readonly-info-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border-soft);
+    font-size: 13px; font-weight: 700; color: var(--text-main);
+}
+.readonly-info-head > span { display: inline-flex; align-items: center; gap: 7px; }
+.readonly-info-head i { color: var(--text-muted); font-size: 16px; }
+.readonly-info-head a { font-size: 12.5px; font-weight: 700; color: var(--primary); text-decoration: none; white-space: nowrap; }
+.readonly-info-head a:hover { text-decoration: underline; }
+.readonly-info-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+.readonly-info-body > div span { display: block; font-size: 11.5px; color: var(--text-muted); }
+.readonly-info-body > div strong { display: block; font-size: 16px; font-weight: 800; color: var(--accent-dark); margin: 2px 0; }
+.readonly-info-body > div small { font-size: 11px; color: var(--text-muted); }
+
 /* ---------- Resultado (hoja resumen estilo entidad) ---------- */
 .result-hero { background: linear-gradient(135deg, #fff 0%, #fdf3f6 100%); }
 .result-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--primary); }

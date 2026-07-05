@@ -1,92 +1,100 @@
-// --- REGISTRAR VEHÍCULO ---
-document.getElementById('vehicle-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+const modal = document.getElementById('vehicle-modal');
+const form = document.getElementById('vehicle-form');
+const idInput = document.getElementById('car-id');
+let editingId = null; // null = crear, id = editar
 
-    const newVehicle = {
-        id: document.getElementById('car-id').value.trim().toUpperCase(),
+function openModal(vehicle) {
+    editingId = vehicle ? vehicle.id : null;
+    form.reset();
+    document.getElementById('modal-title').textContent = vehicle ? 'Editar vehículo' : 'Nuevo vehículo';
+    document.getElementById('modal-subtitle').textContent = vehicle
+        ? 'Actualiza la información de la unidad'
+        : 'Ingresa los datos de la unidad';
+
+    // El código es la llave: no se puede cambiar al editar
+    idInput.disabled = !!vehicle;
+
+    if (vehicle) {
+        idInput.value = vehicle.id;
+        document.getElementById('car-brand').value = vehicle.brand || '';
+        document.getElementById('car-model').value = vehicle.model || '';
+        document.getElementById('car-year').value = vehicle.year || '';
+        document.getElementById('car-price-pen').value = (vehicle.priceSoles ?? vehicle.price) ? formatMoney(vehicle.priceSoles ?? vehicle.price) : '';
+        document.getElementById('car-price-usd').value = vehicle.priceDollars ? formatMoney(vehicle.priceDollars) : '';
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    (vehicle ? document.getElementById('car-brand') : idInput).focus();
+}
+
+function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    editingId = null;
+}
+
+document.getElementById('btn-new-vehicle').addEventListener('click', () => openModal(null));
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+modal.addEventListener('mousedown', (e) => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
+    const id = idInput.value.trim().toUpperCase();
+
+    const data = {
+        id,
         brand: document.getElementById('car-brand').value.trim(),
         model: document.getElementById('car-model').value.trim(),
         year: parseInt(document.getElementById('car-year').value),
-        priceSoles: parseMoney(document.getElementById('car-price-pen').value),
-        priceDollars: parseMoney(document.getElementById('car-price-usd').value)
+        priceSoles: parseMoney(document.getElementById('car-price-pen').value) || 0,
+        priceDollars: parseMoney(document.getElementById('car-price-usd').value) || 0
     };
 
-    const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
-    if (vehicles.find(v => v.id === newVehicle.id)) {
-        notify.err('Este código de vehículo ya existe.');
-        return;
-    }
-
-    vehicles.push(newVehicle);
-    localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
-    notify.ok('Vehículo añadido al inventario con éxito.');
-    document.getElementById('vehicle-form').reset();
-    renderVehiclesHistory();
-});
-
-// --- BUSCAR VEHÍCULO ---
-let vehicleToEdit = null;
-
-document.getElementById('btn-search-car-panel').addEventListener('click', () => {
-    const code = document.getElementById('search-car-code').value.trim().toUpperCase();
-    const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
-    const found = vehicles.find(v => v.id === code);
-
-    if (found) {
-        loadVehicleIntoEditPanel(found);
-    } else {
-        document.getElementById('car-results-panel').style.display = 'none';
-        notify.err('No se encontró ningún vehículo con ese código.');
-    }
-});
-
-function loadVehicleIntoEditPanel(vehicle) {
-    vehicleToEdit = vehicle;
-    document.getElementById('edit-car-brand').value = vehicle.brand || '';
-    document.getElementById('edit-car-model').value = vehicle.model || '';
-    document.getElementById('edit-car-year').value = vehicle.year || '';
-    document.getElementById('edit-car-price-pen').value = vehicle.priceSoles ?? vehicle.price ?? '';
-    document.getElementById('edit-car-price-usd').value = vehicle.priceDollars ?? '';
-    toggleCarFields(true);
-    document.getElementById('car-results-panel').style.display = 'block';
-    document.getElementById('car-results-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-document.getElementById('btn-enable-car-edit').addEventListener('click', () => toggleCarFields(false));
-
-document.getElementById('btn-save-car-edit').addEventListener('click', () => {
-    let vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
-    const index = vehicles.findIndex(v => v.id === vehicleToEdit.id);
-    if (index !== -1) {
-        vehicles[index].brand = document.getElementById('edit-car-brand').value.trim();
-        vehicles[index].model = document.getElementById('edit-car-model').value.trim();
-        vehicles[index].year = parseInt(document.getElementById('edit-car-year').value);
-        vehicles[index].priceSoles = parseMoney(document.getElementById('edit-car-price-pen').value);
-        vehicles[index].priceDollars = parseMoney(document.getElementById('edit-car-price-usd').value);
+    if (editingId) {
+        const i = vehicles.findIndex(v => v.id === editingId);
+        if (i === -1) return;
+        vehicles[i] = { ...vehicles[i], ...data };
         localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
-        notify.ok('Datos del vehículo actualizados correctamente.');
-        toggleCarFields(true);
-        renderVehiclesHistory();
+        notify.ok('Vehículo actualizado correctamente.');
+    } else {
+        if (vehicles.find(v => v.id === id)) {
+            notify.err('Este código de vehículo ya existe.');
+            return;
+        }
+        vehicles.push(data);
+        localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
+        notify.ok('Vehículo añadido al inventario con éxito.');
     }
+
+    closeModal();
+    renderVehicles(document.getElementById('vehicle-search').value.trim().toLowerCase());
 });
 
-function toggleCarFields(isLocked) {
-    ['edit-car-brand', 'edit-car-model', 'edit-car-year', 'edit-car-price-pen', 'edit-car-price-usd']
-        .forEach(id => document.getElementById(id).disabled = isLocked);
-    document.getElementById('btn-enable-car-edit').style.display = isLocked ? 'block' : 'none';
-    document.getElementById('btn-save-car-edit').style.display = isLocked ? 'none' : 'block';
-}
+document.getElementById('vehicle-search').addEventListener('input', (e) => {
+    renderVehicles(e.target.value.trim().toLowerCase());
+});
 
-document.addEventListener('DOMContentLoaded', renderVehiclesHistory);
-
-function renderVehiclesHistory() {
+function renderVehicles(query = '') {
     const tbody = document.querySelector('#table-vehicles-history tbody');
     if (!tbody) return;
+
+    let vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
+    if (query) {
+        vehicles = vehicles.filter(v =>
+            (v.id || '').toLowerCase().includes(query) ||
+            (v.brand || '').toLowerCase().includes(query) ||
+            (v.model || '').toLowerCase().includes(query)
+        );
+    }
     tbody.innerHTML = '';
-    const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
 
     if (vehicles.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No hay vehículos en inventario actualmente.</td></tr>`;
+        const msg = query ? 'No hay vehículos que coincidan con la búsqueda.' : 'No hay vehículos registrados. Crea el primero con “Nuevo vehículo”.';
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:26px;">${msg}</td></tr>`;
         return;
     }
 
@@ -95,23 +103,23 @@ function renderVehiclesHistory() {
         const dolares = v.priceDollars ?? 0;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td style="font-weight:600; color:var(--primary-blue);">${v.id}</td>
+            <td style="font-weight:600; color:var(--primary);">${v.id}</td>
             <td>${v.brand || '-'}</td>
             <td>${v.model || '-'}</td>
             <td>${v.year || '-'}</td>
             <td>S/ ${formatMoney(soles)}</td>
             <td>$ ${formatMoney(dolares)}</td>
-            <td><button class="btn-secondary" style="padding:6px 14px;">Editar</button></td>
+            <td><button class="btn-secondary btn-inline" data-id="${v.id}"><i class="hgi-stroke hgi-edit-02"></i> Editar</button></td>
         `;
-        tr.querySelector('button').addEventListener('click', () => loadVehicleIntoEditPanel(v));
+        tr.querySelector('button').addEventListener('click', () => openModal(v));
         tbody.appendChild(tr);
     });
 }
 
-['car-price-pen', 'car-price-usd', 'edit-car-price-pen', 'edit-car-price-usd']
-    .forEach(id => attachMoneyFormat(document.getElementById(id)));
+document.addEventListener('DOMContentLoaded', () => renderVehicles());
 
-// Validación en vivo del formulario de registro
+attachMoneyFormat(document.getElementById('car-price-pen'));
+attachMoneyFormat(document.getElementById('car-price-usd'));
 attachValidation(document.getElementById('car-year'), document.getElementById('err-car-year'), validators.year);
 attachValidation(document.getElementById('car-price-pen'), document.getElementById('err-car-price-pen'), validators.positive);
 attachValidation(document.getElementById('car-price-usd'), document.getElementById('err-car-price-usd'), validators.positive);

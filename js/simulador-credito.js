@@ -185,6 +185,10 @@ function applyEntityConfig() {
     document.getElementById('sim-rate-val').value = ENTITY.teaReferencial;
     document.getElementById('sim-seg-desgravamen').value = ENTITY.segDesgravamen;
     document.getElementById('sim-seg-vehicular').value = ENTITY.segVehicular;
+    const dispDesg = document.getElementById('disp-seg-desg');
+    const dispVeh = document.getElementById('disp-seg-veh');
+    if (dispDesg) dispDesg.textContent = ENTITY.segDesgravamen;
+    if (dispVeh) dispVeh.textContent = ENTITY.segVehicular;
     const tcEl = document.getElementById('sim-tc');
     if (tcEl) tcEl.value = localStorage.getItem('system_tc') || '3.75';
     const dispType = document.getElementById('disp-rate-type');
