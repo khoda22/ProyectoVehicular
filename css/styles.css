@@ -110,6 +110,28 @@ body {
 .config-note a { color: var(--primary); font-weight: 700; text-decoration: none; white-space: nowrap; }
 .config-note a:hover { text-decoration: underline; }
 
+/* Tarjeta resumen del cliente/vehículo seleccionado (solo lectura + Editar) */
+.entity-card {
+    margin-top: 10px; padding: 14px 16px;
+    border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+    background: #fff; animation: fadeIn 0.25s ease-out;
+}
+.entity-card-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);
+}
+.entity-card-head strong { font-size: 15px; color: var(--accent-dark); }
+.entity-edit {
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+    font-size: 12.5px; font-weight: 700; color: var(--primary); text-decoration: none;
+    padding: 5px 12px; border-radius: 999px; border: 1px solid var(--primary-soft);
+    transition: all 0.16s ease;
+}
+.entity-edit:hover { background: var(--primary-soft); }
+.entity-card-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 9px 18px; }
+.entity-card-body > div { font-size: 13px; color: var(--text-main); }
+.entity-card-body span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 1px; }
+
 .input-group input.invalid,
 .input-group select.invalid {
     border-color: var(--primary);
@@ -198,6 +220,49 @@ body {
 .modal-close i { font-size: 20px; }
 .modal-close:hover { background: var(--primary-soft); color: var(--primary); }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+/* ---------- Wizard (simulador por pasos) ---------- */
+.wizard-card { max-width: 880px; margin: 0 auto; }
+.wizard-steps { display: flex; align-items: center; margin-bottom: 26px; }
+.wstep { display: flex; align-items: center; gap: 10px; }
+.wstep-num {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    background: var(--primary-soft); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; transition: all 0.2s ease;
+}
+.wstep-label { font-size: 13.5px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.wstep.active .wstep-num { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(192, 32, 60, 0.28); }
+.wstep.active .wstep-label { color: var(--accent-dark); }
+.wstep.done .wstep-num { background: var(--primary); color: #fff; }
+.wstep.done { cursor: pointer; }
+.wstep-line { flex: 1; height: 2px; background: var(--border-color); margin: 0 14px; border-radius: 2px; }
+
+.wizard-panel { display: none; }
+.wizard-panel.active { display: block; animation: fadeIn 0.25s ease-out; }
+.wizard-nav {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-color);
+}
+
+/* Barra de resumen en vivo */
+.live-bar { display: flex; gap: 14px; max-width: 880px; margin: 0 auto 20px; }
+.live-item {
+    flex: 1; background: #fff; border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md); padding: 14px 18px; text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.live-label { display: block; font-size: 12px; color: var(--text-muted); }
+.live-val { display: block; font-size: 22px; font-weight: 800; color: var(--accent-dark); margin-top: 4px; }
+.live-val.primary { color: var(--primary); }
+
+.lock-icon { font-size: 13px; color: var(--text-muted); vertical-align: -1px; }
+
+@media (max-width: 720px) {
+    .wstep-label { display: none; }
+    .wstep-line { margin: 0 8px; }
+    .live-bar { flex-direction: column; }
+}
 
 /* ---------- Botones (pills consistentes) ---------- */
 .btn-login,

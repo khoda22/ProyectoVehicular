@@ -17,16 +17,6 @@
 </head>
 <body>
 
-    <header class="main-header">
-        <div class="header-content">
-            <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
-            <span class="panel-tag">| Gestión de Simulaciones</span>
-        </div>
-        <div class="user-info">
-            <button onclick="window.location.href='simulador.html'" class="btn-secondary">Volver al Panel</button>
-        </div>
-    </header>
-
     <main class="dashboard-container" style="max-width: 1200px;">
 
         <div class="tabs-container">
@@ -35,69 +25,94 @@
         </div>
 
         <div id="tab-crear" class="tab-content active">
-            <div class="login-card" id="live-summary" style="margin-bottom: 20px;">
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: var(--text-muted);">Cuota Estimada</div>
-                        <div id="live-cuota" style="font-size: 22px; font-weight: 800; color: var(--primary); margin-top: 4px;">—</div>
+
+            <div class="login-card wizard-card">
+                <!-- Indicador de pasos -->
+                <div class="wizard-steps">
+                    <div class="wstep active" data-step="1">
+                        <span class="wstep-num">1</span>
+                        <span class="wstep-label">Cliente y vehículo</span>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: var(--text-muted);">TCEA Estimada</div>
-                        <div id="live-tcea" style="font-size: 22px; font-weight: 800; color: var(--accent-dark); margin-top: 4px;">—</div>
+                    <div class="wstep-line"></div>
+                    <div class="wstep" data-step="2">
+                        <span class="wstep-num">2</span>
+                        <span class="wstep-label">Estructura del crédito</span>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 12px; color: var(--text-muted);">Total Estimado</div>
-                        <div id="live-total" style="font-size: 22px; font-weight: 800; color: var(--accent-dark); margin-top: 4px;">—</div>
+                    <div class="wstep-line"></div>
+                    <div class="wstep" data-step="3">
+                        <span class="wstep-num">3</span>
+                        <span class="wstep-label">Tasa y seguros</span>
                     </div>
                 </div>
-                <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px;">Se actualiza en vivo mientras configuras. Genera el plan para ver el cronograma completo.</p>
-            </div>
 
-            <div class="login-card" style="margin-bottom: 30px;">
-                <div class="login-header" style="text-align: left; margin-bottom: 20px;">
-                    <h2>Configuración de la Nueva Simulación</h2>
-                    <p>Complete secuencialmente los parámetros financieros requeridos</p>
+                <!-- Resumen en vivo (aparece desde el paso 2) -->
+                <div class="live-bar" id="live-summary" style="display:none;">
+                    <div class="live-item">
+                        <span class="live-label">Cuota estimada</span>
+                        <span class="live-val primary" id="live-cuota">—</span>
+                    </div>
+                    <div class="live-item">
+                        <span class="live-label">TCEA estimada</span>
+                        <span class="live-val" id="live-tcea">—</span>
+                    </div>
+                    <div class="live-item">
+                        <span class="live-label">Total estimado</span>
+                        <span class="live-val" id="live-total">—</span>
+                    </div>
                 </div>
 
                 <form id="simulation-engine-form">
-                    <div class="form-grid">
 
-                        <div class="form-section">
-                            <h3>1. Cliente y Vehículo</h3>
+                    <!-- Paso 1: Cliente y Vehículo -->
+                    <div class="wizard-panel active" data-panel="1">
+                        <div class="login-header" style="text-align:left; margin-bottom:22px;">
+                            <h2>Cliente y vehículo</h2>
+                            <p>Selecciona a quién y qué se va a financiar</p>
+                        </div>
+                        <div class="input-grid-2">
                             <div class="input-group">
                                 <label>Cliente
-                                    <span class="help-tip" data-tip="Escriba el DNI o el nombre del cliente para buscarlo.">?</span>
+                                    <span class="help-tip" data-tip="Escribe el DNI o el nombre del cliente para buscarlo.">?</span>
                                 </label>
                                 <input type="text" id="sim-client-id" placeholder="Buscar por DNI o nombre..." autocomplete="off" required>
                                 <div id="sim-client-info" class="status-msg"></div>
                             </div>
-
                             <div class="input-group">
                                 <label>Vehículo
-                                    <span class="help-tip" data-tip="Escriba el código, modelo o marca del vehículo para buscarlo.">?</span>
+                                    <span class="help-tip" data-tip="Escribe el código, modelo o marca del vehículo para buscarlo.">?</span>
                                 </label>
                                 <input type="text" id="sim-car-id" placeholder="Buscar por código, modelo o marca..." autocomplete="off" required>
                                 <div id="sim-car-info" class="status-msg"></div>
                             </div>
+                        </div>
+                        <div class="wizard-nav">
+                            <span></span>
+                            <button type="button" class="btn-login btn-inline" data-next="2">Continuar <i class="hgi-stroke hgi-arrow-right-01"></i></button>
+                        </div>
+                    </div>
 
+                    <!-- Paso 2: Estructura del Crédito -->
+                    <div class="wizard-panel" data-panel="2">
+                        <div class="login-header" style="text-align:left; margin-bottom:22px;">
+                            <h2>Estructura del crédito</h2>
+                            <p>Define moneda, cuota inicial, plazo y opciones de la operación</p>
                         </div>
 
-                        <div class="form-section">
-                            <h3>2. Estructura del Crédito</h3>
-                            <div class="input-group">
-                                <label>Moneda del Contrato
-                                    <span class="help-tip" data-tip="El cronograma y todos los montos se calculan en la moneda elegida (Soles o Dólares).">?</span>
-                                </label>
-                                <div class="pill-group full" id="currency-toggle" role="group" aria-label="Moneda del contrato">
-                                    <button type="button" class="active" data-value="PEN">Soles (S/)</button>
-                                    <button type="button" data-value="USD">Dólares (US$)</button>
-                                </div>
-                                <input type="hidden" id="sim-currency" value="PEN">
+                        <div class="input-group">
+                            <label>Moneda del contrato
+                                <span class="help-tip" data-tip="El cronograma y todos los montos se calculan en la moneda elegida (Soles o Dólares).">?</span>
+                            </label>
+                            <div class="pill-group full" id="currency-toggle" role="group" aria-label="Moneda del contrato">
+                                <button type="button" class="active" data-value="PEN">Soles (S/)</button>
+                                <button type="button" data-value="USD">Dólares (US$)</button>
                             </div>
+                            <input type="hidden" id="sim-currency" value="PEN">
+                        </div>
 
+                        <div class="input-grid-2">
                             <div class="input-group">
                                 <div class="slider-row">
-                                    <label>Cuota Inicial
+                                    <label>Cuota inicial
                                         <span class="help-tip" data-tip="Por norma del sistema financiero peruano, la cuota inicial mínima suele ser 10% del valor del vehículo; el máximo (40%) responde a la política de crédito de la entidad.">?</span>
                                     </label>
                                     <span class="slider-value" id="val-downpayment">20 %</span>
@@ -105,29 +120,9 @@
                                 <input type="range" id="sim-downpayment" min="10" max="40" step="1" value="20">
                                 <div class="slider-limits"><span>10 %</span><span>40 %</span></div>
                             </div>
-
                             <div class="input-group">
                                 <div class="slider-row">
-                                    <label>Cuota Final / Balloon
-                                        <span class="help-tip" data-tip="Cuota extraordinaria que se paga al final del crédito (modalidad Compra Inteligente). Reduce las cuotas mensuales. 0% = sin balloon.">?</span>
-                                    </label>
-                                    <span class="slider-value" id="val-balloon">0 %</span>
-                                </div>
-                                <input type="range" id="sim-balloon" min="0" max="50" step="1" value="0">
-                                <div class="slider-limits"><span>0 %</span><span>50 %</span></div>
-                            </div>
-
-                            <div class="input-group">
-                                <label>Periodo de Pago
-                                    <span class="help-tip" data-tip="El crédito vehicular en Perú se paga en cuotas mensuales de 30 días (método francés vencido ordinario). Es el estándar de BBVA y la SBS.">?</span>
-                                </label>
-                                <input type="text" value="Mensual (30 días)" disabled>
-                                <input type="hidden" id="sim-period" value="30">
-                            </div>
-
-                            <div class="input-group">
-                                <div class="slider-row">
-                                    <label>Plazo del Crédito
+                                    <label>Plazo del crédito
                                         <span class="help-tip" data-tip="Duración total del financiamiento en años. En crédito vehicular suele ir de 1 a 7 años.">?</span>
                                     </label>
                                     <span class="slider-value" id="val-years">3 años</span>
@@ -135,59 +130,91 @@
                                 <input type="range" id="sim-years" min="1" max="7" step="1" value="3">
                                 <div class="slider-limits"><span>1 año</span><span>7 años</span></div>
                             </div>
+                        </div>
 
+                        <div class="input-grid-2">
                             <div class="input-group">
                                 <div class="slider-row">
-                                    <label>Bono / Descuento
-                                        <span class="help-tip" data-tip="Descuento o bono buen pagador (BBVA lo llama 'subvención'). Reduce el monto a financiar. Actívalo solo si el cliente aplica.">?</span>
+                                    <label>Cuota final / Balloon
+                                        <span class="help-tip" data-tip="Cuota extraordinaria que se paga al final del crédito (modalidad Compra Inteligente). Reduce las cuotas mensuales. 0% = sin balloon.">?</span>
                                     </label>
-                                    <label class="switch">
-                                        <input type="checkbox" id="sim-bono-toggle">
-                                        <span class="switch-slider"></span>
-                                    </label>
+                                    <span class="slider-value" id="val-balloon">0 %</span>
                                 </div>
-                                <input type="text" id="sim-bono" placeholder="Monto del bono (ej. 2000.00)" value="0" style="display: none; margin-top: 10px;">
-                                <div class="error-msg" id="err-bono"></div>
+                                <input type="range" id="sim-balloon" min="0" max="50" step="1" value="0">
+                                <div class="slider-limits"><span>0 %</span><span>50 %</span></div>
                             </div>
-                        </div>
-
-                        <div class="form-section">
-                            <h3>3. Tasa y Seguros</h3>
-                            <div class="config-note">
-                                <span>Tasa <strong id="disp-rate-type">—</strong> · Capitalización <strong id="disp-cap">—</strong> · seguros fijados por la entidad.</span>
-                                <a href="configuracion.html">Editar en Configuración</a>
-                            </div>
-                            <input type="hidden" id="sim-rate-type">
-                            <input type="hidden" id="sim-capitalization">
-
                             <div class="input-group">
-                                <label>Valor de Tasa Anual (%)
-                                    <span class="help-tip" data-tip="TEA sugerida por la entidad (desde Configuración). Puedes ajustarla según el perfil crediticio del cliente.">?</span>
+                                <label>Periodo de pago
+                                    <span class="help-tip" data-tip="El crédito vehicular en Perú se paga en cuotas mensuales de 30 días (método francés vencido ordinario). Es el estándar de BBVA y la SBS.">?</span>
                                 </label>
-                                <input type="number" id="sim-rate-val" min="0" step="0.01">
-                                <div class="error-msg" id="err-rate"></div>
+                                <input type="text" value="Mensual (30 días)" disabled>
+                                <input type="hidden" id="sim-period" value="30">
                             </div>
+                        </div>
 
-                            <div class="input-grid-2">
-                                <div class="input-group">
-                                    <label>Seg. Desgravamen (% mensual) 🔒
-                                        <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el saldo pendiente cada mes. Para cambiarlo, ve a Configuración.">?</span>
-                                    </label>
-                                    <input type="number" id="sim-seg-desgravamen" readonly>
-                                </div>
-                                <div class="input-group">
-                                    <label>Seg. Vehicular (% mensual) 🔒
-                                        <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el valor del auto cada mes. Para cambiarlo, ve a Configuración.">?</span>
-                                    </label>
-                                    <input type="number" id="sim-seg-vehicular" readonly>
-                                </div>
+                        <div class="input-group">
+                            <div class="slider-row">
+                                <label>Bono / Descuento
+                                    <span class="help-tip" data-tip="Descuento o bono buen pagador (BBVA lo llama 'subvención'). Reduce el monto a financiar. Actívalo solo si el cliente aplica.">?</span>
+                                </label>
+                                <label class="switch">
+                                    <input type="checkbox" id="sim-bono-toggle">
+                                    <span class="switch-slider"></span>
+                                </label>
                             </div>
+                            <input type="text" id="sim-bono" placeholder="Monto del bono (ej. 2000.00)" value="0" style="display: none; margin-top: 10px;">
+                            <div class="error-msg" id="err-bono"></div>
+                        </div>
+
+                        <div class="wizard-nav">
+                            <button type="button" class="btn-secondary btn-inline" data-prev="1"><i class="hgi-stroke hgi-arrow-left-01"></i> Atrás</button>
+                            <button type="button" class="btn-login btn-inline" data-next="3">Continuar <i class="hgi-stroke hgi-arrow-right-01"></i></button>
                         </div>
                     </div>
 
-                    <div style="text-align: right; margin-top: 20px;">
-                        <button type="submit" id="btn-calc-simulation" class="btn-login" style="width: auto; padding: 12px 40px;" disabled>Generar Plan de Pagos</button>
+                    <!-- Paso 3: Tasa y Seguros -->
+                    <div class="wizard-panel" data-panel="3">
+                        <div class="login-header" style="text-align:left; margin-bottom:22px;">
+                            <h2>Tasa y seguros</h2>
+                            <p>Parámetros definidos por la entidad; ajusta la tasa según el perfil del cliente</p>
+                        </div>
+
+                        <div class="config-note">
+                            <span>Tasa <strong id="disp-rate-type">—</strong> · Capitalización <strong id="disp-cap">—</strong> · seguros fijados por la entidad.</span>
+                            <a href="configuracion.html">Editar en Configuración</a>
+                        </div>
+                        <input type="hidden" id="sim-rate-type">
+                        <input type="hidden" id="sim-capitalization">
+
+                        <div class="input-group">
+                            <label>Valor de tasa anual (%)
+                                <span class="help-tip" data-tip="TEA sugerida por la entidad (desde Configuración). Puedes ajustarla según el perfil crediticio del cliente.">?</span>
+                            </label>
+                            <input type="number" id="sim-rate-val" min="0" step="0.01">
+                            <div class="error-msg" id="err-rate"></div>
+                        </div>
+
+                        <div class="input-grid-2">
+                            <div class="input-group">
+                                <label>Seg. desgravamen (% mensual) <i class="hgi-stroke hgi-square-lock-02 lock-icon"></i>
+                                    <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el saldo pendiente cada mes. Para cambiarlo, ve a Configuración.">?</span>
+                                </label>
+                                <input type="number" id="sim-seg-desgravamen" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label>Seg. vehicular (% mensual) <i class="hgi-stroke hgi-square-lock-02 lock-icon"></i>
+                                    <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el valor del auto cada mes. Para cambiarlo, ve a Configuración.">?</span>
+                                </label>
+                                <input type="number" id="sim-seg-vehicular" readonly>
+                            </div>
+                        </div>
+
+                        <div class="wizard-nav">
+                            <button type="button" class="btn-secondary btn-inline" data-prev="2"><i class="hgi-stroke hgi-arrow-left-01"></i> Atrás</button>
+                            <button type="submit" id="btn-calc-simulation" class="btn-login btn-inline" disabled><i class="hgi-stroke hgi-invoice-01"></i> Generar plan de pagos</button>
+                        </div>
                     </div>
+
                 </form>
             </div>
 
@@ -267,8 +294,8 @@
                         </div>
                     </div>
                     <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                        <button type="button" id="btn-download-pdf" class="btn-secondary" style="padding: 12px 24px;">Descargar PDF</button>
-                        <button type="button" id="btn-save-final" class="btn-login" style="width: auto; padding: 12px 30px;">Guardar Simulación Definitiva</button>
+                        <button type="button" id="btn-download-pdf" class="btn-secondary btn-inline"><i class="hgi-stroke hgi-download-04"></i> Descargar PDF</button>
+                        <button type="button" id="btn-save-final" class="btn-login btn-inline"><i class="hgi-stroke hgi-checkmark-circle-02"></i> Guardar simulación</button>
                     </div>
                 </div>
             </div>

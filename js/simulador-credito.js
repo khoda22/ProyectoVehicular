@@ -21,6 +21,45 @@ const ENTITY = { ...ENTITY_DEFAULTS, ...(JSON.parse(localStorage.getItem('system
 // Buscadores typeahead (escribe y filtra; no listas completas)
 let activeBank = ENTITY.nombre;
 
+// Escapa texto de datos del usuario antes de meterlo en HTML
+function esc(s) {
+    return String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+}
+
+// Tarjeta resumen (solo lectura) con botón Editar hacia la pantalla de gestión
+function renderClientCard(c) {
+    return `
+    <div class="entity-card">
+        <div class="entity-card-head">
+            <strong>${esc(c.name)}</strong>
+            <a href="registro-cliente.html" class="entity-edit"><i class="hgi-stroke hgi-edit-02"></i> Editar</a>
+        </div>
+        <div class="entity-card-body">
+            <div><span>DNI / CE</span>${esc(c.id)}</div>
+            <div><span>Correo</span>${esc(c.email || '—')}</div>
+            <div><span>Teléfono</span>${esc(c.phone || '—')}</div>
+            <div><span>Ingreso mensual</span>S/ ${formatMoney(c.income)}</div>
+        </div>
+    </div>`;
+}
+function renderVehicleCard(v) {
+    const pen = v.priceSoles ?? v.price ?? 0;
+    const usd = v.priceDollars ?? 0;
+    return `
+    <div class="entity-card">
+        <div class="entity-card-head">
+            <strong>${esc(v.brand || '')} ${esc(v.model || '')}</strong>
+            <a href="gestion-vehiculos.html" class="entity-edit"><i class="hgi-stroke hgi-edit-02"></i> Editar</a>
+        </div>
+        <div class="entity-card-body">
+            <div><span>Código</span>${esc(v.id)}</div>
+            <div><span>Año</span>${esc(v.year || '—')}</div>
+            <div><span>Precio S/</span>S/ ${formatMoney(pen)}</div>
+            <div><span>Precio US$</span>$ ${formatMoney(usd)}</div>
+        </div>
+    </div>`;
+}
+
 createTypeahead({
     inputId: 'sim-client-id',
     getList: () => JSON.parse(localStorage.getItem('system_clients')) || [],
@@ -29,8 +68,7 @@ createTypeahead({
     emptyText: 'No hay clientes registrados.',
     onSelect: (c) => {
         activeClient = c;
-        const info = document.getElementById('sim-client-info');
-        info.innerHTML = c ? `<span style="color:#166534;">✔ ${c.name} · Ingresos: S/ ${formatMoney(c.income)}</span>` : '';
+        document.getElementById('sim-client-info').innerHTML = c ? renderClientCard(c) : '';
         validateFormHability();
     }
 });
@@ -43,14 +81,7 @@ createTypeahead({
     emptyText: 'No hay vehículos registrados.',
     onSelect: (v) => {
         activeVehicle = v;
-        const info = document.getElementById('sim-car-info');
-        if (v) {
-            const pen = v.priceSoles ?? v.price ?? 0;
-            const usd = v.priceDollars ?? 0;
-            info.innerHTML = `<span style="color:#166534;">✔ ${v.brand || ''} ${v.model} · S/ ${formatMoney(pen)} / $ ${formatMoney(usd)}</span>`;
-        } else {
-            info.innerHTML = '';
-        }
+        document.getElementById('sim-car-info').innerHTML = v ? renderVehicleCard(v) : '';
         validateFormHability();
         updateLiveSummary();
     }
@@ -652,3 +683,46 @@ function updateLiveSummary() {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateLiveSummary);
     });
+
+// Navegación del wizard: 3 pasos con acceso al estado del simulador
+(function initWizard() {
+    const form = document.getElementById('simulation-engine-form');
+    const panels = [...document.querySelectorAll('.wizard-panel')];
+    const steps = [...document.querySelectorAll('.wstep')];
+    const liveBar = document.getElementById('live-summary');
+    if (!form || !panels.length) return;
+    let current = 1;
+
+    function goTo(step) {
+        current = step;
+        panels.forEach(p => p.classList.toggle('active', +p.dataset.panel === step));
+        steps.forEach(s => {
+            const n = +s.dataset.step;
+            s.classList.toggle('active', n === step);
+            s.classList.toggle('done', n < step);
+        });
+        if (liveBar) liveBar.style.display = step >= 2 ? 'flex' : 'none';
+        if (step >= 2) updateLiveSummary();
+        document.querySelector('.wizard-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.querySelectorAll('[data-next]').forEach(btn => btn.addEventListener('click', () => {
+        // El paso 1 exige cliente y vehículo antes de avanzar
+        if (current === 1 && !(activeClient && activeVehicle)) {
+            notify.err('Selecciona un cliente y un vehículo para continuar.');
+            return;
+        }
+        goTo(+btn.dataset.next);
+    }));
+    document.querySelectorAll('[data-prev]').forEach(btn => btn.addEventListener('click', () => goTo(+btn.dataset.prev)));
+    steps.forEach(s => s.addEventListener('click', () => {
+        if (+s.dataset.step < current) goTo(+s.dataset.step);
+    }));
+
+    // Enter en un campo no debe generar el plan antes del último paso
+    form.addEventListener('submit', (e) => {
+        if (current !== 3) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+
+    goTo(1);
+})();
