@@ -26,10 +26,79 @@
     </header>
 
     <main class="dashboard-container">
-        <div class="login-card" style="max-width: 500px; margin: 0 auto;">
-            <div class="login-header">
-                <h1>Ajustes de Moneda</h1>
-                <p>Seleccione la moneda base para los cálculos del sistema</p>
+
+        <div class="login-card" style="max-width: 620px; margin: 0 auto 24px auto;">
+            <div class="login-header" style="text-align: left;">
+                <h2>Datos de la Entidad Financiera</h2>
+                <p>Parámetros de la entidad que ofrece el crédito. El simulador los toma de aquí.</p>
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Nombre de la Entidad
+                        <span class="help-tip" data-tip="Nombre de la entidad financiera que ofrece el crédito (aparece en el cronograma y el PDF).">?</span>
+                    </label>
+                    <input type="text" id="ent-nombre" placeholder="Ej. Financiera Compra Inteligente">
+                </div>
+                <div class="input-group">
+                    <label>RUC
+                        <span class="help-tip" data-tip="RUC de 11 dígitos de la entidad.">?</span>
+                    </label>
+                    <input type="text" id="ent-ruc" placeholder="20512345678" maxlength="11">
+                </div>
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Tipo de Tasa
+                        <span class="help-tip" data-tip="Efectiva (TEA): ya incluye la capitalización. Nominal (TNA): requiere definir cada cuánto capitaliza. El enunciado exige definir esto en configuración.">?</span>
+                    </label>
+                    <select id="ent-tipo-tasa">
+                        <option value="TE">Efectiva (TEA)</option>
+                        <option value="TN">Nominal (TNA)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Capitalización
+                        <span class="help-tip" data-tip="Solo aplica a la tasa nominal: cada cuántos días se capitalizan los intereses para convertir la TNA en efectiva.">?</span>
+                    </label>
+                    <select id="ent-capitalizacion" disabled>
+                        <option value="1">Diaria (1 día)</option>
+                        <option value="30" selected>Mensual (30 días)</option>
+                        <option value="90">Trimestral (90 días)</option>
+                        <option value="180">Semestral (180 días)</option>
+                        <option value="360">Anual (360 días)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>TEA Referencial (%)
+                    <span class="help-tip" data-tip="Tasa anual de referencia de la entidad. Precarga el campo del simulador, donde el asesor puede ajustarla según el perfil del cliente.">?</span>
+                </label>
+                <input type="number" id="ent-tea" min="0" step="0.01" placeholder="12.5">
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Seg. Desgravamen (% mensual)
+                        <span class="help-tip" data-tip="Porcentaje mensual sobre el saldo pendiente. Lo fija la entidad/aseguradora; en el simulador se muestra como información, no editable.">?</span>
+                    </label>
+                    <input type="number" id="ent-seg-desg" min="0" step="0.0001" placeholder="0.0714">
+                </div>
+                <div class="input-group">
+                    <label>Seg. Vehicular (% mensual)
+                        <span class="help-tip" data-tip="Porcentaje mensual sobre el valor del vehículo. Lo fija la entidad/aseguradora; en el simulador se muestra como información, no editable.">?</span>
+                    </label>
+                    <input type="number" id="ent-seg-veh" min="0" step="0.0001" placeholder="0.3200">
+                </div>
+            </div>
+        </div>
+
+        <div class="login-card" style="max-width: 620px; margin: 0 auto;">
+            <div class="login-header" style="text-align: left;">
+                <h2>Ajustes de Moneda</h2>
+                <p>Moneda base y tipo de cambio referencial del sistema</p>
             </div>
 
             <div class="settings-group">
@@ -38,7 +107,7 @@
                     <input type="radio" name="currency" value="PEN" id="radio-pen">
                     <span class="checkmark"></span>
                 </label>
-                
+
                 <label class="radio-container">
                     Dólares (US$)
                     <input type="radio" name="currency" value="USD" id="radio-usd">
@@ -58,18 +127,51 @@
             </div>
 
             <div style="margin-top: 30px;">
-                <button id="save-config" class="btn-login">Guardar Preferencias</button>
+                <button id="save-config" class="btn-login">Guardar Configuración</button>
             </div>
         </div>
     </main>
 
     <script src="js/main.js"></script>
     <script>
+        // Valores semilla de la entidad (primera vez)
+        const ENTITY_DEFAULTS = {
+            nombre: 'Financiera Compra Inteligente',
+            ruc: '20512345678',
+            tipoTasa: 'TE',
+            capitalizacion: 30,
+            teaReferencial: 12.5,
+            segDesgravamen: 0.0714,
+            segVehicular: 0.32
+        };
+
+        function loadEntity() {
+            const saved = JSON.parse(localStorage.getItem('system_entity')) || {};
+            return { ...ENTITY_DEFAULTS, ...saved };
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Moneda + tipo de cambio
             const currentCurrency = localStorage.getItem('system_currency') || 'PEN';
             if (currentCurrency === 'PEN') document.getElementById('radio-pen').checked = true;
             else document.getElementById('radio-usd').checked = true;
             document.getElementById('config-tc').value = localStorage.getItem('system_tc') || '3.75';
+
+            // Entidad
+            const ent = loadEntity();
+            document.getElementById('ent-nombre').value = ent.nombre;
+            document.getElementById('ent-ruc').value = ent.ruc;
+            document.getElementById('ent-tipo-tasa').value = ent.tipoTasa;
+            document.getElementById('ent-capitalizacion').value = ent.capitalizacion;
+            document.getElementById('ent-capitalizacion').disabled = ent.tipoTasa !== 'TN';
+            document.getElementById('ent-tea').value = ent.teaReferencial;
+            document.getElementById('ent-seg-desg').value = ent.segDesgravamen;
+            document.getElementById('ent-seg-veh').value = ent.segVehicular;
+        });
+
+        // La capitalización solo aplica a tasa nominal
+        document.getElementById('ent-tipo-tasa').addEventListener('change', (e) => {
+            document.getElementById('ent-capitalizacion').disabled = e.target.value !== 'TN';
         });
 
         // Trae un tipo de cambio referencial (API gratuita, sin token)
@@ -89,10 +191,29 @@
         });
 
         document.getElementById('save-config').addEventListener('click', () => {
+            // Moneda + TC
             const selected = document.querySelector('input[name="currency"]:checked').value;
             localStorage.setItem('system_currency', selected);
             const tc = parseFloat(document.getElementById('config-tc').value);
             if (!isNaN(tc) && tc > 0) localStorage.setItem('system_tc', tc);
+
+            // Entidad
+            const nombre = document.getElementById('ent-nombre').value.trim();
+            const ruc = document.getElementById('ent-ruc').value.trim();
+            if (!nombre) { notify.err('Ingresa el nombre de la entidad.'); return; }
+            if (!/^\d{11}$/.test(ruc)) { notify.err('El RUC debe tener 11 dígitos.'); return; }
+
+            const entity = {
+                nombre,
+                ruc,
+                tipoTasa: document.getElementById('ent-tipo-tasa').value,
+                capitalizacion: parseInt(document.getElementById('ent-capitalizacion').value),
+                teaReferencial: parseFloat(document.getElementById('ent-tea').value) || 0,
+                segDesgravamen: parseFloat(document.getElementById('ent-seg-desg').value) || 0,
+                segVehicular: parseFloat(document.getElementById('ent-seg-veh').value) || 0
+            };
+            localStorage.setItem('system_entity', JSON.stringify(entity));
+
             notify.ok('Configuración actualizada exitosamente.');
             setTimeout(() => window.location.href = 'simulador-credito.html', 800);
         });
