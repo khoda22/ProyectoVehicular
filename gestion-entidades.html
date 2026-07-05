@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entidades | Sistema Vehicular</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="main-header">
+      <div class="header-content">
+        <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
+        <span class="panel-tag">| Entidades Financieras</span>
+      </div>
+      <div class="user-info">
+        <button
+          onclick="window.location.href = 'simulador.html'"
+          class="btn-secondary"
+        >
+          Volver al Inicio
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-container" style="max-width: 1200px">
+      <div class="form-grid">
+        <div class="login-card">
+          <div class="login-header">
+            <h2>Registrar Entidad Financiera</h2>
+            <p>Bancos o financieras que ofrecen el crédito vehicular</p>
+          </div>
+          <form id="entity-form">
+            <div class="input-group">
+              <label>Nombre de la Entidad</label>
+              <input type="text" id="ent-name" placeholder="Ej. Banco de Crédito del Perú" required />
+            </div>
+            <div class="input-group">
+              <label>RUC</label>
+              <input type="text" id="ent-ruc" placeholder="11 dígitos" required />
+            </div>
+            <button type="submit" class="btn-login">Registrar Entidad</button>
+          </form>
+        </div>
+
+        <div class="login-card" style="grid-column: span 1;">
+          <div class="login-header" style="text-align: left; margin-bottom: 15px;">
+            <h2>Entidades Registradas</h2>
+            <p>Disponibles para seleccionar en la simulación</p>
+          </div>
+          <div class="table-wrapper">
+            <table class="banking-table" id="table-entities">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>RUC</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/entidades.js"></script>
+  </body>
+</html>

@@ -35,6 +35,19 @@ function updateRateDropdown() {
 }
 updateRateDropdown();
 
+// Poblar el selector con las entidades financieras registradas
+(function populateBanks() {
+    const select = document.getElementById('sim-bank');
+    if (!select) return;
+    const entities = JSON.parse(localStorage.getItem('system_entities')) || [];
+    entities.forEach(ent => {
+        const opt = document.createElement('option');
+        opt.value = ent.name;
+        opt.innerText = `${ent.name} (RUC ${ent.ruc})`;
+        select.appendChild(opt);
+    });
+})();
+
 // Búsqueda de cliente
 document.getElementById('btn-find-client').addEventListener('click', () => {
     const dni = document.getElementById('sim-client-id').value.trim();
@@ -347,6 +360,14 @@ function renderFullHistory() {
     buildHistoryCards(history, container);
 }
 
+function deleteSimulation(id) {
+    if (!confirm('¿Eliminar esta simulación? Esta acción no se puede deshacer.')) return;
+    let history = JSON.parse(localStorage.getItem('system_simulations')) || [];
+    history = history.filter(s => s.id !== id);
+    localStorage.setItem('system_simulations', JSON.stringify(history));
+    renderFullHistory();
+}
+
 document.getElementById('btn-filter-history').addEventListener('click', () => {
     const dni = document.getElementById('search-history-dni').value.trim();
     const container = document.getElementById('history-list-container');
@@ -387,6 +408,7 @@ function buildHistoryCards(list, container) {
                     <h4 style="color:var(--dark-blue); font-size:16px;">${sim.id} - ${sim.clientName} (DNI: ${sim.clientDni})</h4>
                     <p style="font-size:13px; color:var(--text-muted);">Vehículo: ${sim.carModel} | Entidad: ${sim.bank} | Moneda: ${sim.currency}</p>
                 </div>
+                <button class="btn-secondary" style="padding:8px 16px;" onclick="deleteSimulation('${sim.id}')">Eliminar</button>
             </div>
             <div class="table-wrapper">
                 <table class="banking-table text-small">
