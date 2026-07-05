@@ -1,4 +1,3 @@
-// Panel de administración — solo para rol admin
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
     if (!user || user.rol !== 'admin') {
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderUsers();
 });
 
-// --- Gestión de usuarios ---
 document.getElementById('admin-user-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const username = document.getElementById('au-username').value.trim();
@@ -68,7 +66,6 @@ function deleteUser(username) {
     renderUsers();
 }
 
-// --- Mantenimiento de datos ---
 function clearData(key, label) {
     if (!confirm(`¿Eliminar todos los ${label}? Esta acción no se puede deshacer.`)) return;
     localStorage.removeItem(key);

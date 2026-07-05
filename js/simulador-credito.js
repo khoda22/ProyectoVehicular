@@ -14,8 +14,12 @@ function switchTab(tabId) {
     if (tabId === 'tab-historial') renderFullHistory();
 }
 
+// Somos la entidad: sus parámetros vienen de Configuración (system_entity)
+const ENTITY_DEFAULTS = { nombre: 'Financiera Compra Inteligente', ruc: '20512345678', tipoTasa: 'TE', capitalizacion: 30, teaReferencial: 12.5, segDesgravamen: 0.0714, segVehicular: 0.32 };
+const ENTITY = { ...ENTITY_DEFAULTS, ...(JSON.parse(localStorage.getItem('system_entity')) || {}) };
+
 // Buscadores typeahead (escribe y filtra; no listas completas)
-let activeBank = '';
+let activeBank = ENTITY.nombre;
 
 createTypeahead({
     inputId: 'sim-client-id',
@@ -52,14 +56,22 @@ createTypeahead({
     }
 });
 
-createTypeahead({
-    inputId: 'sim-bank',
-    getList: () => JSON.parse(localStorage.getItem('system_entities')) || [],
-    match: (e, q) => (e.name || '').toLowerCase().includes(q) || (e.ruc || '').toLowerCase().includes(q),
-    label: e => `${e.name} (RUC ${e.ruc})`,
-    emptyText: 'No hay entidades registradas.',
-    onSelect: (e) => { activeBank = e ? e.name : ''; }
-});
+// (La entidad ya no se elige por operación: somos nosotros, definida en Configuración)
+
+// Vuelca los parámetros de la entidad (config) a los campos de solo lectura del simulador
+function applyEntityConfig() {
+    const capLabels = { 1: 'Diaria (1 día)', 30: 'Mensual (30 días)', 90: 'Trimestral (90 días)', 180: 'Semestral (180 días)', 360: 'Anual (360 días)' };
+    document.getElementById('sim-rate-type').value = ENTITY.tipoTasa;
+    document.getElementById('sim-capitalization').value = ENTITY.capitalizacion;
+    document.getElementById('sim-rate-val').value = ENTITY.teaReferencial;
+    document.getElementById('sim-seg-desgravamen').value = ENTITY.segDesgravamen;
+    document.getElementById('sim-seg-vehicular').value = ENTITY.segVehicular;
+    const dispType = document.getElementById('disp-rate-type');
+    const dispCap = document.getElementById('disp-cap');
+    if (dispType) dispType.textContent = ENTITY.tipoTasa === 'TE' ? 'Efectiva (TEA)' : 'Nominal (TNA)';
+    if (dispCap) dispCap.textContent = ENTITY.tipoTasa === 'TN' ? (capLabels[ENTITY.capitalizacion] || ENTITY.capitalizacion + ' días') : '—';
+}
+applyEntityConfig();
 
 // Sliders con valor en vivo y relleno de color
 const SLIDERS = [
@@ -106,11 +118,7 @@ if (bonoToggle && bonoInput) {
     });
 }
 
-// La capitalización solo aplica cuando la tasa es nominal (exigencia del enunciado)
-const rateTypeSelect = document.getElementById('sim-rate-type');
-rateTypeSelect.addEventListener('change', () => {
-    document.getElementById('sim-capitalization').disabled = rateTypeSelect.value !== 'TN';
-});
+// El tipo de tasa y la capitalización se definen en Configuración (system_entity), no por operación.
 
 function validateFormHability() {
     document.getElementById('btn-calc-simulation').disabled = !(activeClient && activeVehicle);
@@ -360,7 +368,7 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
         clientDni: activeClient.id,
         clientName: activeClient.name,
         carModel: activeVehicle.model,
-        bank: activeBank || document.getElementById('sim-bank').value,
+        bank: activeBank || ENTITY.nombre,
         currency: currentParams.currency,
         tea: currentParams.TEA,
         montoFinanciar: currentParams.montoFinanciar,
@@ -391,7 +399,7 @@ document.getElementById('btn-download-pdf').addEventListener('click', () => {
     doc.setFontSize(17); doc.setFont(undefined, 'bold'); doc.setTextColor(23, 23, 28);
     doc.text('Cotización de Crédito Vehicular', 40, y);
     doc.setFontSize(10); doc.setFont(undefined, 'normal'); doc.setTextColor(120);
-    doc.text(activeBank || 'Entidad Financiera', 40, y + 16);
+    doc.text(activeBank || ENTITY.nombre, 40, y + 16);
     doc.setTextColor(150);
     doc.text('Compra Inteligente', 555, y + 16, { align: 'right' });
 
@@ -462,7 +470,7 @@ function resetSimulationWorkspace() {
     document.getElementById('simulation-report-section').style.display = 'none';
     document.getElementById('sim-client-info').innerHTML = '';
     document.getElementById('sim-car-info').innerHTML = '';
-    document.getElementById('sim-capitalization').disabled = true;
+    applyEntityConfig();   // form.reset vació los hidden/readonly de la entidad; se repueblan
     paintAllSliders();
     // Restablecer toggles de UI (form.reset no toca clases ni display)
     document.querySelectorAll('#currency-toggle button').forEach(b => b.classList.toggle('active', b.dataset.value === 'PEN'));
@@ -470,7 +478,7 @@ function resetSimulationWorkspace() {
     if (bonoToggle && bonoInput) { bonoToggle.checked = false; bonoInput.style.display = 'none'; }
     activeClient = null;
     activeVehicle = null;
-    activeBank = '';
+    activeBank = ENTITY.nombre;
     currentParams = null;
     validateFormHability();
 }

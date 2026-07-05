@@ -1,4 +1,4 @@
-// Layout base: sidebar + topbar compartidos en las páginas internas (sin framework)
+// Sidebar compartido, inyectado en cada página interna (sin framework)
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
     let page = path.substring(path.lastIndexOf('/') + 1) || 'simulador-credito.html';
@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { href: 'simulador-credito.html', label: 'Créditos', icon: 'hgi-invoice-01' },
         { href: 'registro-cliente.html', label: 'Clientes', icon: 'hgi-user-multiple' },
         { href: 'gestion-vehiculos.html', label: 'Vehículos', icon: 'hgi-car-01' },
-        { href: 'gestion-entidades.html', label: 'Entidades', icon: 'hgi-bank' },
         { href: 'configuracion.html', label: 'Configuración', icon: 'hgi-settings-01' }
     ];
 
@@ -43,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         else { sessionStorage.removeItem('activeUser'); location.href = 'login.html'; }
     });
 
-    // Menú de usuario (kebab): abrir/cerrar
     const menuBtn = document.getElementById('user-menu-btn');
     const menu = document.getElementById('user-menu');
     menuBtn.addEventListener('click', (e) => {

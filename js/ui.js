@@ -1,22 +1,15 @@
-// ============================================================
-// Utilidades de UI compartidas
-// ============================================================
-
-// Formatea un número como monto: 1200 -> "1,200.00"
 function formatMoney(value) {
     const n = Number(value);
     if (isNaN(n)) return '0.00';
     return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Convierte texto a número aceptando separadores de miles: "1,200.00" -> 1200
 function parseMoney(str) {
     if (typeof str === 'number') return str;
     if (str === null || str === undefined || str === '') return NaN;
     return parseFloat(String(str).replace(/,/g, '').trim());
 }
 
-// Normaliza un input de texto monetario: al salir del campo formatea 1200 -> 1,200.00
 function attachMoneyFormat(input) {
     if (!input) return;
     input.addEventListener('focus', () => {
@@ -29,8 +22,7 @@ function attachMoneyFormat(input) {
     });
 }
 
-// Validación con patrón "touched": no molesta mientras el usuario escribe por primera vez.
-// Valida al salir del campo (blur); a partir de ahí da feedback en vivo (limpia el error apenas es válido).
+// Patrón "touched": valida al salir del campo, no en cada tecla (evita marcar el error mientras se escribe)
 function attachValidation(input, errorEl, validator) {
     if (!input) return () => true;
     let touched = false;
@@ -55,11 +47,9 @@ function attachValidation(input, errorEl, validator) {
     };
     input.addEventListener('blur', () => { touched = true; run(true); });
     input.addEventListener('input', () => run(touched));
-    // Para validar al enviar el formulario: fuerza mostrar el error
     return () => { touched = true; return run(true); };
 }
 
-// Validadores comunes reutilizables — mensajes de una sola línea (evitan saltos de layout)
 const validators = {
     dni: v => /^\d{8}$/.test(v) || /^[a-zA-Z0-9]{9,12}$/.test(v) || 'Ingresa un DNI o CE válido.',
     email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo no válido.',
@@ -68,7 +58,6 @@ const validators = {
     year: v => { const y = parseInt(v); return (y >= 1900 && y <= 2027) || 'Año entre 1900 y 2027.'; }
 };
 
-// Convierte un input de texto en un buscador con dropdown de resultados (typeahead)
 function createTypeahead({ inputId, getList, match, label, onSelect, emptyText, minChars = 1, delay = 220 }) {
     const input = document.getElementById(inputId);
     if (!input) return null;

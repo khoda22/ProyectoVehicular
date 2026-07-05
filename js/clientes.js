@@ -1,8 +1,7 @@
-// --- REGISTRAR CLIENTE ---
 document.getElementById('client-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // El consentimiento para simular es obligatorio (Ley N° 29733): sin él no se puede cotizar
+    // Consentimiento obligatorio por Ley N° 29733 de Protección de Datos
     const consent = {
         simulacion: document.getElementById('consent-simulacion').checked,
         difusion: document.getElementById('consent-difusion').checked,
@@ -36,7 +35,6 @@ document.getElementById('client-form').addEventListener('submit', function(e) {
     renderClientsHistory();
 });
 
-// --- BUSCAR CLIENTE ---
 let clientToEdit = null;
 
 document.getElementById('btn-search-panel').addEventListener('click', () => {
@@ -131,7 +129,6 @@ function renderClientsHistory() {
 attachMoneyFormat(document.getElementById('client-income'));
 attachMoneyFormat(document.getElementById('edit-income'));
 
-// Validación en vivo del formulario de registro
 attachValidation(document.getElementById('client-id'), document.getElementById('err-client-id'), validators.dni);
 attachValidation(document.getElementById('client-email'), document.getElementById('err-client-email'), validators.email);
 attachValidation(document.getElementById('client-phone'), document.getElementById('err-client-phone'), validators.phone);

@@ -153,50 +153,33 @@
 
                         <div class="form-section">
                             <h3>3. Tasa y Seguros</h3>
-                            <div class="input-grid-2">
-                                <div class="input-group">
-                                    <label>Tipo de Tasa
-                                        <span class="help-tip" data-tip="Efectiva (TEA): ya incluye el efecto de la capitalización. Nominal (TNA): requiere definir cada cuánto capitaliza.">?</span>
-                                    </label>
-                                    <select id="sim-rate-type">
-                                        <option value="TE">Efectiva (TEA)</option>
-                                        <option value="TN">Nominal (TNA)</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label>Capitalización
-                                        <span class="help-tip" data-tip="Solo aplica a la tasa nominal: indica cada cuántos días se capitalizan los intereses para convertir la TNA en efectiva.">?</span>
-                                    </label>
-                                    <select id="sim-capitalization" disabled>
-                                        <option value="1">Diaria (1 día)</option>
-                                        <option value="30" selected>Mensual (30 días)</option>
-                                        <option value="90">Trimestral (90 días)</option>
-                                        <option value="180">Semestral (180 días)</option>
-                                        <option value="360">Anual (360 días)</option>
-                                    </select>
-                                </div>
+                            <div class="config-note">
+                                <span>Tasa <strong id="disp-rate-type">—</strong> · Capitalización <strong id="disp-cap">—</strong> · seguros fijados por la entidad.</span>
+                                <a href="configuracion.html">Editar en Configuración</a>
                             </div>
+                            <input type="hidden" id="sim-rate-type">
+                            <input type="hidden" id="sim-capitalization">
 
                             <div class="input-group">
                                 <label>Valor de Tasa Anual (%)
-                                    <span class="help-tip" data-tip="Tasa anual que ofrece la entidad (ej. 12.5). Se convierte a la tasa del periodo para calcular el cronograma.">?</span>
+                                    <span class="help-tip" data-tip="TEA sugerida por la entidad (desde Configuración). Puedes ajustarla según el perfil crediticio del cliente.">?</span>
                                 </label>
-                                <input type="number" id="sim-rate-val" min="0" step="0.01" value="12.5">
+                                <input type="number" id="sim-rate-val" min="0" step="0.01">
                                 <div class="error-msg" id="err-rate"></div>
                             </div>
 
                             <div class="input-grid-2">
                                 <div class="input-group">
-                                    <label>Seg. Desgravamen (% mensual)
-                                        <span class="help-tip" data-tip="Cubre la deuda ante fallecimiento del titular. Se calcula sobre el saldo pendiente cada mes.">?</span>
+                                    <label>Seg. Desgravamen (% mensual) 🔒
+                                        <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el saldo pendiente cada mes. Para cambiarlo, ve a Configuración.">?</span>
                                     </label>
-                                    <input type="number" id="sim-seg-desgravamen" min="0" step="0.0001" value="0.0714">
+                                    <input type="number" id="sim-seg-desgravamen" readonly>
                                 </div>
                                 <div class="input-group">
-                                    <label>Seg. Vehicular (% mensual)
-                                        <span class="help-tip" data-tip="Seguro del vehículo. Se calcula sobre el valor del auto cada mes.">?</span>
+                                    <label>Seg. Vehicular (% mensual) 🔒
+                                        <span class="help-tip" data-tip="Lo fija la entidad, no se edita por operación. Se calcula sobre el valor del auto cada mes. Para cambiarlo, ve a Configuración.">?</span>
                                     </label>
-                                    <input type="number" id="sim-seg-vehicular" min="0" step="0.0001" value="0.3200">
+                                    <input type="number" id="sim-seg-vehicular" readonly>
                                 </div>
                             </div>
                         </div>
