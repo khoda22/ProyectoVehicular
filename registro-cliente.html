@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registro de Cliente | Sistema Vehicular</title>
+    <title>Clientes | Sistema Vehicular</title>
     <link rel="stylesheet" href="css/styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-      <link rel="stylesheet" href="css/physics-toast.min.css">
+    <link rel="stylesheet" href="css/physics-toast.min.css">
     <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
     <script src="js/physics-toast.min.js"></script>
     <script src="js/notify.js"></script>
@@ -17,196 +17,119 @@
     <script src="js/layout.js"></script>
 </head>
   <body>
-    <header class="main-header">
-      <div class="header-content">
-        <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
-        <span class="panel-tag">| Registro de Cliente</span>
-      </div>
-      <div class="user-info">
-        <button
-          onclick="window.location.href = 'simulador.html'"
-          class="btn-secondary"
-        >
-          Volver al Inicio
-        </button>
-      </div>
-    </header>
-
-    <main class="dashboard-container" style="max-width: 1200px">
-      <div class="form-grid">
-        <div class="login-card">
-          <div class="login-header">
-            <h2>Registrar Cliente</h2>
-            <p>Ingrese los datos del nuevo prospecto</p>
+    <main class="dashboard-container" style="max-width: 1100px;">
+      <div class="login-card">
+        <div class="table-toolbar">
+          <div>
+            <h2 style="font-size:21px; font-weight:800; color:var(--accent-dark);">Clientes</h2>
+            <p style="color:var(--text-muted); margin-top:4px; font-size:14px;">Prospectos registrados en el sistema</p>
           </div>
-          <form id="client-form">
-            <div class="input-group">
-              <label>DNI / CE
-                <span class="help-tip" data-tip="Documento de identidad. DNI: 8 dígitos. Carné de extranjería: 9 a 12 caracteres.">?</span>
-              </label>
-              <input type="text" id="client-id" required />
-              <div class="error-msg" id="err-client-id"></div>
+          <div class="toolbar-actions">
+            <div class="search-box">
+              <i class="hgi-stroke hgi-search-01"></i>
+              <input type="text" id="client-search" placeholder="Buscar por DNI o nombre..." autocomplete="off" />
             </div>
-            <div class="input-group">
-              <label>Nombres y Apellidos</label>
-              <input type="text" id="client-name" required />
-            </div>
-            <div class="input-group">
-              <label>Correo Electrónico
-                <span class="help-tip" data-tip="Se usará para enviar la cotización. Formato válido: nombre@dominio.com">?</span>
-              </label>
-              <input type="email" id="client-email" required />
-              <div class="error-msg" id="err-client-email"></div>
-            </div>
-            <div class="input-grid-2">
-              <div class="input-group">
-                <label>Celular
-                  <span class="help-tip" data-tip="Número de celular del cliente. Solo dígitos.">?</span>
-                </label>
-                <input type="text" id="client-phone" required />
-                <div class="error-msg" id="err-client-phone"></div>
-              </div>
-              <div class="input-group">
-                <label>Teléfono alternativo <span class="label-opt">(opcional)</span></label>
-                <input type="text" id="client-phone2" />
-              </div>
-            </div>
-            <div class="input-group">
-              <label>Ingresos mensuales netos <span class="label-opt">(opcional)</span>
-                <span class="help-tip" data-tip="Permite evaluar la capacidad de pago: la SBS recomienda que la cuota no supere el 40% del ingreso.">?</span>
-              </label>
-              <input type="text" id="client-income" placeholder="0.00" />
-              <div class="error-msg" id="err-client-income"></div>
-            </div>
-
-            <div class="input-group">
-              <label>Autorización de datos</label>
-              <label class="consent-item">
-                <input type="checkbox" id="consent-simulacion" required />
-                <span>He leído y acepto la <a href="#" onclick="return false;">Política de Privacidad</a> y autorizo el tratamiento de mis datos personales para evaluar y gestionar mi solicitud de crédito.</span>
-              </label>
-              <label class="consent-item">
-                <input type="checkbox" id="consent-difusion" />
-                <span>Autorizo el uso de mis datos para recibir ofertas, promociones y publicidad de productos y servicios.</span>
-              </label>
-              <label class="consent-item">
-                <input type="checkbox" id="consent-partners" />
-                <span>Autorizo compartir mis datos con empresas aliadas para ofertas conjuntas.</span>
-              </label>
-              <p class="consent-note">Tratamos tus datos conforme a la Ley N.° 29733 de Protección de Datos Personales.</p>
-            </div>
-
-            <button type="submit" class="btn-login">Registrar Cliente</button>
-          </form>
-        </div>
-
-        <div class="login-card">
-          <div class="login-header">
-            <h2>Buscar Cliente</h2>
-            <p>Consulte o modifique la información por DNI</p>
-          </div>
-
-          <div
-            class="input-group"
-            style="display: flex; gap: 10px; margin-bottom: 20px"
-          >
-            <input
-              type="text"
-              id="search-dni"
-              placeholder="Ingrese DNI a buscar"
-              style="margin: 0"
-            />
-            <button
-              type="button"
-              id="btn-search-panel"
-              class="btn-secondary"
-              style="padding: 12px 20px"
-            >
-              Buscar
+            <button class="btn-login btn-inline" id="btn-new-client">
+              <i class="hgi-stroke hgi-add-01"></i> Nuevo cliente
             </button>
           </div>
+        </div>
 
-          <div
-            id="search-results-panel"
-            style="
-              display: none;
-              border-top: 1px solid var(--border-color);
-              padding-top: 20px;
-            "
-          >
-            <div class="input-group">
-              <label>Nombres</label>
-              <input type="text" id="edit-name" disabled />
-            </div>
-            <div class="input-group">
-              <label>Correo</label>
-              <input type="email" id="edit-email" disabled />
-            </div>
-            <div class="input-grid-2">
-              <div class="input-group">
-                <label>Celular</label>
-                <input type="text" id="edit-phone" disabled />
-              </div>
-              <div class="input-group">
-                <label>Teléfono alternativo</label>
-                <input type="text" id="edit-phone2" disabled />
-              </div>
-            </div>
-            <div class="input-group">
-              <label>Ingresos Netos</label>
-              <input type="text" id="edit-income" disabled />
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px">
-              <button
-                type="button"
-                id="btn-enable-edit"
-                class="btn-secondary"
-                style="width: 100%"
-              >
-                Modificar Datos
-              </button>
-              <button
-                type="button"
-                id="btn-save-edit"
-                class="btn-login"
-                style="width: 100%; display: none"
-              >
-                Guardar Cambios
-              </button>
-            </div>
-          </div>
+        <div class="table-wrapper">
+          <table class="banking-table" id="table-clients-history">
+            <thead>
+              <tr>
+                <th>DNI / CE</th>
+                <th>Nombres y Apellidos</th>
+                <th>Correo Electrónico</th>
+                <th>Celular</th>
+                <th>Alternativo</th>
+                <th>Ingresos Netos</th>
+                <th>Consentimiento</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
+    </main>
 
-      <div class="login-card" style="grid-column: span 2; margin-top: 30px;">
-                <div class="login-header" style="text-align: left; margin-bottom: 15px;">
-                    <h2>Historial de Clientes Registrados</h2>
-                    <p>Lista completa de todos los prospectos en el sistema</p>
-                </div>
-                <div class="table-wrapper">
-                    <table class="banking-table" id="table-clients-history">
-                        <thead>
-                            <tr>
-                                <th>DNI / CE</th>
-                                <th>Nombres y Apellidos</th>
-                                <th>Correo Electrónico</th>
-                                <th>Celular</th>
-                                <th>Alternativo</th>
-                                <th>Ingresos Netos</th>
-                                <th>Consentimiento</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
+    <!-- Modal: crear / editar cliente -->
+    <div class="modal-overlay" id="client-modal" hidden>
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <h2 id="modal-title">Nuevo cliente</h2>
+            <p id="modal-subtitle">Ingresa los datos del nuevo prospecto</p>
+          </div>
+          <button class="modal-close" id="modal-close" aria-label="Cerrar"><i class="hgi-stroke hgi-cancel-01"></i></button>
         </div>
 
-    </main>
+        <form id="client-form">
+          <div class="input-group">
+            <label>DNI / CE
+              <span class="help-tip" data-tip="Documento de identidad. DNI: 8 dígitos. Carné de extranjería: 9 a 12 caracteres.">?</span>
+            </label>
+            <input type="text" id="client-id" required />
+            <div class="error-msg" id="err-client-id"></div>
+          </div>
+          <div class="input-group">
+            <label>Nombres y Apellidos</label>
+            <input type="text" id="client-name" required />
+          </div>
+          <div class="input-group">
+            <label>Correo Electrónico
+              <span class="help-tip" data-tip="Se usará para enviar la cotización. Formato válido: nombre@dominio.com">?</span>
+            </label>
+            <input type="email" id="client-email" required />
+            <div class="error-msg" id="err-client-email"></div>
+          </div>
+          <div class="input-grid-2">
+            <div class="input-group">
+              <label>Celular
+                <span class="help-tip" data-tip="Número de celular del cliente. Solo dígitos.">?</span>
+              </label>
+              <input type="text" id="client-phone" required />
+              <div class="error-msg" id="err-client-phone"></div>
+            </div>
+            <div class="input-group">
+              <label>Teléfono alternativo <span class="label-opt">(opcional)</span></label>
+              <input type="text" id="client-phone2" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Ingresos mensuales netos <span class="label-opt">(opcional)</span>
+              <span class="help-tip" data-tip="Permite evaluar la capacidad de pago: la SBS recomienda que la cuota no supere el 40% del ingreso.">?</span>
+            </label>
+            <input type="text" id="client-income" placeholder="0.00" />
+            <div class="error-msg" id="err-client-income"></div>
+          </div>
+
+          <div class="input-group" id="consent-block">
+            <label>Autorización de datos</label>
+            <label class="consent-item">
+              <input type="checkbox" id="consent-simulacion" required />
+              <span>He leído y acepto la <a href="#" onclick="return false;">Política de Privacidad</a> y autorizo el tratamiento de mis datos personales para evaluar y gestionar mi solicitud de crédito.</span>
+            </label>
+            <label class="consent-item">
+              <input type="checkbox" id="consent-difusion" />
+              <span>Autorizo el uso de mis datos para recibir ofertas, promociones y publicidad de productos y servicios.</span>
+            </label>
+            <label class="consent-item">
+              <input type="checkbox" id="consent-partners" />
+              <span>Autorizo compartir mis datos con empresas aliadas para ofertas conjuntas.</span>
+            </label>
+            <p class="consent-note">Tratamos tus datos conforme a la Ley N.° 29733 de Protección de Datos Personales.</p>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+            <button type="submit" class="btn-login btn-inline" id="btn-save-client">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <script src="js/main.js"></script>
     <script src="js/clientes.js"></script>

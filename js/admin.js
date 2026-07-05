@@ -74,11 +74,10 @@ function clearData(key, label) {
 
 document.getElementById('btn-clear-clients').addEventListener('click', () => clearData('system_clients', 'clientes'));
 document.getElementById('btn-clear-vehicles').addEventListener('click', () => clearData('system_vehicles', 'vehículos'));
-document.getElementById('btn-clear-entities').addEventListener('click', () => clearData('system_entities', 'entidades'));
 document.getElementById('btn-clear-sims').addEventListener('click', () => clearData('system_simulations', 'simulaciones'));
 
 document.getElementById('btn-reset-all').addEventListener('click', () => {
-    if (!confirm('¿Restablecer TODO el sistema (clientes, vehículos, entidades y simulaciones)? No se puede deshacer.')) return;
-    ['system_clients', 'system_vehicles', 'system_entities', 'system_simulations'].forEach(k => localStorage.removeItem(k));
+    if (!confirm('¿Restablecer TODO el sistema (clientes, vehículos y simulaciones)? No se puede deshacer.')) return;
+    ['system_clients', 'system_vehicles', 'system_simulations'].forEach(k => localStorage.removeItem(k));
     notify.ok('Sistema restablecido correctamente.');
 });
