@@ -399,6 +399,8 @@ function buildHistoryCards(list, container) {
     container.innerHTML = '';
     list.forEach(sim => {
         const sign = sim.currency === 'PEN' ? 'S/' : '$';
+        const totalPagado = sim.schedule.reduce((a, r) => a + (r.cuotaTotal ?? r.cuota), 0);
+
         const card = document.createElement('div');
         card.className = 'history-item-card';
 
@@ -407,32 +409,45 @@ function buildHistoryCards(list, container) {
             rowsHtml += `
                 <tr>
                     <td>${r.num}</td>
-                    <td>${sign} ${r.saldoInicial.toFixed(2)}</td>
-                    <td>${sign} ${r.interes.toFixed(2)}</td>
-                    <td>${sign} ${r.amortizacion.toFixed(2)}</td>
-                    <td>${sign} ${(r.cuotaTotal ?? r.cuota).toFixed(2)}</td>
-                    <td>${sign} ${r.saldoFinal.toFixed(2)}</td>
+                    <td>${sign} ${formatMoney(r.saldoInicial)}</td>
+                    <td>${sign} ${formatMoney(r.interes)}</td>
+                    <td>${sign} ${formatMoney(r.amortizacion)}</td>
+                    <td>${sign} ${formatMoney(r.cuotaTotal ?? r.cuota)}</td>
+                    <td>${sign} ${formatMoney(r.saldoFinal)}</td>
                 </tr>`;
         });
 
         card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:15px;">
-                <div>
-                    <h4 style="color:var(--primary-dark); font-size:16px;">${sim.id} - ${sim.clientName} (DNI: ${sim.clientDni})</h4>
-                    <p style="font-size:13px; color:var(--text-muted);">Vehículo: ${sim.carModel} | Entidad: ${sim.bank} | Moneda: ${sim.currency}</p>
+            <div class="history-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div class="history-toggle" style="display:flex; align-items:center; gap:12px; cursor:pointer; flex:1;">
+                    <span class="history-caret" style="color:var(--primary); font-size:12px;">▶</span>
+                    <div>
+                        <h4 style="color:var(--primary-dark); font-size:15px;">${sim.id} · ${sim.clientName}</h4>
+                        <p style="font-size:12.5px; color:var(--text-muted);">${sim.carModel} | ${sim.bank} | Total: ${sign} ${formatMoney(totalPagado)}</p>
+                    </div>
                 </div>
                 <button class="btn-secondary" style="padding:8px 16px;" onclick="deleteSimulation('${sim.id}')">Eliminar</button>
             </div>
-            <div class="table-wrapper">
-                <table class="banking-table text-small">
-                    <thead>
-                        <tr>
-                            <th>Nro</th><th>Saldo Inicial</th><th>Interés</th><th>Amortizac.</th><th>Cuota Total</th><th>Saldo Final</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rowsHtml}</tbody>
-                </table>
+            <div class="history-detail" style="display:none; margin-top:16px;">
+                <div class="table-wrapper">
+                    <table class="banking-table text-small">
+                        <thead>
+                            <tr><th>Nro</th><th>Saldo Inicial</th><th>Interés</th><th>Amortizac.</th><th>Cuota Total</th><th>Saldo Final</th></tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
             </div>`;
+
+        const toggle = card.querySelector('.history-toggle');
+        const detail = card.querySelector('.history-detail');
+        const caret = card.querySelector('.history-caret');
+        toggle.addEventListener('click', () => {
+            const open = detail.style.display === 'block';
+            detail.style.display = open ? 'none' : 'block';
+            caret.textContent = open ? '▶' : '▼';
+        });
+
         container.appendChild(card);
     });
 }
