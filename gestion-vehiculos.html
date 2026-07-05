@@ -36,25 +36,31 @@
           <form id="vehicle-form">
             <div class="input-group">
               <label>Código Interno / ID de Auto</label>
-              <input
-                type="text"
-                id="car-id"
-                placeholder="Ej. TOY-001"
-                required
-              />
+              <input type="text" id="car-id" placeholder="Ej. TOY-001" required />
+            </div>
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Marca</label>
+                <input type="text" id="car-brand" placeholder="Ej. Toyota" required />
+              </div>
+              <div class="input-group">
+                <label>Modelo</label>
+                <input type="text" id="car-model" placeholder="Ej. Corolla" required />
+              </div>
             </div>
             <div class="input-group">
-              <label>Marca y Modelo</label>
-              <input
-                type="text"
-                id="car-model"
-                placeholder="Ej. Toyota Corolla"
-                required
-              />
+              <label>Año de Fabricación</label>
+              <input type="number" id="car-year" placeholder="Ej. 2026" min="1900" required />
             </div>
-            <div class="input-group">
-              <label>Precio Base</label>
-              <input type="number" id="car-price" placeholder="0.00" required />
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Precio en Soles (S/)</label>
+                <input type="number" id="car-price-pen" placeholder="0.00" min="0" required />
+              </div>
+              <div class="input-group">
+                <label>Precio en Dólares ($)</label>
+                <input type="number" id="car-price-usd" placeholder="0.00" min="0" required />
+              </div>
             </div>
             <button type="submit" class="btn-login">Registrar Vehículo</button>
           </form>
@@ -94,13 +100,29 @@
               padding-top: 20px;
             "
           >
-            <div class="input-group">
-              <label>Marca y Modelo</label>
-              <input type="text" id="edit-car-model" disabled />
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Marca</label>
+                <input type="text" id="edit-car-brand" disabled />
+              </div>
+              <div class="input-group">
+                <label>Modelo</label>
+                <input type="text" id="edit-car-model" disabled />
+              </div>
             </div>
             <div class="input-group">
-              <label>Precio Base</label>
-              <input type="number" id="edit-car-price" disabled />
+              <label>Año</label>
+              <input type="number" id="edit-car-year" disabled />
+            </div>
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Precio en Soles (S/)</label>
+                <input type="number" id="edit-car-price-pen" disabled />
+              </div>
+              <div class="input-group">
+                <label>Precio en Dólares ($)</label>
+                <input type="number" id="edit-car-price-usd" disabled />
+              </div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 20px">
@@ -124,7 +146,7 @@
           </div>
         </div>
       </div>
-    <div class="login-card" style="grid-column: span 2; margin-top: 30px;">
+      <div class="login-card" style="grid-column: span 2; margin-top: 30px;">
                 <div class="login-header" style="text-align: left; margin-bottom: 15px;">
                     <h2>Historial de Vehículos en Stock</h2>
                     <p>Unidades registradas en el catálogo de financiamiento</p>
@@ -133,9 +155,12 @@
                     <table class="banking-table" id="table-vehicles-history">
                         <thead>
                             <tr>
-                                <th>Código Interno</th>
-                                <th>Marca y Modelo</th>
-                                <th>Precio Base</th>
+                                <th>Código</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Año</th>
+                                <th>Precio S/</th>
+                                <th>Precio $</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -145,7 +170,7 @@
             </div>
 
         </div>
-    
+
     </main>
 
     <script src="js/main.js"></script>

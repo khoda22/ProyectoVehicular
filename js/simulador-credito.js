@@ -59,7 +59,9 @@ document.getElementById('btn-find-car').addEventListener('click', () => {
 
     const status = document.getElementById('sim-car-info');
     if (activeVehicle) {
-        status.innerHTML = `<span style="color:green;">✔ Validado: ${activeVehicle.model} (Precio: ${activeVehicle.price})</span>`;
+        const pen = activeVehicle.priceSoles ?? activeVehicle.price ?? 0;
+        const usd = activeVehicle.priceDollars ?? 0;
+        status.innerHTML = `<span style="color:green;">✔ Validado: ${activeVehicle.brand || ''} ${activeVehicle.model} (S/ ${Number(pen).toFixed(2)} / $ ${Number(usd).toFixed(2)})</span>`;
     } else {
         status.innerHTML = `<span style="color:red;">❌ Vehículo no encontrado en inventario.</span>`;
         activeVehicle = null;
@@ -90,7 +92,9 @@ function calculateFinancialPlan() {
     const segDesgPct = (parseFloat(document.getElementById('sim-seg-desgravamen').value) || 0) / 100;
     const segVehPct = (parseFloat(document.getElementById('sim-seg-vehicular').value) || 0) / 100;
 
-    const precio = activeVehicle.price;
+    const precio = currency === 'PEN'
+        ? (activeVehicle.priceSoles ?? activeVehicle.price)
+        : (activeVehicle.priceDollars ?? activeVehicle.price);
     const cuotaInicial = precio * downPct;
     const balloon = precio * balloonPct;
     const montoFinanciar = precio - cuotaInicial - bono;
