@@ -70,10 +70,6 @@ function paintSlider(id, outId, unit) {
     const el = document.getElementById(id);
     if (!el) return;
     const out = document.getElementById(outId);
-    const min = parseFloat(el.min) || 0;
-    const max = parseFloat(el.max) || 100;
-    const pct = ((parseFloat(el.value) - min) / (max - min)) * 100;
-    el.style.background = `linear-gradient(90deg, var(--primary) ${pct}%, var(--primary-soft) ${pct}%)`;
     if (out) out.textContent = (unit === ' años' && el.value === '1') ? '1 año' : el.value + unit;
 }
 function paintAllSliders() { SLIDERS.forEach(s => paintSlider(...s)); }
