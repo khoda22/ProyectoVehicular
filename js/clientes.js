@@ -130,3 +130,9 @@ function renderClientsHistory() {
 
 attachMoneyFormat(document.getElementById('client-income'));
 attachMoneyFormat(document.getElementById('edit-income'));
+
+// Validación en vivo del formulario de registro
+attachValidation(document.getElementById('client-id'), document.getElementById('err-client-id'), validators.dni);
+attachValidation(document.getElementById('client-email'), document.getElementById('err-client-email'), validators.email);
+attachValidation(document.getElementById('client-phone'), document.getElementById('err-client-phone'), validators.phone);
+attachValidation(document.getElementById('client-income'), document.getElementById('err-client-income'), validators.positive);

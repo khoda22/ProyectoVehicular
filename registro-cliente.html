@@ -40,30 +40,44 @@
           </div>
           <form id="client-form">
             <div class="input-group">
-              <label>DNI / CE</label>
+              <label>DNI / CE
+                <span class="help-tip" data-tip="Documento de identidad. DNI: 8 dígitos. Carné de extranjería: 9 a 12 caracteres.">?</span>
+              </label>
               <input type="text" id="client-id" required />
+              <div class="error-msg" id="err-client-id"></div>
             </div>
             <div class="input-group">
               <label>Nombres y Apellidos</label>
               <input type="text" id="client-name" required />
             </div>
             <div class="input-group">
-              <label>Correo Electrónico</label>
+              <label>Correo Electrónico
+                <span class="help-tip" data-tip="Se usará para enviar la cotización. Formato válido: nombre@dominio.com">?</span>
+              </label>
               <input type="email" id="client-email" required />
+              <div class="error-msg" id="err-client-email"></div>
             </div>
             <div class="input-grid-2">
               <div class="input-group">
-                <label>Teléfono 1</label>
+                <label>Teléfono 1
+                  <span class="help-tip" data-tip="Solo números. Contacto principal del cliente.">?</span>
+                </label>
                 <input type="text" id="client-phone" required />
+                <div class="error-msg" id="err-client-phone"></div>
               </div>
               <div class="input-group">
-                <label>Teléfono 2</label>
+                <label>Teléfono 2
+                  <span class="help-tip" data-tip="Contacto alternativo, opcional.">?</span>
+                </label>
                 <input type="text" id="client-phone2" />
               </div>
             </div>
             <div class="input-group">
-              <label>Ingresos Mensuales Netos</label>
+              <label>Ingresos Mensuales Netos
+                <span class="help-tip" data-tip="Ingreso neto mensual. La SBS recomienda que la cuota no supere el 40% del ingreso.">?</span>
+              </label>
               <input type="text" id="client-income" placeholder="0.00" required />
+              <div class="error-msg" id="err-client-income"></div>
             </div>
 
             <div class="input-group">

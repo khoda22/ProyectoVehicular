@@ -110,3 +110,8 @@ function renderVehiclesHistory() {
 
 ['car-price-pen', 'car-price-usd', 'edit-car-price-pen', 'edit-car-price-usd']
     .forEach(id => attachMoneyFormat(document.getElementById(id)));
+
+// Validación en vivo del formulario de registro
+attachValidation(document.getElementById('car-year'), document.getElementById('err-car-year'), validators.year);
+attachValidation(document.getElementById('car-price-pen'), document.getElementById('err-car-price-pen'), validators.positive);
+attachValidation(document.getElementById('car-price-usd'), document.getElementById('err-car-price-usd'), validators.positive);

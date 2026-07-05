@@ -29,6 +29,39 @@ function attachMoneyFormat(input) {
     });
 }
 
+// Validación en vivo: validator devuelve true si es válido, o un mensaje de error si no
+function attachValidation(input, errorEl, validator) {
+    if (!input) return () => true;
+    const run = () => {
+        if (input.value.trim() === '') {
+            input.classList.remove('invalid');
+            if (errorEl) errorEl.textContent = '';
+            return false;
+        }
+        const res = validator(input.value.trim());
+        if (res === true) {
+            input.classList.remove('invalid');
+            if (errorEl) errorEl.textContent = '';
+            return true;
+        }
+        input.classList.add('invalid');
+        if (errorEl) errorEl.textContent = res;
+        return false;
+    };
+    input.addEventListener('input', run);
+    input.addEventListener('blur', run);
+    return run;
+}
+
+// Validadores comunes reutilizables
+const validators = {
+    dni: v => /^\d{8}$/.test(v) || /^[a-zA-Z0-9]{9,12}$/.test(v) || 'DNI (8 dígitos) o CE (9-12 caracteres).',
+    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo electrónico no válido.',
+    phone: v => /^\d{6,12}$/.test(v.replace(/\s/g, '')) || 'Teléfono: solo números (6 a 12 dígitos).',
+    positive: v => (parseMoney(v) > 0) || 'Debe ser un monto mayor a 0.',
+    year: v => { const y = parseInt(v); return (y >= 1900 && y <= 2027) || 'Año entre 1900 y 2027.'; }
+};
+
 // Convierte un input de texto en un buscador con dropdown de resultados (typeahead)
 function createTypeahead({ inputId, getList, match, label, onSelect, emptyText }) {
     const input = document.getElementById(inputId);
