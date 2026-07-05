@@ -177,7 +177,7 @@ body {
     top: 0; left: 0; right: 0;
     height: 68px;
     box-shadow: var(--shadow-sm);
-    z-index: 1000;
+    z-index: 40;
 }
 .header-content { display: flex; align-items: center; }
 .user-info { display: flex; align-items: center; gap: 14px; }
@@ -417,13 +417,6 @@ input[type="range"]::-moz-range-track { height: 8px; border-radius: 999px; backg
 .banking-table tbody tr:hover { background: #fdf4f6; }
 .text-small { font-size: 12px; }
 
-/* ---------- Toast (Physics-Toast): tema claro y por encima del header ---------- */
-[data-sileo-viewport] { z-index: 3000 !important; }
-[data-sileo-svg] [fill="#1c1c1e"],
-[fill="#1c1c1e"] { fill: #ffffff !important; }
-[data-sileo-svg] { filter: drop-shadow(0 10px 26px rgba(140, 23, 48, 0.20)); }
-[data-sileo-description] { color: var(--text-main) !important; }
-
 /* ---------- Gracia ---------- */
 .gracia-controls {
     display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;
@@ -480,7 +473,7 @@ body.has-sidebar { padding-left: 248px; }
 .sidebar-logout:hover { background: var(--primary-soft); }
 
 .app-topbar {
-    position: sticky; top: 0; z-index: 800;
+    position: sticky; top: 0; z-index: 40;
     display: flex; justify-content: space-between; align-items: center;
     padding: 16px 40px;
     background: rgba(255, 255, 255, 0.8);
