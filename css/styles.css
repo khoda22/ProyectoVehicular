@@ -469,3 +469,68 @@ body {
     border-radius: 8px;
     border: 1px solid var(--border-color);
 }
+
+/* AYUDA ELECTRÓNICA */
+
+.help-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.help-container input, 
+.help-container select {
+    flex: 1;
+}
+
+.help-icon {
+    margin-left: 10px;
+    background-color: #0284c7; /* Azul corporativo para indicar ayuda */
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: help;
+    position: relative;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+}
+
+.help-icon:hover {
+    background-color: #0369a1;
+}
+
+/* Burbuja Flotante de Asistencia Técnica */
+.help-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 135%;
+    right: 0;
+    background-color: #1e293b; /* Gris oscuro elegante */
+    color: #ffffff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    width: 240px;
+    white-space: normal;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translateY(6px);
+}
+
+/* Mostrar Tooltip al hacer Hover */
+.help-icon:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+}
