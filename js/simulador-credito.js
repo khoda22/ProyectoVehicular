@@ -261,8 +261,10 @@ function renderScheduleTable(data) {
     });
 
     const totalPagado = data.reduce((acc, r) => acc + r.cuotaTotal, 0);
+    const tcRef = localStorage.getItem('system_tc');
+    const tcTxt = (p.currency === 'USD' && tcRef) ? ` | T.C. ref: S/ ${Number(tcRef).toFixed(2)}` : '';
     document.getElementById('report-summary-text').innerText =
-        `Moneda: ${p.currency === 'PEN' ? 'Soles' : 'Dólares'} | TEA: ${(p.TEA * 100).toFixed(2)}% | Monto financiado: ${sign} ${formatMoney(p.montoFinanciar)} | Cuota balloon: ${sign} ${formatMoney(p.balloon)} | Total pagado: ${sign} ${formatMoney(totalPagado)}`;
+        `Moneda: ${p.currency === 'PEN' ? 'Soles' : 'Dólares'} | TEA: ${(p.TEA * 100).toFixed(2)}% | Monto financiado: ${sign} ${formatMoney(p.montoFinanciar)} | Cuota balloon: ${sign} ${formatMoney(p.balloon)} | Total pagado: ${sign} ${formatMoney(totalPagado)}${tcTxt}`;
 }
 
 // GRACIA (total o parcial) sobre las cuotas indicadas — reconstruye el cronograma en cascada

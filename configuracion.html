@@ -45,6 +45,17 @@
                 </label>
             </div>
 
+            <div class="input-group" style="margin-top: 25px; text-align: left;">
+                <label>Tipo de Cambio (S/ por US$)
+                    <span class="help-tip" data-tip="Tipo de cambio referencial. El asesor puede ingresarlo manualmente o traer el del día desde una fuente en línea.">?</span>
+                </label>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="config-tc" placeholder="Ej. 3.75" style="flex:1;">
+                    <button type="button" id="btn-fetch-tc" class="btn-secondary" style="white-space:nowrap;">Traer TC del día</button>
+                </div>
+                <div class="status-msg" id="tc-status"></div>
+            </div>
+
             <div style="margin-top: 30px;">
                 <button id="save-config" class="btn-login">Guardar Preferencias</button>
             </div>
@@ -53,17 +64,35 @@
 
     <script src="js/main.js"></script>
     <script>
-        // Lógica específica para esta página
         document.addEventListener('DOMContentLoaded', () => {
             const currentCurrency = localStorage.getItem('system_currency') || 'PEN';
             if (currentCurrency === 'PEN') document.getElementById('radio-pen').checked = true;
             else document.getElementById('radio-usd').checked = true;
+            document.getElementById('config-tc').value = localStorage.getItem('system_tc') || '3.75';
+        });
+
+        // Trae un tipo de cambio referencial (API gratuita, sin token)
+        document.getElementById('btn-fetch-tc').addEventListener('click', async () => {
+            const status = document.getElementById('tc-status');
+            status.textContent = 'Consultando...';
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                const pen = data && data.rates && data.rates.PEN;
+                if (!pen) throw new Error('sin dato');
+                document.getElementById('config-tc').value = Number(pen).toFixed(4);
+                status.innerHTML = '<span style="color:#166534;">✔ Tipo de cambio del día cargado (referencial).</span>';
+            } catch (e) {
+                status.innerHTML = '<span style="color:var(--primary);">No se pudo obtener el TC. Ingréselo manualmente.</span>';
+            }
         });
 
         document.getElementById('save-config').addEventListener('click', () => {
             const selected = document.querySelector('input[name="currency"]:checked').value;
             localStorage.setItem('system_currency', selected);
-            notify.ok('Configuración de moneda actualizada exitosamente.');
+            const tc = parseFloat(document.getElementById('config-tc').value);
+            if (!isNaN(tc) && tc > 0) localStorage.setItem('system_tc', tc);
+            notify.ok('Configuración actualizada exitosamente.');
             setTimeout(() => window.location.href = 'simulador.html', 800);
         });
     </script>
