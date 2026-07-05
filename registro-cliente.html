@@ -46,14 +46,37 @@
               <label>Correo Electrónico</label>
               <input type="email" id="client-email" required />
             </div>
-            <div class="input-group">
-              <label>Teléfono</label>
-              <input type="text" id="client-phone" />
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Teléfono 1</label>
+                <input type="text" id="client-phone" required />
+              </div>
+              <div class="input-group">
+                <label>Teléfono 2</label>
+                <input type="text" id="client-phone2" />
+              </div>
             </div>
             <div class="input-group">
               <label>Ingresos Mensuales Netos</label>
               <input type="number" id="client-income" min="0" required />
             </div>
+
+            <div class="input-group">
+              <label>Consentimiento de datos (Ley N° 29733)</label>
+              <label style="font-weight:400; display:flex; gap:8px; align-items:flex-start; margin-bottom:8px;">
+                <input type="checkbox" id="consent-simulacion" style="width:auto; margin-top:4px;" required />
+                <span>Autorizo el uso de mis datos personales para la simulación y cotización del crédito (obligatorio).</span>
+              </label>
+              <label style="font-weight:400; display:flex; gap:8px; align-items:flex-start; margin-bottom:8px;">
+                <input type="checkbox" id="consent-difusion" style="width:auto; margin-top:4px;" />
+                <span>Autorizo el uso de mis datos para difusión de contenidos de la empresa.</span>
+              </label>
+              <label style="font-weight:400; display:flex; gap:8px; align-items:flex-start;">
+                <input type="checkbox" id="consent-partners" style="width:auto; margin-top:4px;" />
+                <span>Autorizo compartir mis datos con partners o terceros de la empresa.</span>
+              </label>
+            </div>
+
             <button type="submit" class="btn-login">Registrar Cliente</button>
           </form>
         </div>
@@ -100,9 +123,15 @@
               <label>Correo</label>
               <input type="email" id="edit-email" disabled />
             </div>
-            <div class="input-group">
-              <label>Teléfono</label>
-              <input type="text" id="edit-phone" disabled />
+            <div class="input-grid-2">
+              <div class="input-group">
+                <label>Teléfono 1</label>
+                <input type="text" id="edit-phone" disabled />
+              </div>
+              <div class="input-group">
+                <label>Teléfono 2</label>
+                <input type="text" id="edit-phone2" disabled />
+              </div>
             </div>
             <div class="input-group">
               <label>Ingresos Netos</label>
@@ -143,8 +172,10 @@
                                 <th>DNI / CE</th>
                                 <th>Nombres y Apellidos</th>
                                 <th>Correo Electrónico</th>
-                                <th>Teléfono</th>
+                                <th>Teléfono 1</th>
+                                <th>Teléfono 2</th>
                                 <th>Ingresos Netos</th>
+                                <th>Consentimiento</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,7 +185,7 @@
             </div>
 
         </div>
-      
+
     </main>
 
     <script src="js/main.js"></script>

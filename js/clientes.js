@@ -2,16 +2,28 @@
 document.getElementById('client-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
+    // El consentimiento para simular es obligatorio (Ley N° 29733): sin él no se puede cotizar
+    const consent = {
+        simulacion: document.getElementById('consent-simulacion').checked,
+        difusion: document.getElementById('consent-difusion').checked,
+        partners: document.getElementById('consent-partners').checked
+    };
+    if (!consent.simulacion) {
+        alert('El cliente debe autorizar el uso de sus datos para la simulación.');
+        return;
+    }
+
     const newClient = {
         id: document.getElementById('client-id').value.trim(),
         name: document.getElementById('client-name').value.trim(),
         email: document.getElementById('client-email').value.trim(),
         phone: document.getElementById('client-phone').value.trim(),
-        income: parseFloat(document.getElementById('client-income').value)
+        phone2: document.getElementById('client-phone2').value.trim(),
+        income: parseFloat(document.getElementById('client-income').value),
+        consent
     };
 
     const clients = JSON.parse(localStorage.getItem('system_clients')) || [];
-
     if (clients.find(c => c.id === newClient.id)) {
         alert('Este documento ya se encuentra registrado.');
         return;
@@ -19,7 +31,6 @@ document.getElementById('client-form').addEventListener('submit', function(e) {
 
     clients.push(newClient);
     localStorage.setItem('system_clients', JSON.stringify(clients));
-
     alert('Cliente registrado con éxito.');
     document.getElementById('client-form').reset();
     renderClientsHistory();
@@ -39,6 +50,7 @@ document.getElementById('btn-search-panel').addEventListener('click', () => {
         document.getElementById('edit-name').value = clientToEdit.name;
         document.getElementById('edit-email').value = clientToEdit.email;
         document.getElementById('edit-phone').value = clientToEdit.phone;
+        document.getElementById('edit-phone2').value = clientToEdit.phone2 || '';
         document.getElementById('edit-income').value = clientToEdit.income;
         toggleFields(true);
         resultsPanel.style.display = 'block';
@@ -48,9 +60,7 @@ document.getElementById('btn-search-panel').addEventListener('click', () => {
     }
 });
 
-document.getElementById('btn-enable-edit').addEventListener('click', () => {
-    toggleFields(false);
-});
+document.getElementById('btn-enable-edit').addEventListener('click', () => toggleFields(false));
 
 document.getElementById('btn-save-edit').addEventListener('click', () => {
     let clients = JSON.parse(localStorage.getItem('system_clients')) || [];
@@ -60,6 +70,7 @@ document.getElementById('btn-save-edit').addEventListener('click', () => {
         clients[index].name = document.getElementById('edit-name').value.trim();
         clients[index].email = document.getElementById('edit-email').value.trim();
         clients[index].phone = document.getElementById('edit-phone').value.trim();
+        clients[index].phone2 = document.getElementById('edit-phone2').value.trim();
         clients[index].income = parseFloat(document.getElementById('edit-income').value);
 
         localStorage.setItem('system_clients', JSON.stringify(clients));
@@ -70,18 +81,10 @@ document.getElementById('btn-save-edit').addEventListener('click', () => {
 });
 
 function toggleFields(isLocked) {
-    document.getElementById('edit-name').disabled = isLocked;
-    document.getElementById('edit-email').disabled = isLocked;
-    document.getElementById('edit-phone').disabled = isLocked;
-    document.getElementById('edit-income').disabled = isLocked;
-
-    if (isLocked) {
-        document.getElementById('btn-enable-edit').style.display = 'block';
-        document.getElementById('btn-save-edit').style.display = 'none';
-    } else {
-        document.getElementById('btn-enable-edit').style.display = 'none';
-        document.getElementById('btn-save-edit').style.display = 'block';
-    }
+    ['edit-name', 'edit-email', 'edit-phone', 'edit-phone2', 'edit-income']
+        .forEach(id => document.getElementById(id).disabled = isLocked);
+    document.getElementById('btn-enable-edit').style.display = isLocked ? 'block' : 'none';
+    document.getElementById('btn-save-edit').style.display = isLocked ? 'none' : 'block';
 }
 
 document.addEventListener('DOMContentLoaded', renderClientsHistory);
@@ -95,18 +98,23 @@ function renderClientsHistory() {
     const currencySign = (localStorage.getItem('system_currency') || 'PEN') === 'PEN' ? 'S/' : '$';
 
     if (clients.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No hay clientes registrados actualmente.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No hay clientes registrados actualmente.</td></tr>`;
         return;
     }
 
     clients.forEach(c => {
-        let tr = document.createElement('tr');
+        const consentTxt = c.consent
+            ? `Simulación${c.consent.difusion ? ', Difusión' : ''}${c.consent.partners ? ', Partners' : ''}`
+            : '-';
+        const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="font-weight:600;">${c.id}</td>
             <td>${c.name}</td>
             <td>${c.email}</td>
             <td>${c.phone || '-'}</td>
-            <td>${currencySign} ${c.income.toFixed(2)}</td>
+            <td>${c.phone2 || '-'}</td>
+            <td>${currencySign} ${Number(c.income).toFixed(2)}</td>
+            <td style="font-size:12px;">${consentTxt}</td>
         `;
         tbody.appendChild(tr);
     });
