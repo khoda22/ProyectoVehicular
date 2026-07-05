@@ -63,7 +63,7 @@ const validators = {
 };
 
 // Convierte un input de texto en un buscador con dropdown de resultados (typeahead)
-function createTypeahead({ inputId, getList, match, label, onSelect, emptyText }) {
+function createTypeahead({ inputId, getList, match, label, onSelect, emptyText, minChars = 1, delay = 220 }) {
     const input = document.getElementById(inputId);
     if (!input) return null;
     input.setAttribute('autocomplete', 'off');
@@ -80,8 +80,12 @@ function createTypeahead({ inputId, getList, match, label, onSelect, emptyText }
 
     let selected = null;
 
+    function hideMenu() { menu.style.display = 'none'; }
+
     function render(q) {
-        const query = (q || '').toLowerCase();
+        const query = (q || '').trim().toLowerCase();
+        // No buscar hasta tener el mínimo de caracteres: evita volcar toda la lista al enfocar
+        if (query.length < minChars) { hideMenu(); return; }
         const list = getList().filter(item => match(item, query));
         menu.innerHTML = '';
         if (list.length === 0) {
@@ -104,12 +108,15 @@ function createTypeahead({ inputId, getList, match, label, onSelect, emptyText }
         menu.style.display = 'block';
     }
 
+    // Debounce: no dispara la búsqueda en cada tecla, espera a que el usuario deje de escribir
+    let searchTimer = null;
     input.addEventListener('input', () => {
         if (selected) { selected = null; onSelect(null); }
-        render(input.value);
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => render(input.value), delay);
     });
-    input.addEventListener('focus', () => render(input.value));
-    input.addEventListener('blur', () => setTimeout(() => { menu.style.display = 'none'; }, 150));
+    input.addEventListener('focus', () => { if (!selected && input.value.trim()) render(input.value); });
+    input.addEventListener('blur', () => setTimeout(hideMenu, 150));
 
     return {
         getSelected: () => selected,
