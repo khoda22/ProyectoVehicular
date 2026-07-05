@@ -14,70 +14,75 @@ function switchTab(tabId) {
     if (tabId === 'tab-historial') renderFullHistory();
 }
 
-// La capitalización solo aplica cuando la tasa es nominal (decisión: exigencia del enunciado)
+// Poblar desplegables desde los registros guardados (mejor UX que escribir códigos)
+function populateSelect(selectId, storageKey, mapFn, placeholder) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    select.innerHTML = `<option value="">${placeholder}</option>`;
+    const list = JSON.parse(localStorage.getItem(storageKey)) || [];
+    list.forEach(item => {
+        const opt = document.createElement('option');
+        const { value, text } = mapFn(item);
+        opt.value = value;
+        opt.textContent = text;
+        select.appendChild(opt);
+    });
+}
+populateSelect('sim-client-id', 'system_clients', c => ({ value: c.id, text: `${c.name} (DNI ${c.id})` }), 'Seleccione un cliente...');
+populateSelect('sim-car-id', 'system_vehicles', v => ({ value: v.id, text: `${v.brand || ''} ${v.model} (${v.id})` }), 'Seleccione un vehículo...');
+populateSelect('sim-bank', 'system_entities', e => ({ value: e.name, text: `${e.name} (RUC ${e.ruc})` }), 'Seleccione una entidad...');
+
+// Sliders con valor en vivo y relleno de color
+const SLIDERS = [
+    ['sim-downpayment', 'val-downpayment', ' %'],
+    ['sim-balloon', 'val-balloon', ' %'],
+    ['sim-years', 'val-years', ' años']
+];
+function paintSlider(id, outId, unit) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const out = document.getElementById(outId);
+    const min = parseFloat(el.min) || 0;
+    const max = parseFloat(el.max) || 100;
+    const pct = ((parseFloat(el.value) - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(90deg, var(--primary) ${pct}%, var(--primary-soft) ${pct}%)`;
+    if (out) out.textContent = (unit === ' años' && el.value === '1') ? '1 año' : el.value + unit;
+}
+function paintAllSliders() { SLIDERS.forEach(s => paintSlider(...s)); }
+SLIDERS.forEach(([id, outId, unit]) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => paintSlider(id, outId, unit));
+});
+paintAllSliders();
+
+// La capitalización solo aplica cuando la tasa es nominal (exigencia del enunciado)
 const rateTypeSelect = document.getElementById('sim-rate-type');
 rateTypeSelect.addEventListener('change', () => {
     document.getElementById('sim-capitalization').disabled = rateTypeSelect.value !== 'TN';
-    updateRateDropdown();
 });
 
-function updateRateDropdown() {
-    const type = rateTypeSelect.value;
-    const rateSelect = document.getElementById('sim-rate-val');
-    rateSelect.innerHTML = '';
-    const options = type === 'TE' ? [10, 12.5, 15, 20] : [9, 12, 15];
-    options.forEach(val => {
-        const opt = document.createElement('option');
-        opt.value = val;
-        opt.innerText = `${val} %`;
-        rateSelect.appendChild(opt);
-    });
-}
-updateRateDropdown();
-
-// Poblar el selector con las entidades financieras registradas
-(function populateBanks() {
-    const select = document.getElementById('sim-bank');
-    if (!select) return;
-    const entities = JSON.parse(localStorage.getItem('system_entities')) || [];
-    entities.forEach(ent => {
-        const opt = document.createElement('option');
-        opt.value = ent.name;
-        opt.innerText = `${ent.name} (RUC ${ent.ruc})`;
-        select.appendChild(opt);
-    });
-})();
-
-// Búsqueda de cliente
-document.getElementById('btn-find-client').addEventListener('click', () => {
-    const dni = document.getElementById('sim-client-id').value.trim();
+// Selección de cliente
+document.getElementById('sim-client-id').addEventListener('change', function() {
     const list = JSON.parse(localStorage.getItem('system_clients')) || [];
-    activeClient = list.find(c => c.id === dni);
-
-    const status = document.getElementById('sim-client-info');
-    if (activeClient) {
-        status.innerHTML = `<span style="color:green;">✔ Validado: ${activeClient.name} (Ingresos: ${activeClient.income})</span>`;
-    } else {
-        status.innerHTML = `<span style="color:red;">❌ No registrado en el sistema.</span>`;
-        activeClient = null;
-    }
+    activeClient = list.find(c => c.id === this.value) || null;
+    const info = document.getElementById('sim-client-info');
+    info.innerHTML = activeClient
+        ? `<span style="color:#166534;">✔ ${activeClient.name} · Ingresos: ${activeClient.income}</span>`
+        : '';
     validateFormHability();
 });
 
-// Búsqueda de vehículo
-document.getElementById('btn-find-car').addEventListener('click', () => {
-    const code = document.getElementById('sim-car-id').value.trim().toUpperCase();
+// Selección de vehículo
+document.getElementById('sim-car-id').addEventListener('change', function() {
     const list = JSON.parse(localStorage.getItem('system_vehicles')) || [];
-    activeVehicle = list.find(v => v.id === code);
-
-    const status = document.getElementById('sim-car-info');
+    activeVehicle = list.find(v => v.id === this.value) || null;
+    const info = document.getElementById('sim-car-info');
     if (activeVehicle) {
         const pen = activeVehicle.priceSoles ?? activeVehicle.price ?? 0;
         const usd = activeVehicle.priceDollars ?? 0;
-        status.innerHTML = `<span style="color:green;">✔ Validado: ${activeVehicle.brand || ''} ${activeVehicle.model} (S/ ${Number(pen).toFixed(2)} / $ ${Number(usd).toFixed(2)})</span>`;
+        info.innerHTML = `<span style="color:#166534;">✔ ${activeVehicle.brand || ''} ${activeVehicle.model} · S/ ${Number(pen).toFixed(2)} / $ ${Number(usd).toFixed(2)}</span>`;
     } else {
-        status.innerHTML = `<span style="color:red;">❌ Vehículo no encontrado en inventario.</span>`;
-        activeVehicle = null;
+        info.innerHTML = '';
     }
     validateFormHability();
 });
@@ -108,6 +113,16 @@ function calculateFinancialPlan() {
     const precio = currency === 'PEN'
         ? (activeVehicle.priceSoles ?? activeVehicle.price)
         : (activeVehicle.priceDollars ?? activeVehicle.price);
+
+    if (!precio || precio <= 0) {
+        alert('El vehículo no tiene precio válido en la moneda seleccionada.');
+        return;
+    }
+    if (!rateVal || rateVal <= 0) {
+        alert('Ingrese un valor de tasa válido.');
+        return;
+    }
+
     const cuotaInicial = precio * downPct;
     const balloon = precio * balloonPct;
     const montoFinanciar = precio - cuotaInicial - bono;
@@ -129,7 +144,6 @@ function calculateFinancialPlan() {
         const m = 360 / capDays;
         TEA = Math.pow(1 + rateVal / m, m) - 1;
     }
-    // Tasa efectiva del periodo (mensual con periodo de 30 días)
     const i = Math.pow(1 + TEA, periodDays / 360) - 1;
     const n = Math.round(years * 360 / periodDays);
 
@@ -238,7 +252,7 @@ function renderScheduleTable(data) {
             <td>${sign} ${amortLabel}</td>
             <td>${sign} ${row.segDesg.toFixed(2)}</td>
             <td>${sign} ${row.segVeh.toFixed(2)}</td>
-            <td style="font-weight:600; color:var(--dark-blue);">${sign} ${row.cuotaTotal.toFixed(2)}</td>
+            <td style="font-weight:600; color:var(--primary-dark);">${sign} ${row.cuotaTotal.toFixed(2)}</td>
             <td>${sign} ${row.saldoFinal.toFixed(2)}</td>
         `;
         tbody.appendChild(tr);
@@ -278,14 +292,12 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
         let amort, bal = 0, cuotaFin, saldoFinal;
 
         if (targetCuotas.includes(k) && type === 'TOTAL') {
-            // No paga cuota; el interés se capitaliza al saldo
             amort = 0;
             cuotaFin = 0;
-            saldoFinal = saldo + interes;
+            saldoFinal = saldo + interes;   // el interés se capitaliza al saldo
         } else if (targetCuotas.includes(k) && type === 'PARCIAL') {
-            // Paga solo interés; no amortiza capital
             amort = 0;
-            cuotaFin = interes;
+            cuotaFin = interes;             // paga solo interés
             saldoFinal = saldo;
         } else {
             amort = p.cuotaFija - interes;
@@ -294,8 +306,7 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
         }
 
         if (k === p.n) {
-            // Cierre: el saldo remanente se cancela como cuota balloon
-            bal = saldoFinal;
+            bal = saldoFinal;               // el saldo remanente se cancela como cuota balloon
             saldoFinal = 0;
             cuotaFin = interes + amort + bal;
         }
@@ -342,7 +353,7 @@ function resetSimulationWorkspace() {
     document.getElementById('sim-client-info').innerHTML = '';
     document.getElementById('sim-car-info').innerHTML = '';
     document.getElementById('sim-capitalization').disabled = true;
-    updateRateDropdown();
+    paintAllSliders();
     activeClient = null;
     activeVehicle = null;
     currentParams = null;
@@ -375,7 +386,7 @@ document.getElementById('btn-filter-history').addEventListener('click', () => {
     const filtered = history.filter(s => s.clientDni === dni);
 
     if (filtered.length === 0) {
-        container.innerHTML = '<p style="color:red; text-align:center;">No se encontraron simulaciones para el DNI ingresado.</p>';
+        container.innerHTML = '<p style="color:var(--primary); text-align:center;">No se encontraron simulaciones para el DNI ingresado.</p>';
         return;
     }
     buildHistoryCards(filtered, container);
@@ -387,7 +398,6 @@ function buildHistoryCards(list, container) {
         const sign = sim.currency === 'PEN' ? 'S/' : '$';
         const card = document.createElement('div');
         card.className = 'history-item-card';
-        card.style = 'border:1px solid var(--border-color); border-radius:8px; padding:20px; margin-bottom:20px; background:white;';
 
         let rowsHtml = '';
         sim.schedule.forEach(r => {
@@ -405,7 +415,7 @@ function buildHistoryCards(list, container) {
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:15px;">
                 <div>
-                    <h4 style="color:var(--dark-blue); font-size:16px;">${sim.id} - ${sim.clientName} (DNI: ${sim.clientDni})</h4>
+                    <h4 style="color:var(--primary-dark); font-size:16px;">${sim.id} - ${sim.clientName} (DNI: ${sim.clientDni})</h4>
                     <p style="font-size:13px; color:var(--text-muted);">Vehículo: ${sim.carModel} | Entidad: ${sim.bank} | Moneda: ${sim.currency}</p>
                 </div>
                 <button class="btn-secondary" style="padding:8px 16px;" onclick="deleteSimulation('${sim.id}')">Eliminar</button>

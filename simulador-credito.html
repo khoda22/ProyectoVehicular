@@ -39,25 +39,29 @@
                         <div class="form-section">
                             <h3>1. Entidades y Búsqueda</h3>
                             <div class="input-group">
-                                <label>DNI del Cliente</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="sim-client-id" required>
-                                    <button type="button" id="btn-find-client" class="btn-secondary">Buscar</button>
-                                </div>
+                                <label>Cliente
+                                    <span class="help-tip" data-tip="Seleccione un cliente ya registrado. Si no aparece, regístrelo primero en el módulo Clientes.">?</span>
+                                </label>
+                                <select id="sim-client-id" required>
+                                    <option value="">Seleccione un cliente...</option>
+                                </select>
                                 <div id="sim-client-info" class="status-msg"></div>
                             </div>
 
                             <div class="input-group">
-                                <label>Código del Vehículo</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" id="sim-car-id" required>
-                                    <button type="button" id="btn-find-car" class="btn-secondary">Buscar</button>
-                                </div>
+                                <label>Vehículo
+                                    <span class="help-tip" data-tip="Seleccione un vehículo del inventario. Si no aparece, regístrelo primero en el módulo Vehículos.">?</span>
+                                </label>
+                                <select id="sim-car-id" required>
+                                    <option value="">Seleccione un vehículo...</option>
+                                </select>
                                 <div id="sim-car-info" class="status-msg"></div>
                             </div>
 
                             <div class="input-group">
-                                <label>Entidad Financiera</label>
+                                <label>Entidad Financiera
+                                    <span class="help-tip" data-tip="Entidad que otorga el crédito. Se administran en el módulo Entidades.">?</span>
+                                </label>
                                 <select id="sim-bank" required>
                                     <option value="">Seleccione una entidad...</option>
                                 </select>
@@ -67,56 +71,65 @@
                         <div class="form-section">
                             <h3>2. Estructura del Crédito</h3>
                             <div class="input-group">
-                                <label>Moneda del Contrato</label>
+                                <label>Moneda del Contrato
+                                    <span class="help-tip" data-tip="El cronograma y todos los montos se calculan en la moneda elegida (Soles o Dólares).">?</span>
+                                </label>
                                 <select id="sim-currency">
                                     <option value="PEN">Soles (S/)</option>
                                     <option value="USD">Dólares (US$)</option>
                                 </select>
                             </div>
 
-                            <div class="input-grid-2">
-                                <div class="input-group">
-                                    <label>Cuota Inicial (%)</label>
-                                    <select id="sim-downpayment">
-                                        <option value="10">10 %</option>
-                                        <option value="20">20 %</option>
-                                        <option value="30">30 %</option>
-                                        <option value="40">40 %</option>
-                                    </select>
+                            <div class="input-group">
+                                <div class="slider-row">
+                                    <label>Cuota Inicial
+                                        <span class="help-tip" data-tip="Por norma del sistema financiero peruano, la cuota inicial mínima suele ser 10% del valor del vehículo; el máximo (40%) responde a la política de crédito de la entidad.">?</span>
+                                    </label>
+                                    <span class="slider-value" id="val-downpayment">20 %</span>
                                 </div>
-                                <div class="input-group">
-                                    <label>Cuota Final / Balloon (%)</label>
-                                    <select id="sim-balloon">
-                                        <option value="0">Sin balloon</option>
-                                        <option value="30">30 %</option>
-                                        <option value="40">40 %</option>
-                                        <option value="50">50 %</option>
-                                    </select>
-                                </div>
+                                <input type="range" id="sim-downpayment" min="10" max="40" step="1" value="20">
+                                <div class="slider-limits"><span>10 %</span><span>40 %</span></div>
                             </div>
 
                             <div class="input-group">
-                                <label>Bono / Descuento (monto)</label>
-                                <input type="number" id="sim-bono" min="0" step="0.01" value="0">
+                                <div class="slider-row">
+                                    <label>Cuota Final / Balloon
+                                        <span class="help-tip" data-tip="Cuota extraordinaria que se paga al final del crédito (modalidad Compra Inteligente). Reduce las cuotas mensuales. 0% = sin balloon.">?</span>
+                                    </label>
+                                    <span class="slider-value" id="val-balloon">0 %</span>
+                                </div>
+                                <input type="range" id="sim-balloon" min="0" max="50" step="1" value="0">
+                                <div class="slider-limits"><span>0 %</span><span>50 %</span></div>
                             </div>
 
-                            <div class="input-grid-2">
-                                <div class="input-group">
-                                    <label>Periodo de Pago</label>
-                                    <select id="sim-period">
-                                        <option value="30">Mensual (30 días)</option>
-                                        <option value="15">Quincenal (15 días)</option>
-                                        <option value="7">Semanal (7 días)</option>
-                                    </select>
+                            <div class="input-group">
+                                <label>Bono / Descuento (monto)
+                                    <span class="help-tip" data-tip="Descuento o bono buen pagador aplicado al precio. Reduce el monto a financiar.">?</span>
+                                </label>
+                                <input type="number" id="sim-bono" min="0" step="0.01" value="0">
+                                <div class="error-msg" id="err-bono"></div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Periodo de Pago
+                                    <span class="help-tip" data-tip="Frecuencia de las cuotas. El estándar del enunciado es mensual (mes de 30 días).">?</span>
+                                </label>
+                                <select id="sim-period">
+                                    <option value="30">Mensual (30 días)</option>
+                                    <option value="15">Quincenal (15 días)</option>
+                                    <option value="7">Semanal (7 días)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <div class="slider-row">
+                                    <label>Plazo del Crédito
+                                        <span class="help-tip" data-tip="Duración total del financiamiento en años. En crédito vehicular suele ir de 1 a 7 años.">?</span>
+                                    </label>
+                                    <span class="slider-value" id="val-years">3 años</span>
                                 </div>
-                                <div class="input-group">
-                                    <label>Plazo (Años)</label>
-                                    <select id="sim-years">
-                                        <option value="3">3 años</option>
-                                        <option value="5">5 años</option>
-                                        <option value="7">7 años</option>
-                                    </select>
-                                </div>
+                                <input type="range" id="sim-years" min="1" max="7" step="1" value="3">
+                                <div class="slider-limits"><span>1 año</span><span>7 años</span></div>
                             </div>
                         </div>
 
@@ -124,14 +137,18 @@
                             <h3>3. Tasa y Seguros</h3>
                             <div class="input-grid-2">
                                 <div class="input-group">
-                                    <label>Tipo de Tasa</label>
+                                    <label>Tipo de Tasa
+                                        <span class="help-tip" data-tip="Efectiva (TEA): ya incluye el efecto de la capitalización. Nominal (TNA): requiere definir cada cuánto capitaliza.">?</span>
+                                    </label>
                                     <select id="sim-rate-type">
-                                        <option value="TE">Efectiva</option>
-                                        <option value="TN">Nominal</option>
+                                        <option value="TE">Efectiva (TEA)</option>
+                                        <option value="TN">Nominal (TNA)</option>
                                     </select>
                                 </div>
                                 <div class="input-group">
-                                    <label>Capitalización</label>
+                                    <label>Capitalización
+                                        <span class="help-tip" data-tip="Solo aplica a la tasa nominal: indica cada cuántos días se capitalizan los intereses para convertir la TNA en efectiva.">?</span>
+                                    </label>
                                     <select id="sim-capitalization" disabled>
                                         <option value="1">Diaria (1 día)</option>
                                         <option value="30" selected>Mensual (30 días)</option>
@@ -143,18 +160,24 @@
                             </div>
 
                             <div class="input-group">
-                                <label>Valor de Tasa Anual (%)</label>
-                                <select id="sim-rate-val">
-                                    </select>
+                                <label>Valor de Tasa Anual (%)
+                                    <span class="help-tip" data-tip="Tasa anual que ofrece la entidad (ej. 12.5). Se convierte a la tasa del periodo para calcular el cronograma.">?</span>
+                                </label>
+                                <input type="number" id="sim-rate-val" min="0" step="0.01" value="12.5">
+                                <div class="error-msg" id="err-rate"></div>
                             </div>
 
                             <div class="input-grid-2">
                                 <div class="input-group">
-                                    <label>Seg. Desgravamen (% mensual)</label>
+                                    <label>Seg. Desgravamen (% mensual)
+                                        <span class="help-tip" data-tip="Cubre la deuda ante fallecimiento del titular. Se calcula sobre el saldo pendiente cada mes.">?</span>
+                                    </label>
                                     <input type="number" id="sim-seg-desgravamen" min="0" step="0.0001" value="0.0280">
                                 </div>
                                 <div class="input-group">
-                                    <label>Seg. Vehicular (% mensual)</label>
+                                    <label>Seg. Vehicular (% mensual)
+                                        <span class="help-tip" data-tip="Seguro del vehículo. Se calcula sobre el valor del auto cada mes.">?</span>
+                                    </label>
                                     <input type="number" id="sim-seg-vehicular" min="0" step="0.0001" value="0.0300">
                                 </div>
                             </div>
@@ -169,24 +192,30 @@
 
             <div id="simulation-report-section" class="login-card" style="display: none; margin-top: 30px;">
 
-                <div id="risk-semaphore-container" style="padding: 20px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-weight: 600;">
+                <div id="risk-semaphore-container" style="padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; font-weight: 600;">
                     <span id="risk-client-badge" style="font-size: 18px; display: block;"></span>
                     <span id="risk-client-ratio" style="font-size: 14px; font-weight: 400; color: #475569; display: block; margin-top: 5px;"></span>
                 </div>
 
                 <div class="form-section" style="margin-bottom: 25px;">
                     <h3>Indicadores Obligatorios de Transparencia (SBS)</h3>
-                    <div class="gracia-controls" style="grid-template-columns: repeat(3, 1fr); background-color: #f8fafc;">
+                    <div class="gracia-controls" style="grid-template-columns: repeat(3, 1fr);">
                         <div class="input-group" style="margin: 0; text-align: center;">
-                            <label style="color: var(--text-muted);">TCEA Estimada</label>
-                            <span id="sbs-tcea" style="font-size: 20px; font-weight: 700; color: var(--dark-blue); display: block; margin-top: 5px;">0.00 %</span>
+                            <label style="color: var(--text-muted);">TCEA Estimada
+                                <span class="help-tip" data-tip="Tasa de Costo Efectivo Anual: incluye intereses y seguros. Es el costo real anual del crédito (SBS).">?</span>
+                            </label>
+                            <span id="sbs-tcea" style="font-size: 20px; font-weight: 700; color: var(--primary-dark); display: block; margin-top: 5px;">0.00 %</span>
                         </div>
                         <div class="input-group" style="margin: 0; text-align: center;">
-                            <label style="color: var(--text-muted);">VAN del Deudor</label>
+                            <label style="color: var(--text-muted);">VAN del Deudor
+                                <span class="help-tip" data-tip="Valor Actual Neto del flujo. A la tasa del crédito debe tender a 0, lo que valida el modelo.">?</span>
+                            </label>
                             <span id="sbs-van" style="font-size: 20px; font-weight: 700; color: #0f172a; display: block; margin-top: 5px;">0.00</span>
                         </div>
                         <div class="input-group" style="margin: 0; text-align: center;">
-                            <label style="color: var(--text-muted);">TIR de la Operación</label>
+                            <label style="color: var(--text-muted);">TIR de la Operación
+                                <span class="help-tip" data-tip="Tasa Interna de Retorno del flujo de caja del deudor por periodo.">?</span>
+                            </label>
                             <span id="sbs-tir" style="font-size: 20px; font-weight: 700; color: #0f172a; display: block; margin-top: 5px;">0.00 %</span>
                         </div>
                     </div>
@@ -216,7 +245,9 @@
                 </div>
 
                 <div id="gracia-module" style="margin-top: 35px; padding-top: 25px; border-top: 1px solid var(--border-color);">
-                    <h3 style="color: var(--primary-blue); font-size: 16px; margin-bottom: 15px;">Aplicar Periodo de Gracia Adicional</h3>
+                    <h3 style="color: var(--primary); font-size: 16px; margin-bottom: 15px;">Aplicar Periodo de Gracia Adicional
+                        <span class="help-tip" data-tip="Gracia total: no se paga cuota y el interés se capitaliza. Gracia parcial: se paga solo el interés, sin amortizar capital.">?</span>
+                    </h3>
                     <div class="gracia-controls">
                         <div class="input-group">
                             <label>Tipo de Gracia</label>
