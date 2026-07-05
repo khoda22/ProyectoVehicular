@@ -9,13 +9,13 @@ document.getElementById('entity-form').addEventListener('submit', function(e) {
 
     const entities = JSON.parse(localStorage.getItem('system_entities')) || [];
     if (entities.find(x => x.ruc === newEntity.ruc)) {
-        alert('Ya existe una entidad con ese RUC.');
+        notify.err('Ya existe una entidad con ese RUC.');
         return;
     }
 
     entities.push(newEntity);
     localStorage.setItem('system_entities', JSON.stringify(entities));
-    alert('Entidad financiera registrada con éxito.');
+    notify.ok('Entidad financiera registrada con éxito.');
     document.getElementById('entity-form').reset();
     renderEntities();
 });
@@ -49,5 +49,6 @@ function deleteEntity(ruc) {
     let entities = JSON.parse(localStorage.getItem('system_entities')) || [];
     entities = entities.filter(x => x.ruc !== ruc);
     localStorage.setItem('system_entities', JSON.stringify(entities));
+    notify.ok('Entidad eliminada.');
     renderEntities();
 }

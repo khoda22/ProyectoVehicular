@@ -232,6 +232,7 @@ body {
     color: var(--primary);
 }
 .menu-card .icon-placeholder svg { width: 27px; height: 27px; }
+.menu-card .icon-placeholder i { font-size: 28px; line-height: 1; }
 
 .menu-card h3 { margin-bottom: 8px; color: var(--accent-dark); font-weight: 700; font-size: 18px; }
 .menu-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; }

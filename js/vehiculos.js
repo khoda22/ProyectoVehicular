@@ -13,13 +13,13 @@ document.getElementById('vehicle-form').addEventListener('submit', function(e) {
 
     const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
     if (vehicles.find(v => v.id === newVehicle.id)) {
-        alert('Este código de vehículo ya existe.');
+        notify.err('Este código de vehículo ya existe.');
         return;
     }
 
     vehicles.push(newVehicle);
     localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
-    alert('Vehículo añadido al inventario con éxito.');
+    notify.ok('Vehículo añadido al inventario con éxito.');
     document.getElementById('vehicle-form').reset();
     renderVehiclesHistory();
 });
@@ -43,7 +43,7 @@ document.getElementById('btn-search-car-panel').addEventListener('click', () => 
         resultsPanel.style.display = 'block';
     } else {
         resultsPanel.style.display = 'none';
-        alert('No se encontró ningún vehículo con ese código.');
+        notify.err('No se encontró ningún vehículo con ese código.');
     }
 });
 
@@ -59,7 +59,7 @@ document.getElementById('btn-save-car-edit').addEventListener('click', () => {
         vehicles[index].priceSoles = parseFloat(document.getElementById('edit-car-price-pen').value);
         vehicles[index].priceDollars = parseFloat(document.getElementById('edit-car-price-usd').value);
         localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
-        alert('Datos del vehículo actualizados correctamente.');
+        notify.ok('Datos del vehículo actualizados correctamente.');
         toggleCarFields(true);
         renderVehiclesHistory();
     }

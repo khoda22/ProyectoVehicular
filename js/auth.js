@@ -19,14 +19,14 @@ if (registerForm) {
 
         const users = JSON.parse(localStorage.getItem('users')) || [];
         if (users.some(u => u.username === username)) {
-            alert("El nombre de usuario ya está registrado.");
+            notify.err('El nombre de usuario ya está registrado.');
             return;
         }
 
         users.push({ fullname, username, password, rol: 'asesor' });
         localStorage.setItem('users', JSON.stringify(users));
-        alert("Registro exitoso. Ahora puede iniciar sesión.");
-        window.location.href = "login.html";
+        notify.ok('Registro exitoso. Ahora puede iniciar sesión.');
+        setTimeout(() => window.location.href = 'login.html', 900);
     });
 }
 
@@ -43,9 +43,9 @@ if (loginForm) {
 
         if (validUser) {
             sessionStorage.setItem('activeUser', JSON.stringify(validUser));
-            window.location.href = "simulador.html";
+            window.location.href = 'simulador.html';
         } else {
-            alert("Usuario o contraseña incorrectos.");
+            notify.err('Usuario o contraseña incorrectos.');
         }
     });
 }

@@ -115,11 +115,11 @@ function calculateFinancialPlan() {
         : (activeVehicle.priceDollars ?? activeVehicle.price);
 
     if (!precio || precio <= 0) {
-        alert('El vehículo no tiene precio válido en la moneda seleccionada.');
+        notify.err('El vehículo no tiene precio válido en la moneda seleccionada.');
         return;
     }
     if (!rateVal || rateVal <= 0) {
-        alert('Ingrese un valor de tasa válido.');
+        notify.err('Ingrese un valor de tasa válido.');
         return;
     }
 
@@ -128,11 +128,11 @@ function calculateFinancialPlan() {
     const montoFinanciar = precio - cuotaInicial - bono;
 
     if (montoFinanciar <= 0) {
-        alert('El monto a financiar debe ser mayor a cero. Revise cuota inicial y bono.');
+        notify.err('El monto a financiar debe ser mayor a cero. Revise cuota inicial y bono.');
         return;
     }
     if (balloon >= montoFinanciar) {
-        alert('La cuota final (balloon) no puede ser mayor o igual al monto a financiar.');
+        notify.err('La cuota final (balloon) no puede ser mayor o igual al monto a financiar.');
         return;
     }
 
@@ -273,13 +273,13 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
         workingSchedule = baseSchedule.map(r => ({ ...r }));
         processIndicators();
         renderScheduleTable(workingSchedule);
-        alert('Periodos de gracia restablecidos.');
+        notify.info('Periodos de gracia restablecidos.');
         return;
     }
 
     const targetCuotas = targetInput.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
     if (targetCuotas.length === 0) {
-        alert('Escriba al menos un número de cuota válido.');
+        notify.err('Escriba al menos un número de cuota válido.');
         return;
     }
 
@@ -320,7 +320,7 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
     workingSchedule = rows;
     processIndicators();
     renderScheduleTable(workingSchedule);
-    alert('Cronograma recalculado con el periodo de gracia aplicado.');
+    notify.ok('Cronograma recalculado con el periodo de gracia aplicado.');
 });
 
 // GUARDAR SIMULACIÓN
@@ -343,7 +343,7 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
 
     history.push(sim);
     localStorage.setItem('system_simulations', JSON.stringify(history));
-    alert(`Simulación ${sim.id} guardada exitosamente en el historial del cliente.`);
+    notify.ok(`Simulación ${sim.id} guardada exitosamente en el historial del cliente.`);
     resetSimulationWorkspace();
 });
 

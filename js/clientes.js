@@ -9,7 +9,7 @@ document.getElementById('client-form').addEventListener('submit', function(e) {
         partners: document.getElementById('consent-partners').checked
     };
     if (!consent.simulacion) {
-        alert('El cliente debe autorizar el uso de sus datos para la simulación.');
+        notify.err('El cliente debe autorizar el uso de sus datos para la simulación.');
         return;
     }
 
@@ -25,13 +25,13 @@ document.getElementById('client-form').addEventListener('submit', function(e) {
 
     const clients = JSON.parse(localStorage.getItem('system_clients')) || [];
     if (clients.find(c => c.id === newClient.id)) {
-        alert('Este documento ya se encuentra registrado.');
+        notify.err('Este documento ya se encuentra registrado.');
         return;
     }
 
     clients.push(newClient);
     localStorage.setItem('system_clients', JSON.stringify(clients));
-    alert('Cliente registrado con éxito.');
+    notify.ok('Cliente registrado con éxito.');
     document.getElementById('client-form').reset();
     renderClientsHistory();
 });
@@ -56,7 +56,7 @@ document.getElementById('btn-search-panel').addEventListener('click', () => {
         resultsPanel.style.display = 'block';
     } else {
         resultsPanel.style.display = 'none';
-        alert('No se encontró ningún cliente con ese DNI.');
+        notify.err('No se encontró ningún cliente con ese DNI.');
     }
 });
 
@@ -74,7 +74,7 @@ document.getElementById('btn-save-edit').addEventListener('click', () => {
         clients[index].income = parseFloat(document.getElementById('edit-income').value);
 
         localStorage.setItem('system_clients', JSON.stringify(clients));
-        alert('Datos del cliente actualizados correctamente.');
+        notify.ok('Datos del cliente actualizados correctamente.');
         toggleFields(true);
         renderClientsHistory();
     }
