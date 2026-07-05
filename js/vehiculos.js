@@ -7,8 +7,8 @@ document.getElementById('vehicle-form').addEventListener('submit', function(e) {
         brand: document.getElementById('car-brand').value.trim(),
         model: document.getElementById('car-model').value.trim(),
         year: parseInt(document.getElementById('car-year').value),
-        priceSoles: parseFloat(document.getElementById('car-price-pen').value),
-        priceDollars: parseFloat(document.getElementById('car-price-usd').value)
+        priceSoles: parseMoney(document.getElementById('car-price-pen').value),
+        priceDollars: parseMoney(document.getElementById('car-price-usd').value)
     };
 
     const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
@@ -30,22 +30,27 @@ let vehicleToEdit = null;
 document.getElementById('btn-search-car-panel').addEventListener('click', () => {
     const code = document.getElementById('search-car-code').value.trim().toUpperCase();
     const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
-    vehicleToEdit = vehicles.find(v => v.id === code);
-    const resultsPanel = document.getElementById('car-results-panel');
+    const found = vehicles.find(v => v.id === code);
 
-    if (vehicleToEdit) {
-        document.getElementById('edit-car-brand').value = vehicleToEdit.brand || '';
-        document.getElementById('edit-car-model').value = vehicleToEdit.model || '';
-        document.getElementById('edit-car-year').value = vehicleToEdit.year || '';
-        document.getElementById('edit-car-price-pen').value = vehicleToEdit.priceSoles ?? vehicleToEdit.price ?? '';
-        document.getElementById('edit-car-price-usd').value = vehicleToEdit.priceDollars ?? '';
-        toggleCarFields(true);
-        resultsPanel.style.display = 'block';
+    if (found) {
+        loadVehicleIntoEditPanel(found);
     } else {
-        resultsPanel.style.display = 'none';
+        document.getElementById('car-results-panel').style.display = 'none';
         notify.err('No se encontró ningún vehículo con ese código.');
     }
 });
+
+function loadVehicleIntoEditPanel(vehicle) {
+    vehicleToEdit = vehicle;
+    document.getElementById('edit-car-brand').value = vehicle.brand || '';
+    document.getElementById('edit-car-model').value = vehicle.model || '';
+    document.getElementById('edit-car-year').value = vehicle.year || '';
+    document.getElementById('edit-car-price-pen').value = vehicle.priceSoles ?? vehicle.price ?? '';
+    document.getElementById('edit-car-price-usd').value = vehicle.priceDollars ?? '';
+    toggleCarFields(true);
+    document.getElementById('car-results-panel').style.display = 'block';
+    document.getElementById('car-results-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
 document.getElementById('btn-enable-car-edit').addEventListener('click', () => toggleCarFields(false));
 
@@ -56,8 +61,8 @@ document.getElementById('btn-save-car-edit').addEventListener('click', () => {
         vehicles[index].brand = document.getElementById('edit-car-brand').value.trim();
         vehicles[index].model = document.getElementById('edit-car-model').value.trim();
         vehicles[index].year = parseInt(document.getElementById('edit-car-year').value);
-        vehicles[index].priceSoles = parseFloat(document.getElementById('edit-car-price-pen').value);
-        vehicles[index].priceDollars = parseFloat(document.getElementById('edit-car-price-usd').value);
+        vehicles[index].priceSoles = parseMoney(document.getElementById('edit-car-price-pen').value);
+        vehicles[index].priceDollars = parseMoney(document.getElementById('edit-car-price-usd').value);
         localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
         notify.ok('Datos del vehículo actualizados correctamente.');
         toggleCarFields(true);
@@ -81,7 +86,7 @@ function renderVehiclesHistory() {
     const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
 
     if (vehicles.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No hay vehículos en inventario actualmente.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No hay vehículos en inventario actualmente.</td></tr>`;
         return;
     }
 
@@ -94,9 +99,14 @@ function renderVehiclesHistory() {
             <td>${v.brand || '-'}</td>
             <td>${v.model || '-'}</td>
             <td>${v.year || '-'}</td>
-            <td>S/ ${Number(soles).toFixed(2)}</td>
-            <td>$ ${Number(dolares).toFixed(2)}</td>
+            <td>S/ ${formatMoney(soles)}</td>
+            <td>$ ${formatMoney(dolares)}</td>
+            <td><button class="btn-secondary" style="padding:6px 14px;">Editar</button></td>
         `;
+        tr.querySelector('button').addEventListener('click', () => loadVehicleIntoEditPanel(v));
         tbody.appendChild(tr);
     });
 }
+
+['car-price-pen', 'car-price-usd', 'edit-car-price-pen', 'edit-car-price-usd']
+    .forEach(id => attachMoneyFormat(document.getElementById(id)));

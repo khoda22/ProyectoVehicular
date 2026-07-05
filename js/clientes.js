@@ -19,7 +19,7 @@ document.getElementById('client-form').addEventListener('submit', function(e) {
         email: document.getElementById('client-email').value.trim(),
         phone: document.getElementById('client-phone').value.trim(),
         phone2: document.getElementById('client-phone2').value.trim(),
-        income: parseFloat(document.getElementById('client-income').value),
+        income: parseMoney(document.getElementById('client-income').value),
         consent
     };
 
@@ -47,18 +47,24 @@ document.getElementById('btn-search-panel').addEventListener('click', () => {
     const resultsPanel = document.getElementById('search-results-panel');
 
     if (clientToEdit) {
-        document.getElementById('edit-name').value = clientToEdit.name;
-        document.getElementById('edit-email').value = clientToEdit.email;
-        document.getElementById('edit-phone').value = clientToEdit.phone;
-        document.getElementById('edit-phone2').value = clientToEdit.phone2 || '';
-        document.getElementById('edit-income').value = clientToEdit.income;
-        toggleFields(true);
-        resultsPanel.style.display = 'block';
+        loadClientIntoEditPanel(clientToEdit);
     } else {
         resultsPanel.style.display = 'none';
         notify.err('No se encontró ningún cliente con ese DNI.');
     }
 });
+
+function loadClientIntoEditPanel(client) {
+    clientToEdit = client;
+    document.getElementById('edit-name').value = client.name;
+    document.getElementById('edit-email').value = client.email;
+    document.getElementById('edit-phone').value = client.phone;
+    document.getElementById('edit-phone2').value = client.phone2 || '';
+    document.getElementById('edit-income').value = client.income;
+    toggleFields(true);
+    document.getElementById('search-results-panel').style.display = 'block';
+    document.getElementById('search-results-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
 document.getElementById('btn-enable-edit').addEventListener('click', () => toggleFields(false));
 
@@ -71,7 +77,7 @@ document.getElementById('btn-save-edit').addEventListener('click', () => {
         clients[index].email = document.getElementById('edit-email').value.trim();
         clients[index].phone = document.getElementById('edit-phone').value.trim();
         clients[index].phone2 = document.getElementById('edit-phone2').value.trim();
-        clients[index].income = parseFloat(document.getElementById('edit-income').value);
+        clients[index].income = parseMoney(document.getElementById('edit-income').value);
 
         localStorage.setItem('system_clients', JSON.stringify(clients));
         notify.ok('Datos del cliente actualizados correctamente.');
@@ -98,7 +104,7 @@ function renderClientsHistory() {
     const currencySign = (localStorage.getItem('system_currency') || 'PEN') === 'PEN' ? 'S/' : '$';
 
     if (clients.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No hay clientes registrados actualmente.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No hay clientes registrados actualmente.</td></tr>`;
         return;
     }
 
@@ -113,9 +119,14 @@ function renderClientsHistory() {
             <td>${c.email}</td>
             <td>${c.phone || '-'}</td>
             <td>${c.phone2 || '-'}</td>
-            <td>${currencySign} ${Number(c.income).toFixed(2)}</td>
+            <td>${currencySign} ${formatMoney(c.income)}</td>
             <td style="font-size:12px;">${consentTxt}</td>
+            <td><button class="btn-secondary" style="padding:6px 14px;" data-dni="${c.id}">Editar</button></td>
         `;
+        tr.querySelector('button').addEventListener('click', () => loadClientIntoEditPanel(c));
         tbody.appendChild(tr);
     });
 }
+
+attachMoneyFormat(document.getElementById('client-income'));
+attachMoneyFormat(document.getElementById('edit-income'));

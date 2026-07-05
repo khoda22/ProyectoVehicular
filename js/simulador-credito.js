@@ -103,7 +103,7 @@ function calculateFinancialPlan() {
     const currency = document.getElementById('sim-currency').value;
     const downPct = parseFloat(document.getElementById('sim-downpayment').value) / 100;
     const balloonPct = parseFloat(document.getElementById('sim-balloon').value) / 100;
-    const bono = parseFloat(document.getElementById('sim-bono').value) || 0;
+    const bono = parseMoney(document.getElementById('sim-bono').value) || 0;
     const periodDays = parseInt(document.getElementById('sim-period').value);
     const years = parseInt(document.getElementById('sim-years').value);
     const rateType = document.getElementById('sim-rate-type').value;
@@ -209,7 +209,7 @@ function processIndicators() {
 
     const sign = p.currency === 'PEN' ? 'S/' : '$';
     document.getElementById('sbs-tcea').innerText = `${(tcea * 100).toFixed(2)} %`;
-    document.getElementById('sbs-van').innerText = `${sign} ${van.toFixed(2)}`;
+    document.getElementById('sbs-van').innerText = `${sign} ${formatMoney(van)}`;
     document.getElementById('sbs-tir').innerText = `${(tirPeriodo * 100).toFixed(4)} % (per.)`;
 
     // Semáforo de riesgo: ingreso mensual frente a la primera cuota total
@@ -244,25 +244,25 @@ function renderScheduleTable(data) {
 
     data.forEach(row => {
         const amortLabel = row.balloon > 0.01 && row.num === p.n
-            ? `${row.amortizacion.toFixed(2)} + ${row.balloon.toFixed(2)} (balloon)`
-            : row.amortizacion.toFixed(2);
+            ? `${formatMoney(row.amortizacion)} + ${formatMoney(row.balloon)} (balloon)`
+            : formatMoney(row.amortizacion);
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${row.num}</td>
-            <td>${sign} ${row.saldoInicial.toFixed(2)}</td>
-            <td>${sign} ${row.interes.toFixed(2)}</td>
+            <td>${sign} ${formatMoney(row.saldoInicial)}</td>
+            <td>${sign} ${formatMoney(row.interes)}</td>
             <td>${sign} ${amortLabel}</td>
-            <td>${sign} ${row.segDesg.toFixed(2)}</td>
-            <td>${sign} ${row.segVeh.toFixed(2)}</td>
-            <td style="font-weight:600; color:var(--primary-dark);">${sign} ${row.cuotaTotal.toFixed(2)}</td>
-            <td>${sign} ${row.saldoFinal.toFixed(2)}</td>
+            <td>${sign} ${formatMoney(row.segDesg)}</td>
+            <td>${sign} ${formatMoney(row.segVeh)}</td>
+            <td style="font-weight:600; color:var(--primary-dark);">${sign} ${formatMoney(row.cuotaTotal)}</td>
+            <td>${sign} ${formatMoney(row.saldoFinal)}</td>
         `;
         tbody.appendChild(tr);
     });
 
     const totalPagado = data.reduce((acc, r) => acc + r.cuotaTotal, 0);
     document.getElementById('report-summary-text').innerText =
-        `Moneda: ${p.currency === 'PEN' ? 'Soles' : 'Dólares'} | TEA: ${(p.TEA * 100).toFixed(2)}% | Monto financiado: ${sign} ${p.montoFinanciar.toFixed(2)} | Cuota balloon: ${sign} ${p.balloon.toFixed(2)} | Total pagado: ${sign} ${totalPagado.toFixed(2)}`;
+        `Moneda: ${p.currency === 'PEN' ? 'Soles' : 'Dólares'} | TEA: ${(p.TEA * 100).toFixed(2)}% | Monto financiado: ${sign} ${formatMoney(p.montoFinanciar)} | Cuota balloon: ${sign} ${formatMoney(p.balloon)} | Total pagado: ${sign} ${formatMoney(totalPagado)}`;
 }
 
 // GRACIA (total o parcial) sobre las cuotas indicadas — reconstruye el cronograma en cascada
