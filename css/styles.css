@@ -504,9 +504,10 @@ body.has-sidebar { padding-left: 248px; }
 .sidebar-link:hover { background: var(--primary-soft); color: var(--primary-dark); }
 .sidebar-link.active { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(192, 32, 60, 0.25); }
 
+.sidebar-footer { position: relative; margin-top: 12px; }
 .sidebar-user {
     display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: 14px; margin-bottom: 18px;
+    padding: 9px 10px; border-radius: 14px;
     background: #f8f4f5; border: 1px solid var(--border-soft);
 }
 .sidebar-avatar {
@@ -525,15 +526,39 @@ body.has-sidebar { padding-left: 248px; }
     padding: 2px 7px; border-radius: 999px;
 }
 
-.sidebar-logout {
-    width: 32px; height: 32px; flex-shrink: 0; padding: 0;
+.sidebar-menu-btn {
+    width: 30px; height: 30px; flex-shrink: 0; padding: 0;
     display: flex; align-items: center; justify-content: center;
     border: none; border-radius: 9px; background: none;
     color: var(--text-muted); cursor: pointer;
     transition: all 0.18s ease;
 }
-.sidebar-logout i { font-size: 18px; }
-.sidebar-logout:hover { background: var(--primary-soft); color: var(--primary); }
+.sidebar-menu-btn i { font-size: 18px; }
+.sidebar-menu-btn:hover { background: #fff; color: var(--primary); }
+
+/* Menú desplegable (kebab) — aparece por encima de la tarjeta de usuario */
+.sidebar-menu {
+    position: absolute;
+    bottom: calc(100% + 8px); left: 0; right: 0; min-width: 190px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    padding: 6px;
+    opacity: 0; visibility: hidden; transform: translateY(6px);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+    z-index: 20;
+}
+.sidebar-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.sidebar-menu-item {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    padding: 10px 12px; border-radius: 10px;
+    border: none; background: none; color: var(--text-main);
+    font-weight: 600; font-size: 13.5px; cursor: pointer;
+    font-family: inherit; transition: all 0.16s ease; text-align: left;
+}
+.sidebar-menu-item i { font-size: 18px; color: var(--primary); }
+.sidebar-menu-item:hover { background: var(--primary-soft); color: var(--primary-dark); }
 
 .has-sidebar .dashboard-container,
 .has-sidebar main { margin-top: 32px; }
@@ -549,7 +574,8 @@ body.has-sidebar { padding-left: 248px; }
 @media (max-width: 900px) {
     body.has-sidebar { padding-left: 72px; }
     .app-sidebar { width: 72px; padding: 18px 10px; }
-    .sidebar-link span, .brand-text, .sidebar-user-meta, .sidebar-logout { display: none; }
+    .sidebar-link span, .brand-text, .sidebar-user-meta { display: none; }
     .sidebar-link { justify-content: center; }
     .sidebar-user { justify-content: center; padding: 8px; }
+    .sidebar-menu-btn { display: none; }
 }

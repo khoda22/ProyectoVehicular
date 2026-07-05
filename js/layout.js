@@ -22,10 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebar.className = 'app-sidebar';
     sidebar.innerHTML =
         '<div class="sidebar-brand"><span class="brand-mark"><i class="hgi-stroke hgi-car-01"></i></span><span class="brand-text">Crédito Vehicular</span></div>' +
-        `<div class="sidebar-user"><span class="sidebar-avatar">${userName.charAt(0).toUpperCase()}</span><span class="sidebar-user-meta"><strong>${userName}</strong><small>${roleLabel}</small></span><button class="sidebar-logout" id="app-logout" title="Cerrar sesión" aria-label="Cerrar sesión"><i class="hgi-stroke hgi-logout-01"></i></button></div>` +
         '<nav class="sidebar-nav">' +
         NAV.map(n => `<a href="${n.href}" class="sidebar-link${n.href === page ? ' active' : ''}"><i class="hgi-stroke ${n.icon}"></i><span>${n.label}</span></a>`).join('') +
-        '</nav>';
+        '</nav>' +
+        '<div class="sidebar-footer">' +
+        '<div class="sidebar-menu" id="user-menu">' +
+        '<button class="sidebar-menu-item" id="app-logout"><i class="hgi-stroke hgi-logout-01"></i><span>Cerrar sesión</span></button>' +
+        '</div>' +
+        `<div class="sidebar-user"><span class="sidebar-avatar">${userName.charAt(0).toUpperCase()}</span><span class="sidebar-user-meta"><strong>${userName}</strong><small>${roleLabel}</small></span><button class="sidebar-menu-btn" id="user-menu-btn" aria-label="Opciones" aria-haspopup="true" aria-expanded="false"><i class="hgi-stroke hgi-more-vertical"></i></button></div>` +
+        '</div>';
 
     const oldHeader = document.querySelector('.main-header');
     if (oldHeader) oldHeader.remove();
@@ -36,5 +41,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('app-logout').addEventListener('click', () => {
         if (window.logout) logout();
         else { sessionStorage.removeItem('activeUser'); location.href = 'login.html'; }
+    });
+
+    // Menú de usuario (kebab): abrir/cerrar
+    const menuBtn = document.getElementById('user-menu-btn');
+    const menu = document.getElementById('user-menu');
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = menu.classList.toggle('open');
+        menuBtn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+            menu.classList.remove('open');
+            menuBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { menu.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
     });
 });
