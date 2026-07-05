@@ -73,8 +73,8 @@
             </div>
 
             <div class="input-group">
-                <label>TEA Referencial (%)
-                    <span class="help-tip" data-tip="Tasa anual de referencia de la entidad. Precarga el campo del simulador, donde el asesor puede ajustarla según el perfil del cliente.">?</span>
+                <label>Tasa referencial <strong id="lbl-ref-tipo">(TEA)</strong> — anual (%)
+                    <span class="help-tip" data-tip="Tasa anual de referencia de la entidad, según el tipo elegido arriba (efectiva o nominal). Precarga el campo del simulador, donde el asesor puede ajustarla según el perfil del cliente.">?</span>
                 </label>
                 <input type="number" id="ent-tea" min="0" step="0.01" placeholder="12.5">
             </div>
@@ -117,13 +117,14 @@
 
             <div class="input-group" style="margin-top: 25px; text-align: left;">
                 <label>Tipo de Cambio (S/ por US$)
-                    <span class="help-tip" data-tip="Tipo de cambio referencial. El asesor puede ingresarlo manualmente o traer el del día desde una fuente en línea.">?</span>
+                    <span class="help-tip" data-tip="Tipo de cambio referencial S/ por US$. Es solo informativo: el cronograma calcula en la moneda elegida con el precio del vehículo en esa moneda, no lo convierte con este TC.">?</span>
                 </label>
                 <div style="display:flex; gap:8px;">
                     <input type="text" id="config-tc" placeholder="Ej. 3.75" style="flex:1;">
                     <button type="button" id="btn-fetch-tc" class="btn-secondary" style="white-space:nowrap;">Traer TC del día</button>
                 </div>
                 <div class="status-msg" id="tc-status"></div>
+                <p class="consent-note" style="margin-top:6px;">Fuente del “TC del día”: <strong>open.er-api.com</strong> (tasa de mercado, referencial). El tipo de cambio contable oficial lo publica la <strong>SBS</strong>.</p>
             </div>
 
             <div style="margin-top: 30px;">
@@ -164,6 +165,7 @@
             document.getElementById('ent-tipo-tasa').value = ent.tipoTasa;
             document.getElementById('ent-capitalizacion').value = ent.capitalizacion;
             document.getElementById('ent-capitalizacion').disabled = ent.tipoTasa !== 'TN';
+            document.getElementById('lbl-ref-tipo').textContent = ent.tipoTasa === 'TN' ? '(TNA)' : '(TEA)';
             document.getElementById('ent-tea').value = ent.teaReferencial;
             document.getElementById('ent-seg-desg').value = ent.segDesgravamen;
             document.getElementById('ent-seg-veh').value = ent.segVehicular;
@@ -172,6 +174,7 @@
         // La capitalización solo aplica a tasa nominal
         document.getElementById('ent-tipo-tasa').addEventListener('change', (e) => {
             document.getElementById('ent-capitalizacion').disabled = e.target.value !== 'TN';
+            document.getElementById('lbl-ref-tipo').textContent = e.target.value === 'TN' ? '(TNA)' : '(TEA)';
         });
 
         // Trae un tipo de cambio referencial (API gratuita, sin token)
@@ -184,7 +187,7 @@
                 const pen = data && data.rates && data.rates.PEN;
                 if (!pen) throw new Error('sin dato');
                 document.getElementById('config-tc').value = Number(pen).toFixed(4);
-                status.innerHTML = '<span style="color:#166534;">✔ Tipo de cambio del día cargado (referencial).</span>';
+                status.innerHTML = '<span style="color:#166534;">✔ TC del día cargado desde open.er-api.com (mercado, referencial).</span>';
             } catch (e) {
                 status.innerHTML = '<span style="color:var(--primary);">No se pudo obtener el TC. Ingréselo manualmente.</span>';
             }

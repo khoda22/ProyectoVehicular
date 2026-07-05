@@ -179,7 +179,6 @@ createTypeahead({
 
 // Vuelca los parámetros de la entidad (config) a los campos de solo lectura del simulador
 function applyEntityConfig() {
-    const capLabels = { 1: 'Diaria (1 día)', 30: 'Mensual (30 días)', 90: 'Trimestral (90 días)', 180: 'Semestral (180 días)', 360: 'Anual (360 días)' };
     document.getElementById('sim-rate-type').value = ENTITY.tipoTasa;
     document.getElementById('sim-capitalization').value = ENTITY.capitalizacion;
     document.getElementById('sim-rate-val').value = ENTITY.teaReferencial;
@@ -191,12 +190,34 @@ function applyEntityConfig() {
     if (dispVeh) dispVeh.textContent = ENTITY.segVehicular;
     const tcEl = document.getElementById('sim-tc');
     if (tcEl) tcEl.value = localStorage.getItem('system_tc') || '3.75';
-    const dispType = document.getElementById('disp-rate-type');
-    const dispCap = document.getElementById('disp-cap');
-    if (dispType) dispType.textContent = ENTITY.tipoTasa === 'TE' ? 'Efectiva (TEA)' : 'Nominal (TNA)';
-    if (dispCap) dispCap.textContent = ENTITY.tipoTasa === 'TN' ? (capLabels[ENTITY.capitalizacion] || ENTITY.capitalizacion + ' días') : '—';
+    updateRateHint();
+}
+
+// Adapta la etiqueta (TEA/TNA) y muestra la TEA equivalente cuando la tasa es nominal
+const CAP_LABELS = { 1: 'diaria', 30: 'mensual', 90: 'trimestral', 180: 'semestral', 360: 'anual' };
+function updateRateHint() {
+    const type = document.getElementById('sim-rate-type').value;
+    const lbl = document.getElementById('rate-type-label');
+    const note = document.getElementById('rate-note');
+    if (lbl) lbl.textContent = type === 'TE' ? 'TEA' : 'TNA';
+    if (!note) return;
+    if (type === 'TE') {
+        note.textContent = 'Tasa efectiva anual (TEA): ya incluye la capitalización, se usa directamente.';
+        return;
+    }
+    const capDays = parseInt(document.getElementById('sim-capitalization').value);
+    const m = 360 / capDays;
+    const capTxt = CAP_LABELS[capDays] || (capDays + ' días');
+    const rateVal = parseFloat(document.getElementById('sim-rate-val').value) / 100;
+    if (rateVal > 0) {
+        const tea = (Math.pow(1 + rateVal / m, m) - 1) * 100;
+        note.textContent = `Tasa nominal anual (TNA), capitalización ${capTxt} → equivale a TEA ${tea.toFixed(2)} %.`;
+    } else {
+        note.textContent = `Tasa nominal anual (TNA), capitalización ${capTxt}. Se convertirá a TEA al calcular.`;
+    }
 }
 applyEntityConfig();
+document.getElementById('sim-rate-val').addEventListener('input', updateRateHint);
 
 // Sliders con valor en vivo y relleno de color
 const SLIDERS = [

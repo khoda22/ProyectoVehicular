@@ -190,12 +190,12 @@
                         <input type="hidden" id="sim-capitalization">
 
                         <div class="input-group">
-                            <label>Valor de tasa anual (%) <span class="tc-hint">— ajustable por operación</span>
-                                <span class="help-tip" data-tip="TEA sugerida por la entidad (se precarga desde Configuración). Este es el único parámetro que ajustas por operación, según el perfil crediticio del cliente.">?</span>
+                            <label>Valor de tasa anual — <strong id="rate-type-label" style="color:var(--primary);">TEA</strong> (%) <span class="tc-hint">ajustable por operación</span>
+                                <span class="help-tip" data-tip="El tipo de tasa (efectiva o nominal) se define en Configuración. Aquí ingresas su valor y lo ajustas según el perfil del cliente. Si la entidad usa tasa nominal (TNA), el sistema la convierte a efectiva (TEA) con la capitalización configurada.">?</span>
                             </label>
                             <input type="number" id="sim-rate-val" min="0" step="0.01">
                             <div class="error-msg" id="err-rate"></div>
-                            <p class="field-note">Tipo de tasa: <strong id="disp-rate-type">—</strong> · Capitalización: <strong id="disp-cap">—</strong>.</p>
+                            <p class="field-note" id="rate-note">—</p>
                         </div>
 
                         <!-- Seguros: solo lectura, los fija la entidad en Configuración -->
