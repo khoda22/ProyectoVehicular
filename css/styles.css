@@ -264,6 +264,35 @@ body {
 .live-val.primary { color: var(--primary); }
 
 .lock-icon { font-size: 13px; color: var(--text-muted); vertical-align: -1px; }
+
+/* Captcha simulado (estilo "No soy un robot") — fachada local, sin API externa */
+.captcha-widget {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; background: #f9f9f9;
+    border: 1px solid #d3d3d3; border-radius: 4px;
+    cursor: pointer; user-select: none; transition: border-color 0.15s ease;
+}
+.captcha-widget:hover { border-color: #b8b8b8; }
+.captcha-box {
+    width: 26px; height: 26px; flex-shrink: 0;
+    border: 2px solid #c1c1c1; border-radius: 3px; background: #fff;
+    display: flex; align-items: center; justify-content: center; position: relative;
+}
+.captcha-spinner {
+    width: 20px; height: 20px; display: none;
+    border: 3px solid #d6d6d6; border-top-color: #4285f4; border-radius: 50%;
+    animation: captcha-spin 0.7s linear infinite;
+}
+.captcha-tick { display: none; color: #1aa64b; font-size: 22px; }
+.captcha-widget.loading .captcha-box { border-color: transparent; }
+.captcha-widget.loading .captcha-spinner { display: block; }
+.captcha-widget.verified { cursor: default; }
+.captcha-widget.verified .captcha-box { border-color: transparent; background: transparent; }
+.captcha-widget.verified .captcha-tick { display: block; }
+.captcha-text { flex: 1; font-size: 14px; color: var(--text-main); }
+.captcha-brand { text-align: center; color: #9aa0a6; font-size: 9px; line-height: 1.15; }
+.captcha-brand i { font-size: 20px; color: #4285f4; display: block; margin-bottom: 1px; }
+@keyframes captcha-spin { to { transform: rotate(360deg); } }
 .tc-hint { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
 /* Bono / descuento: bloque agrupado (toggle + monto), no suelto */

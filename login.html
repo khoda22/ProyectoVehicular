@@ -34,10 +34,17 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="captcha-answer">Verificación: ¿cuánto es <strong id="captcha-question" style="color:var(--primary);">…</strong>?
-                        <button type="button" id="captcha-refresh" title="Cambiar operación" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:15px;padding:0 4px;">↻</button>
-                    </label>
-                    <input type="text" id="captcha-answer" inputmode="numeric" placeholder="Escribe el resultado" autocomplete="off" required>
+                    <div class="captcha-widget" id="captcha-widget" role="button" tabindex="0" aria-label="No soy un robot">
+                        <div class="captcha-box">
+                            <span class="captcha-spinner"></span>
+                            <i class="hgi-stroke hgi-tick-02 captcha-tick"></i>
+                        </div>
+                        <span class="captcha-text">No soy un robot</span>
+                        <div class="captcha-brand">
+                            <i class="hgi-stroke hgi-shield-01"></i>
+                            <span>Protección<br><small>anti-bots</small></span>
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-login">Acceder al Sistema</button>

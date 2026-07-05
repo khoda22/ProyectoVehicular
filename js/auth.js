@@ -23,21 +23,24 @@ seedDefaultAdmin();
     }
 })();
 
-// Captcha simple (verificación matemática): fachada funcional, sin librerías externas
-let captchaAnswer = null;
-function generateCaptcha() {
-    const qEl = document.getElementById('captcha-question');
-    if (!qEl) return;
-    const a = Math.floor(Math.random() * 9) + 1;
-    const b = Math.floor(Math.random() * 9) + 1;
-    captchaAnswer = a + b;
-    qEl.textContent = `${a} + ${b}`;
-    const ans = document.getElementById('captcha-answer');
-    if (ans) ans.value = '';
+// Captcha simulado ("No soy un robot"): fachada local con animación, sin API externa
+let captchaVerified = false;
+const captchaWidget = document.getElementById('captcha-widget');
+if (captchaWidget) {
+    const verify = () => {
+        if (captchaVerified || captchaWidget.classList.contains('loading')) return;
+        captchaWidget.classList.add('loading');
+        setTimeout(() => {
+            captchaWidget.classList.remove('loading');
+            captchaWidget.classList.add('verified');
+            captchaVerified = true;
+        }, 700);
+    };
+    captchaWidget.addEventListener('click', verify);
+    captchaWidget.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); verify(); }
+    });
 }
-generateCaptcha();
-const captchaRefresh = document.getElementById('captcha-refresh');
-if (captchaRefresh) captchaRefresh.addEventListener('click', generateCaptcha);
 
 // "¿Olvidó su contraseña?": sin correo, el restablecimiento lo hace el administrador
 const forgotLink = document.getElementById('forgot-link');
@@ -78,9 +81,8 @@ if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        if (parseInt(document.getElementById('captcha-answer').value, 10) !== captchaAnswer) {
-            notify.err('Verificación incorrecta. Inténtalo de nuevo.');
-            generateCaptcha();
+        if (!captchaVerified) {
+            notify.err('Confirma que no eres un robot.');
             return;
         }
 
@@ -95,7 +97,6 @@ if (loginForm) {
             window.location.href = 'simulador-credito.html';
         } else {
             notify.err('Usuario o contraseña incorrectos.');
-            generateCaptcha();
         }
     });
 }
