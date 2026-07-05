@@ -48,6 +48,7 @@ createTypeahead({
             info.innerHTML = '';
         }
         validateFormHability();
+        updateLiveSummary();
     }
 });
 
@@ -566,3 +567,54 @@ function calcularTIR(flujos, estimacion = 0.1) {
     }
     return r;
 }
+
+// RESUMEN EN VIVO — se actualiza mientras se configura, sin generar el cronograma
+function setLive(cuota, tcea, total) {
+    document.getElementById('live-cuota').textContent = cuota;
+    document.getElementById('live-tcea').textContent = tcea;
+    document.getElementById('live-total').textContent = total;
+}
+
+function updateLiveSummary() {
+    if (!document.getElementById('live-summary')) return;
+    if (!activeVehicle) { setLive('—', '—', '—'); return; }
+
+    const currency = document.getElementById('sim-currency').value;
+    const precio = currency === 'PEN' ? (activeVehicle.priceSoles ?? activeVehicle.price) : (activeVehicle.priceDollars ?? activeVehicle.price);
+    if (!precio || precio <= 0) { setLive('—', '—', '—'); return; }
+
+    const downPct = parseFloat(document.getElementById('sim-downpayment').value) / 100;
+    const balloonPct = parseFloat(document.getElementById('sim-balloon').value) / 100;
+    const bono = parseMoney(document.getElementById('sim-bono').value) || 0;
+    const periodDays = parseInt(document.getElementById('sim-period').value);
+    const years = parseInt(document.getElementById('sim-years').value);
+    const rateType = document.getElementById('sim-rate-type').value;
+    const rateVal = parseFloat(document.getElementById('sim-rate-val').value) / 100;
+    const capDays = parseInt(document.getElementById('sim-capitalization').value);
+    const segDesgPct = (parseFloat(document.getElementById('sim-seg-desgravamen').value) || 0) / 100;
+    const segVehPct = (parseFloat(document.getElementById('sim-seg-vehicular').value) || 0) / 100;
+
+    const montoFinanciar = precio - precio * downPct - bono;
+    const balloon = precio * balloonPct;
+    if (!rateVal || rateVal <= 0 || montoFinanciar <= 0 || balloon >= montoFinanciar) { setLive('—', '—', '—'); return; }
+
+    const TEA = rateType === 'TE' ? rateVal : Math.pow(1 + rateVal / (360 / capDays), 360 / capDays) - 1;
+    const i = Math.pow(1 + TEA, periodDays / 360) - 1;
+    const n = Math.round(years * 360 / periodDays);
+    const base = montoFinanciar - balloon / Math.pow(1 + i, n);
+    const cuotaFija = i === 0 ? base / n : base * (i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1);
+    const sched = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct);
+    const total = sched.reduce((a, r) => a + r.cuotaTotal, 0);
+    const flujo = [montoFinanciar];
+    sched.forEach(r => flujo.push(-r.cuotaTotal));
+    const tcea = Math.pow(1 + calcularTIR(flujo), 360 / periodDays) - 1;
+    const sign = currency === 'PEN' ? 'S/' : '$';
+
+    setLive(`${sign} ${formatMoney(sched[0].cuotaTotal)}`, `${(tcea * 100).toFixed(2)} %`, `${sign} ${formatMoney(total)}`);
+}
+
+['sim-currency', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-years', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular']
+    .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateLiveSummary);
+    });
