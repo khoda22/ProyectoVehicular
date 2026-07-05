@@ -504,14 +504,9 @@ body.has-sidebar { padding-left: 248px; }
 .sidebar-link:hover { background: var(--primary-soft); color: var(--primary-dark); }
 .sidebar-link.active { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(192, 32, 60, 0.25); }
 
-.sidebar-footer {
-    border-top: 1px solid var(--border-color);
-    padding-top: 14px; margin-top: 8px;
-    display: flex; flex-direction: column; gap: 6px;
-}
 .sidebar-user {
-    display: flex; align-items: center; gap: 11px;
-    padding: 10px 11px; border-radius: 14px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 14px; margin-bottom: 18px;
     background: #f8f4f5; border: 1px solid var(--border-soft);
 }
 .sidebar-avatar {
@@ -521,7 +516,7 @@ body.has-sidebar { padding-left: 248px; }
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: 15px;
 }
-.sidebar-user-meta { display: flex; flex-direction: column; gap: 3px; line-height: 1.1; overflow: hidden; }
+.sidebar-user-meta { flex: 1; display: flex; flex-direction: column; gap: 3px; line-height: 1.1; overflow: hidden; }
 .sidebar-user-meta strong { font-size: 13.5px; color: var(--accent-dark); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-user-meta small {
     align-self: flex-start;
@@ -531,11 +526,11 @@ body.has-sidebar { padding-left: 248px; }
 }
 
 .sidebar-logout {
-    display: flex; align-items: center; gap: 11px; width: 100%;
-    padding: 10px 12px; border-radius: 12px;
-    border: none; background: none; color: var(--text-muted);
-    font-weight: 600; font-size: 13.5px; cursor: pointer;
-    font-family: inherit; transition: all 0.18s ease;
+    width: 32px; height: 32px; flex-shrink: 0; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: none; border-radius: 9px; background: none;
+    color: var(--text-muted); cursor: pointer;
+    transition: all 0.18s ease;
 }
 .sidebar-logout i { font-size: 18px; }
 .sidebar-logout:hover { background: var(--primary-soft); color: var(--primary); }
@@ -554,7 +549,7 @@ body.has-sidebar { padding-left: 248px; }
 @media (max-width: 900px) {
     body.has-sidebar { padding-left: 72px; }
     .app-sidebar { width: 72px; padding: 18px 10px; }
-    .sidebar-link span, .sidebar-logout span, .brand-text, .sidebar-user-meta { display: none; }
-    .sidebar-link, .sidebar-logout { justify-content: center; }
-    .sidebar-user { justify-content: center; padding: 6px 0 10px; }
+    .sidebar-link span, .brand-text, .sidebar-user-meta, .sidebar-logout { display: none; }
+    .sidebar-link { justify-content: center; }
+    .sidebar-user { justify-content: center; padding: 8px; }
 }

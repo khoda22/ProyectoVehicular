@@ -22,13 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebar.className = 'app-sidebar';
     sidebar.innerHTML =
         '<div class="sidebar-brand"><span class="brand-mark"><i class="hgi-stroke hgi-car-01"></i></span><span class="brand-text">Crédito Vehicular</span></div>' +
+        `<div class="sidebar-user"><span class="sidebar-avatar">${userName.charAt(0).toUpperCase()}</span><span class="sidebar-user-meta"><strong>${userName}</strong><small>${roleLabel}</small></span><button class="sidebar-logout" id="app-logout" title="Cerrar sesión" aria-label="Cerrar sesión"><i class="hgi-stroke hgi-logout-01"></i></button></div>` +
         '<nav class="sidebar-nav">' +
         NAV.map(n => `<a href="${n.href}" class="sidebar-link${n.href === page ? ' active' : ''}"><i class="hgi-stroke ${n.icon}"></i><span>${n.label}</span></a>`).join('') +
-        '</nav>' +
-        '<div class="sidebar-footer">' +
-        `<div class="sidebar-user"><span class="sidebar-avatar">${userName.charAt(0).toUpperCase()}</span><span class="sidebar-user-meta"><strong>${userName}</strong><small>${roleLabel}</small></span></div>` +
-        '<button class="sidebar-logout" id="app-logout"><i class="hgi-stroke hgi-logout-01"></i><span>Cerrar sesión</span></button>' +
-        '</div>';
+        '</nav>';
 
     const oldHeader = document.querySelector('.main-header');
     if (oldHeader) oldHeader.remove();
