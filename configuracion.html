@@ -95,12 +95,6 @@
                 </div>
             </div>
 
-            <div class="input-group">
-                <label>Costo de oportunidad — COK anual (%)
-                    <span class="help-tip" data-tip="Tasa de descuento del deudor (su costo de oportunidad del capital). Se usa para calcular el VAN del préstamo: si el COK supera a la TCEA, el VAN es positivo (le conviene financiarse).">?</span>
-                </label>
-                <input type="number" id="ent-cok" min="0" step="0.01" placeholder="50">
-            </div>
         </div>
 
         <div class="login-card" style="max-width: 620px; margin: 0 auto;">
@@ -151,8 +145,7 @@
             capitalizacion: 30,
             teaReferencial: 12.5,
             segDesgravamen: 0.0714,
-            segVehicular: 0.32,
-            cok: 50
+            segVehicular: 0.32
         };
 
         function loadEntity() {
@@ -179,7 +172,6 @@
             document.getElementById('ent-tea').value = ent.teaReferencial;
             document.getElementById('ent-seg-desg').value = ent.segDesgravamen;
             document.getElementById('ent-seg-veh').value = ent.segVehicular;
-            document.getElementById('ent-cok').value = ent.cok;
         });
 
         // La capitalización solo aplica a tasa nominal
@@ -245,8 +237,7 @@
                 capitalizacion: parseInt(document.getElementById('ent-capitalizacion').value),
                 teaReferencial: parseFloat(document.getElementById('ent-tea').value) || 0,
                 segDesgravamen: parseFloat(document.getElementById('ent-seg-desg').value) || 0,
-                segVehicular: parseFloat(document.getElementById('ent-seg-veh').value) || 0,
-                cok: parseFloat(document.getElementById('ent-cok').value) || 0
+                segVehicular: parseFloat(document.getElementById('ent-seg-veh').value) || 0
             };
             localStorage.setItem('system_entity', JSON.stringify(entity));
 

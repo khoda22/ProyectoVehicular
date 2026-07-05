@@ -15,7 +15,7 @@ function switchTab(tabId) {
 }
 
 // Somos la entidad: sus parámetros vienen de Configuración (system_entity)
-const ENTITY_DEFAULTS = { nombre: 'Financiera Compra Inteligente', ruc: '20512345678', tipoTasa: 'TE', capitalizacion: 30, teaReferencial: 12.5, segDesgravamen: 0.0714, segVehicular: 0.32, cok: 50 };
+const ENTITY_DEFAULTS = { nombre: 'Financiera Compra Inteligente', ruc: '20512345678', tipoTasa: 'TE', capitalizacion: 30, teaReferencial: 12.5, segDesgravamen: 0.0714, segVehicular: 0.32 };
 const ENTITY = { ...ENTITY_DEFAULTS, ...(JSON.parse(localStorage.getItem('system_entity')) || {}) };
 
 // Buscadores typeahead (escribe y filtra; no listas completas)
@@ -397,24 +397,23 @@ function buildSchedule(monto, i, cuota, n, balloon, precio, dDesg, dVeh) {
 function processIndicators() {
     const p = currentParams;
 
-    // Flujo de caja del deudor: recibe el financiamiento (+) y paga las cuotas totales (−)
-    const flujo = [p.montoFinanciar];
-    workingSchedule.forEach(r => flujo.push(-r.cuotaTotal));
+    // VAN del deudor: flujo capital+interés descontado a la tasa del crédito → valida el modelo (≈0),
+    // tal como lo define el informe y el ejemplo de referencia (id = tasa del crédito).
+    const flujoFin = [p.montoFinanciar];
+    workingSchedule.forEach(r => flujoFin.push(-r.cuota));
+    const van = calcularVAN(flujoFin, p.i);
+    const tirPeriodo = calcularTIR(flujoFin);
 
-    // TIR de la operación (por periodo) y TCEA (anualizada) → costo real del crédito
-    const tir = calcularTIR(flujo);
-    const tcea = Math.pow(1 + tir, 360 / p.periodDays) - 1;
-
-    // VAN del deudor: el flujo se descuenta al COSTO DE OPORTUNIDAD (COK), no a la tasa del crédito.
-    // COK > TCEA → VAN positivo (financiarse conviene frente a su alternativa).
-    const cokAnual = (ENTITY.cok ?? 0) / 100;
-    const cokPeriodo = Math.pow(1 + cokAnual, p.periodDays / 360) - 1;
-    const van = calcularVAN(flujo, cokPeriodo);
+    // Flujo total (con seguros) → TCEA de transparencia (SBS)
+    const flujoTotal = [p.montoFinanciar];
+    workingSchedule.forEach(r => flujoTotal.push(-r.cuotaTotal));
+    const tirTotal = calcularTIR(flujoTotal);
+    const tcea = Math.pow(1 + tirTotal, 360 / p.periodDays) - 1;
 
     const sign = p.currency === 'PEN' ? 'S/' : '$';
     document.getElementById('sbs-tcea').innerText = `${(tcea * 100).toFixed(2)} %`;
     document.getElementById('sbs-van').innerText = `${sign} ${formatMoney(van)}`;
-    document.getElementById('sbs-tir').innerText = `${(tir * 100).toFixed(4)} % (per.)`;
+    document.getElementById('sbs-tir').innerText = `${(tirPeriodo * 100).toFixed(4)} % (per.)`;
 
     // Semáforo de riesgo: carga financiera = primera cuota como % del ingreso mensual (regla SBS ≤ 40%)
     const primeraCuota = workingSchedule[0].cuotaTotal;
