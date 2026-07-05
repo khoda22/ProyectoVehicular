@@ -77,6 +77,7 @@
                     <span class="help-tip" data-tip="Tasa anual de referencia de la entidad, según el tipo elegido arriba (efectiva o nominal). Precarga el campo del simulador, donde el asesor puede ajustarla según el perfil del cliente.">?</span>
                 </label>
                 <input type="number" id="ent-tea" min="0" step="0.01" placeholder="12.5">
+                <p class="field-note" id="ent-tea-note"></p>
             </div>
 
             <div class="input-grid-2">
@@ -166,16 +167,38 @@
             document.getElementById('ent-capitalizacion').value = ent.capitalizacion;
             document.getElementById('ent-capitalizacion').disabled = ent.tipoTasa !== 'TN';
             document.getElementById('lbl-ref-tipo').textContent = ent.tipoTasa === 'TN' ? '(TNA)' : '(TEA)';
+            updateConfigRateNote();
             document.getElementById('ent-tea').value = ent.teaReferencial;
             document.getElementById('ent-seg-desg').value = ent.segDesgravamen;
             document.getElementById('ent-seg-veh').value = ent.segVehicular;
         });
 
         // La capitalización solo aplica a tasa nominal
+        // Muestra la TEA equivalente cuando la tasa configurada es nominal
+        function updateConfigRateNote() {
+            const type = document.getElementById('ent-tipo-tasa').value;
+            const note = document.getElementById('ent-tea-note');
+            if (!note) return;
+            if (type === 'TE') { note.textContent = 'Tasa efectiva: se usa directamente en el cálculo.'; return; }
+            const cap = parseInt(document.getElementById('ent-capitalizacion').value);
+            const m = 360 / cap;
+            const rv = parseFloat(document.getElementById('ent-tea').value) / 100;
+            const capTxt = { 1: 'diaria', 30: 'mensual', 90: 'trimestral', 180: 'semestral', 360: 'anual' }[cap] || (cap + ' días');
+            if (rv > 0) {
+                const tea = (Math.pow(1 + rv / m, m) - 1) * 100;
+                note.textContent = `Nominal (TNA), capitalización ${capTxt} → equivale a TEA ${tea.toFixed(2)} %.`;
+            } else {
+                note.textContent = `Nominal (TNA), capitalización ${capTxt}. Ingresa el valor de la tasa.`;
+            }
+        }
+
         document.getElementById('ent-tipo-tasa').addEventListener('change', (e) => {
             document.getElementById('ent-capitalizacion').disabled = e.target.value !== 'TN';
             document.getElementById('lbl-ref-tipo').textContent = e.target.value === 'TN' ? '(TNA)' : '(TEA)';
+            updateConfigRateNote();
         });
+        document.getElementById('ent-capitalizacion').addEventListener('change', updateConfigRateNote);
+        document.getElementById('ent-tea').addEventListener('input', updateConfigRateNote);
 
         // Trae un tipo de cambio referencial (API gratuita, sin token)
         document.getElementById('btn-fetch-tc').addEventListener('click', async () => {

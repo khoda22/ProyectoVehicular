@@ -130,12 +130,12 @@
                             <div class="input-group">
                                 <div class="slider-row">
                                     <label>Plazo del crédito
-                                        <span class="help-tip" data-tip="Duración total del financiamiento en años. En crédito vehicular suele ir de 1 a 7 años.">?</span>
+                                        <span class="help-tip" data-tip="Duración total del financiamiento en meses. En crédito vehicular BBVA llega hasta 72 meses (6 años).">?</span>
                                     </label>
-                                    <span class="slider-value" id="val-years">3 años</span>
+                                    <span class="slider-value" id="val-months">36 meses</span>
                                 </div>
-                                <input type="range" id="sim-years" min="1" max="7" step="1" value="3">
-                                <div class="slider-limits"><span>1 año</span><span>7 años</span></div>
+                                <input type="range" id="sim-months" min="12" max="72" step="6" value="36">
+                                <div class="slider-limits"><span>12 meses</span><span>72 meses</span></div>
                             </div>
                         </div>
 
@@ -183,15 +183,36 @@
                     <div class="wizard-panel" data-panel="3">
                         <div class="login-header" style="text-align:left; margin-bottom:22px;">
                             <h2>Tasa y seguros</h2>
-                            <p>Parámetros definidos por la entidad; ajusta la tasa según el perfil del cliente</p>
+                            <p>Elige el tipo de tasa y ajústala según el perfil del cliente. Los seguros los fija la entidad.</p>
                         </div>
 
-                        <input type="hidden" id="sim-rate-type">
-                        <input type="hidden" id="sim-capitalization">
+                        <div class="input-grid-2">
+                            <div class="input-group">
+                                <label>Tipo de tasa
+                                    <span class="help-tip" data-tip="Elige si la tasa que vas a ingresar es efectiva (TEA) o nominal (TNA). Se precarga desde Configuración, pero puedes cambiarla en esta operación.">?</span>
+                                </label>
+                                <select id="sim-rate-type">
+                                    <option value="TE">Efectiva (TEA)</option>
+                                    <option value="TN">Nominal (TNA)</option>
+                                </select>
+                            </div>
+                            <div class="input-group" id="cap-group" style="display:none;">
+                                <label>Capitalización
+                                    <span class="help-tip" data-tip="Solo para tasa nominal: cada cuántos días se capitalizan los intereses para convertir la TNA en TEA.">?</span>
+                                </label>
+                                <select id="sim-capitalization">
+                                    <option value="1">Diaria (1 día)</option>
+                                    <option value="30">Mensual (30 días)</option>
+                                    <option value="90">Trimestral (90 días)</option>
+                                    <option value="180">Semestral (180 días)</option>
+                                    <option value="360">Anual (360 días)</option>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="input-group">
                             <label>Valor de tasa anual — <strong id="rate-type-label" style="color:var(--primary);">TEA</strong> (%) <span class="tc-hint">ajustable por operación</span>
-                                <span class="help-tip" data-tip="El tipo de tasa (efectiva o nominal) se define en Configuración. Aquí ingresas su valor y lo ajustas según el perfil del cliente. Si la entidad usa tasa nominal (TNA), el sistema la convierte a efectiva (TEA) con la capitalización configurada.">?</span>
+                                <span class="help-tip" data-tip="Ingresa el valor de la tasa según el tipo elegido. Si es nominal (TNA), el sistema la convierte automáticamente a efectiva (TEA) con la capitalización que elijas.">?</span>
                             </label>
                             <input type="number" id="sim-rate-val" min="0" step="0.01">
                             <div class="error-msg" id="err-rate"></div>
@@ -205,15 +226,21 @@
                                 <a href="configuracion.html">Editar en Configuración</a>
                             </div>
                             <div class="readonly-info-body">
-                                <div>
-                                    <span>Seg. desgravamen</span>
-                                    <strong><span id="disp-seg-desg">—</span> % mensual</strong>
-                                    <small>sobre el saldo pendiente</small>
+                                <div class="ro-metric">
+                                    <span class="ro-metric-icon"><i class="hgi-stroke hgi-shield-01"></i></span>
+                                    <div>
+                                        <span class="ro-metric-label">Seg. desgravamen</span>
+                                        <strong class="ro-metric-val"><span id="disp-seg-desg">—</span><em>% / mes</em></strong>
+                                        <small>sobre el saldo pendiente</small>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span>Seg. vehicular</span>
-                                    <strong><span id="disp-seg-veh">—</span> % mensual</strong>
-                                    <small>sobre el precio del vehículo</small>
+                                <div class="ro-metric">
+                                    <span class="ro-metric-icon"><i class="hgi-stroke hgi-car-01"></i></span>
+                                    <div>
+                                        <span class="ro-metric-label">Seg. vehicular</span>
+                                        <strong class="ro-metric-val"><span id="disp-seg-veh">—</span><em>% / mes</em></strong>
+                                        <small>sobre el precio del vehículo</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>

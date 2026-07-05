@@ -190,7 +190,14 @@ function applyEntityConfig() {
     if (dispVeh) dispVeh.textContent = ENTITY.segVehicular;
     const tcEl = document.getElementById('sim-tc');
     if (tcEl) tcEl.value = localStorage.getItem('system_tc') || '3.75';
+    toggleCapGroup();
     updateRateHint();
+}
+
+// La capitalización solo aplica (y se muestra) cuando la tasa es nominal
+function toggleCapGroup() {
+    const capGroup = document.getElementById('cap-group');
+    if (capGroup) capGroup.style.display = document.getElementById('sim-rate-type').value === 'TN' ? '' : 'none';
 }
 
 // Adapta la etiqueta (TEA/TNA) y muestra la TEA equivalente cuando la tasa es nominal
@@ -218,12 +225,14 @@ function updateRateHint() {
 }
 applyEntityConfig();
 document.getElementById('sim-rate-val').addEventListener('input', updateRateHint);
+document.getElementById('sim-rate-type').addEventListener('change', () => { toggleCapGroup(); updateRateHint(); updateLiveSummary(); });
+document.getElementById('sim-capitalization').addEventListener('change', () => { updateRateHint(); updateLiveSummary(); });
 
 // Sliders con valor en vivo y relleno de color
 const SLIDERS = [
     ['sim-downpayment', 'val-downpayment', ' %'],
     ['sim-balloon', 'val-balloon', ' %'],
-    ['sim-years', 'val-years', ' años']
+    ['sim-months', 'val-months', ' meses']
 ];
 function paintSlider(id, outId, unit) {
     const el = document.getElementById(id);
@@ -233,7 +242,7 @@ function paintSlider(id, outId, unit) {
     const pct = max === min ? 0 : ((Number(el.value) - min) / (max - min)) * 100;
     el.style.setProperty('--_p', pct + '%');
     const out = document.getElementById(outId);
-    if (out) out.textContent = (unit === ' años' && el.value === '1') ? '1 año' : el.value + unit;
+    if (out) out.textContent = el.value + unit;
 }
 function paintAllSliders() { SLIDERS.forEach(s => paintSlider(...s)); }
 SLIDERS.forEach(([id, outId, unit]) => {
@@ -282,7 +291,7 @@ function calculateFinancialPlan() {
     const balloonPct = parseFloat(document.getElementById('sim-balloon').value) / 100;
     const bono = parseMoney(document.getElementById('sim-bono').value) || 0;
     const periodDays = parseInt(document.getElementById('sim-period').value);
-    const years = parseInt(document.getElementById('sim-years').value);
+    const months = parseInt(document.getElementById('sim-months').value);
     const rateType = document.getElementById('sim-rate-type').value;
     const rateVal = parseFloat(document.getElementById('sim-rate-val').value) / 100;
     const capDays = parseInt(document.getElementById('sim-capitalization').value);
@@ -324,7 +333,7 @@ function calculateFinancialPlan() {
         TEA = Math.pow(1 + rateVal / m, m) - 1;
     }
     const i = Math.pow(1 + TEA, periodDays / 360) - 1;
-    const n = Math.round(years * 360 / periodDays);
+    const n = Math.round(months * 30 / periodDays);
 
     // Cuota nivelada: se calcula a la tasa combinada (interés + desgravamen) para que la cuota
     // total sea CONSTANTE; la amortización absorbe la variación del seguro (modelo BBVA/Excel).
@@ -786,7 +795,7 @@ function updateLiveSummary() {
     const balloonPct = parseFloat(document.getElementById('sim-balloon').value) / 100;
     const bono = parseMoney(document.getElementById('sim-bono').value) || 0;
     const periodDays = parseInt(document.getElementById('sim-period').value);
-    const years = parseInt(document.getElementById('sim-years').value);
+    const months = parseInt(document.getElementById('sim-months').value);
     const rateType = document.getElementById('sim-rate-type').value;
     const rateVal = parseFloat(document.getElementById('sim-rate-val').value) / 100;
     const capDays = parseInt(document.getElementById('sim-capitalization').value);
@@ -799,7 +808,7 @@ function updateLiveSummary() {
 
     const TEA = rateType === 'TE' ? rateVal : Math.pow(1 + rateVal / (360 / capDays), 360 / capDays) - 1;
     const i = Math.pow(1 + TEA, periodDays / 360) - 1;
-    const n = Math.round(years * 360 / periodDays);
+    const n = Math.round(months * 30 / periodDays);
     const er = i + segDesgPct;
     const base = montoFinanciar - balloon / Math.pow(1 + er, n);
     const cuotaFija = er === 0 ? base / n : base * (er * Math.pow(1 + er, n)) / (Math.pow(1 + er, n) - 1);
@@ -813,7 +822,7 @@ function updateLiveSummary() {
     setLive(`${sign} ${formatMoney(sched[0].cuotaTotal)}`, `${(tcea * 100).toFixed(2)} %`, `${sign} ${formatMoney(total)}`);
 }
 
-['sim-currency', 'sim-tc', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-years', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular']
+['sim-currency', 'sim-tc', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-months', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular']
     .forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateLiveSummary);
