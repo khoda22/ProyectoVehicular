@@ -14,23 +14,51 @@ function switchTab(tabId) {
     if (tabId === 'tab-historial') renderFullHistory();
 }
 
-// Poblar desplegables desde los registros guardados (mejor UX que escribir códigos)
-function populateSelect(selectId, storageKey, mapFn, placeholder) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    select.innerHTML = `<option value="">${placeholder}</option>`;
-    const list = JSON.parse(localStorage.getItem(storageKey)) || [];
-    list.forEach(item => {
-        const opt = document.createElement('option');
-        const { value, text } = mapFn(item);
-        opt.value = value;
-        opt.textContent = text;
-        select.appendChild(opt);
-    });
-}
-populateSelect('sim-client-id', 'system_clients', c => ({ value: c.id, text: `${c.name} (DNI ${c.id})` }), 'Seleccione un cliente...');
-populateSelect('sim-car-id', 'system_vehicles', v => ({ value: v.id, text: `${v.brand || ''} ${v.model} (${v.id})` }), 'Seleccione un vehículo...');
-populateSelect('sim-bank', 'system_entities', e => ({ value: e.name, text: `${e.name} (RUC ${e.ruc})` }), 'Seleccione una entidad...');
+// Buscadores typeahead (escribe y filtra; no listas completas)
+let activeBank = '';
+
+createTypeahead({
+    inputId: 'sim-client-id',
+    getList: () => JSON.parse(localStorage.getItem('system_clients')) || [],
+    match: (c, q) => c.id.toLowerCase().includes(q) || (c.name || '').toLowerCase().includes(q),
+    label: c => `${c.name} — DNI ${c.id}`,
+    emptyText: 'No hay clientes registrados.',
+    onSelect: (c) => {
+        activeClient = c;
+        const info = document.getElementById('sim-client-info');
+        info.innerHTML = c ? `<span style="color:#166534;">✔ ${c.name} · Ingresos: S/ ${formatMoney(c.income)}</span>` : '';
+        validateFormHability();
+    }
+});
+
+createTypeahead({
+    inputId: 'sim-car-id',
+    getList: () => JSON.parse(localStorage.getItem('system_vehicles')) || [],
+    match: (v, q) => (v.id || '').toLowerCase().includes(q) || (v.model || '').toLowerCase().includes(q) || (v.brand || '').toLowerCase().includes(q),
+    label: v => `${v.brand || ''} ${v.model} — ${v.id}`,
+    emptyText: 'No hay vehículos registrados.',
+    onSelect: (v) => {
+        activeVehicle = v;
+        const info = document.getElementById('sim-car-info');
+        if (v) {
+            const pen = v.priceSoles ?? v.price ?? 0;
+            const usd = v.priceDollars ?? 0;
+            info.innerHTML = `<span style="color:#166534;">✔ ${v.brand || ''} ${v.model} · S/ ${formatMoney(pen)} / $ ${formatMoney(usd)}</span>`;
+        } else {
+            info.innerHTML = '';
+        }
+        validateFormHability();
+    }
+});
+
+createTypeahead({
+    inputId: 'sim-bank',
+    getList: () => JSON.parse(localStorage.getItem('system_entities')) || [],
+    match: (e, q) => (e.name || '').toLowerCase().includes(q) || (e.ruc || '').toLowerCase().includes(q),
+    label: e => `${e.name} (RUC ${e.ruc})`,
+    emptyText: 'No hay entidades registradas.',
+    onSelect: (e) => { activeBank = e ? e.name : ''; }
+});
 
 // Sliders con valor en vivo y relleno de color
 const SLIDERS = [
@@ -59,32 +87,6 @@ paintAllSliders();
 const rateTypeSelect = document.getElementById('sim-rate-type');
 rateTypeSelect.addEventListener('change', () => {
     document.getElementById('sim-capitalization').disabled = rateTypeSelect.value !== 'TN';
-});
-
-// Selección de cliente
-document.getElementById('sim-client-id').addEventListener('change', function() {
-    const list = JSON.parse(localStorage.getItem('system_clients')) || [];
-    activeClient = list.find(c => c.id === this.value) || null;
-    const info = document.getElementById('sim-client-info');
-    info.innerHTML = activeClient
-        ? `<span style="color:#166534;">✔ ${activeClient.name} · Ingresos: ${activeClient.income}</span>`
-        : '';
-    validateFormHability();
-});
-
-// Selección de vehículo
-document.getElementById('sim-car-id').addEventListener('change', function() {
-    const list = JSON.parse(localStorage.getItem('system_vehicles')) || [];
-    activeVehicle = list.find(v => v.id === this.value) || null;
-    const info = document.getElementById('sim-car-info');
-    if (activeVehicle) {
-        const pen = activeVehicle.priceSoles ?? activeVehicle.price ?? 0;
-        const usd = activeVehicle.priceDollars ?? 0;
-        info.innerHTML = `<span style="color:#166534;">✔ ${activeVehicle.brand || ''} ${activeVehicle.model} · S/ ${Number(pen).toFixed(2)} / $ ${Number(usd).toFixed(2)}</span>`;
-    } else {
-        info.innerHTML = '';
-    }
-    validateFormHability();
 });
 
 function validateFormHability() {
@@ -333,7 +335,7 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
         clientDni: activeClient.id,
         clientName: activeClient.name,
         carModel: activeVehicle.model,
-        bank: document.getElementById('sim-bank').value,
+        bank: activeBank || document.getElementById('sim-bank').value,
         currency: currentParams.currency,
         tea: currentParams.TEA,
         montoFinanciar: currentParams.montoFinanciar,
@@ -356,6 +358,7 @@ function resetSimulationWorkspace() {
     paintAllSliders();
     activeClient = null;
     activeVehicle = null;
+    activeBank = '';
     currentParams = null;
     validateFormHability();
 }

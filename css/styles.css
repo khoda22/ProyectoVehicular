@@ -318,6 +318,29 @@ input[type="range"]::-moz-range-track { height: 8px; border-radius: 999px; backg
 
 .slider-limits { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 
+/* ---------- Typeahead (buscadores) ---------- */
+.typeahead-wrap { position: relative; }
+.typeahead-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    z-index: 60;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.typeahead-item {
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.typeahead-item:hover { background: var(--primary-soft); color: var(--primary-dark); }
+.typeahead-empty { padding: 10px 14px; font-size: 13px; color: var(--text-muted); }
+
 /* ---------- Toggle pill ---------- */
 .pill-group { display: inline-flex; background: var(--primary-soft); border-radius: 999px; padding: 4px; gap: 4px; }
 .pill-group button {
