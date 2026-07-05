@@ -154,6 +154,14 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Configuración es exclusiva del administrador (parámetros institucionales de la entidad)
+            const activeUser = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
+            if (!activeUser || activeUser.rol !== 'admin') {
+                notify.err('Configuración es exclusiva del administrador.');
+                setTimeout(() => location.href = 'simulador-credito.html', 1300);
+                return;
+            }
+
             // Moneda + tipo de cambio
             const currentCurrency = localStorage.getItem('system_currency') || 'PEN';
             if (currentCurrency === 'PEN') document.getElementById('radio-pen').checked = true;

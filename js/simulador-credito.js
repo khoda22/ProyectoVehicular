@@ -224,6 +224,13 @@ function updateRateHint() {
     }
 }
 applyEntityConfig();
+// El enlace a Configuración solo aplica al admin; el asesor no edita los parámetros de la entidad
+(() => {
+    const u = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
+    if (!u || u.rol !== 'admin') {
+        document.querySelectorAll('a[href="configuracion.html"]').forEach(a => a.remove());
+    }
+})();
 document.getElementById('sim-rate-val').addEventListener('input', updateRateHint);
 document.getElementById('sim-rate-type').addEventListener('change', () => { toggleCapGroup(); updateRateHint(); updateLiveSummary(); });
 document.getElementById('sim-capitalization').addEventListener('change', () => { updateRateHint(); updateLiveSummary(); });

@@ -7,13 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const NAV = [
         { href: 'simulador-credito.html', label: 'Créditos', icon: 'hgi-invoice-01' },
         { href: 'registro-cliente.html', label: 'Clientes', icon: 'hgi-user-multiple' },
-        { href: 'gestion-vehiculos.html', label: 'Vehículos', icon: 'hgi-car-01' },
-        { href: 'configuracion.html', label: 'Configuración', icon: 'hgi-settings-01' }
+        { href: 'gestion-vehiculos.html', label: 'Vehículos', icon: 'hgi-car-01' }
     ];
 
     const user = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
     const userName = user ? user.fullname : 'Asesor';
+    // Configuración y Admin son exclusivas del administrador (parámetros institucionales)
     if (user && user.rol === 'admin') {
+        NAV.push({ href: 'configuracion.html', label: 'Configuración', icon: 'hgi-settings-01' });
         NAV.push({ href: 'gestion-admin.html', label: 'Admin', icon: 'hgi-shield-01' });
     }
     const roleLabel = user && user.rol === 'admin' ? 'Administrador' : 'Asesor';
