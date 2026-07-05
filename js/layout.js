@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const user = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
     const userName = user ? user.fullname : 'Asesor';
+    if (user && user.rol === 'admin') {
+        NAV.push({ href: 'gestion-admin.html', label: 'Admin', icon: 'hgi-shield-01' });
+    }
     const current = NAV.find(n => n.href === page);
 
     const sidebar = document.createElement('aside');
