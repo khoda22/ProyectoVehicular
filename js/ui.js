@@ -55,7 +55,16 @@ const validators = {
     email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo no válido.',
     phone: v => /^\d{6,12}$/.test(v.replace(/\s/g, '')) || 'Teléfono no válido.',
     positive: v => (parseMoney(v) > 0) || 'Ingresa un monto válido.',
-    year: v => { const y = parseInt(v); return (y >= 1900 && y <= 2027) || 'Año entre 1900 y 2027.'; }
+    year: v => { const y = parseInt(v); return (y >= 1900 && y <= 2027) || 'Año entre 1900 y 2027.'; },
+    // Contraseña segura (estándar de instituciones financieras)
+    strongPassword: v => {
+        if (v.length < 8) return 'Mínimo 8 caracteres.';
+        if (!/[A-Z]/.test(v)) return 'Debe incluir una mayúscula.';
+        if (!/[a-z]/.test(v)) return 'Debe incluir una minúscula.';
+        if (!/[0-9]/.test(v)) return 'Debe incluir un número.';
+        if (!/[^A-Za-z0-9]/.test(v)) return 'Debe incluir un símbolo (!@#$…).';
+        return true;
+    }
 };
 
 function createTypeahead({ inputId, getList, match, label, onSelect, emptyText, minChars = 1, delay = 220 }) {

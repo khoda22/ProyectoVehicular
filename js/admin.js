@@ -13,6 +13,9 @@ document.getElementById('admin-user-form').addEventListener('submit', function(e
     const username = document.getElementById('au-username').value.trim();
     const users = JSON.parse(localStorage.getItem('users')) || [];
 
+    const passErr = validators.strongPassword(document.getElementById('au-password').value);
+    if (passErr !== true) { notify.err(passErr); return; }
+
     if (users.some(u => u.username === username)) {
         notify.err('Ese nombre de usuario ya existe.');
         return;

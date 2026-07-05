@@ -10,14 +10,15 @@
     <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
     <script src="js/physics-toast.min.js"></script>
     <script src="js/notify.js"></script>
+    <script src="js/ui.js"></script>
 </head>
 <body class="login-body">
 
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h1>Crear Cuenta</h1>
-                <p>Regístrese como administrador del sistema</p>
+                <h1>Crear Usuario</h1>
+                <p>Alta de asesores del sistema (solo administrador)</p>
             </div>
 
             <form id="register-form">
@@ -33,14 +34,14 @@
 
                 <div class="input-group">
                     <label for="reg-password">Contraseña</label>
-                    <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required>
+                    <input type="password" id="reg-password" placeholder="Segura: 8+, mayús., minús., número y símbolo" required>
+                    <p class="consent-note">Debe tener 8+ caracteres, una mayúscula, una minúscula, un número y un símbolo.</p>
                 </div>
 
-                <button type="submit" class="btn-login">Finalizar Registro</button>
-                
+                <button type="submit" class="btn-login">Crear Usuario</button>
+
                 <div class="login-footer">
-                    <span>¿Ya tiene cuenta?</span>
-                    <a href="login.html">Iniciar sesión</a>
+                    <a href="gestion-admin.html">Volver al panel de administración</a>
                 </div>
             </form>
         </div>
