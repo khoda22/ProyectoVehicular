@@ -26,13 +26,13 @@ function esc(s) {
     return String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 }
 
-// Tarjeta resumen (solo lectura) con botón Editar hacia la pantalla de gestión
-function renderClientCard(c) {
+// --- CLIENTE: tarjeta con vista de solo lectura y edición inline (sin salir del simulador) ---
+function clientCardView(c) {
     return `
     <div class="entity-card">
         <div class="entity-card-head">
             <strong>${esc(c.name)}</strong>
-            <a href="registro-cliente.html" class="entity-edit"><i class="hgi-stroke hgi-edit-02"></i> Editar</a>
+            <button type="button" class="entity-edit" onclick="startEditClient()"><i class="hgi-stroke hgi-edit-02"></i> Editar</button>
         </div>
         <div class="entity-card-body">
             <div><span>DNI / CE</span>${esc(c.id)}</div>
@@ -42,14 +42,58 @@ function renderClientCard(c) {
         </div>
     </div>`;
 }
-function renderVehicleCard(v) {
+function clientCardEdit(c) {
+    return `
+    <div class="entity-card">
+        <div class="entity-card-head"><strong>Editar cliente · DNI ${esc(c.id)}</strong></div>
+        <div class="entity-edit-form">
+            <div class="input-group"><label>Nombre</label><input type="text" id="ec-name" value="${esc(c.name)}"></div>
+            <div class="input-group"><label>Correo</label><input type="text" id="ec-email" value="${esc(c.email || '')}"></div>
+            <div class="input-group"><label>Teléfono</label><input type="text" id="ec-phone" value="${esc(c.phone || '')}"></div>
+            <div class="input-group"><label>Ingreso mensual (S/)</label><input type="text" id="ec-income" value="${esc(c.income)}"></div>
+        </div>
+        <div class="entity-form-actions">
+            <button type="button" class="btn-secondary btn-inline" onclick="cancelEditClient()">Cancelar</button>
+            <button type="button" class="btn-login btn-inline" onclick="saveClientInline()">Guardar</button>
+        </div>
+    </div>`;
+}
+function renderClientInfo(editing) {
+    const el = document.getElementById('sim-client-info');
+    if (!el) return;
+    el.innerHTML = !activeClient ? '' : (editing ? clientCardEdit(activeClient) : clientCardView(activeClient));
+}
+function startEditClient() { renderClientInfo(true); }
+function cancelEditClient() { renderClientInfo(false); }
+function saveClientInline() {
+    const name = document.getElementById('ec-name').value.trim();
+    const income = parseMoney(document.getElementById('ec-income').value) || 0;
+    if (!name) { notify.err('El nombre no puede estar vacío.'); return; }
+    if (income <= 0) { notify.err('Ingresa un ingreso mensual válido.'); return; }
+    const clients = JSON.parse(localStorage.getItem('system_clients')) || [];
+    const idx = clients.findIndex(x => x.id === activeClient.id);
+    if (idx === -1) { notify.err('No se encontró el cliente en el sistema.'); return; }
+    clients[idx] = {
+        ...clients[idx], name, income,
+        email: document.getElementById('ec-email').value.trim(),
+        phone: document.getElementById('ec-phone').value.trim()
+    };
+    localStorage.setItem('system_clients', JSON.stringify(clients));
+    activeClient = clients[idx];
+    renderClientInfo(false);
+    updateLiveSummary();
+    notify.ok('Datos del cliente actualizados.');
+}
+
+// --- VEHÍCULO: misma lógica de vista/edición inline ---
+function vehicleCardView(v) {
     const pen = v.priceSoles ?? v.price ?? 0;
     const usd = v.priceDollars ?? 0;
     return `
     <div class="entity-card">
         <div class="entity-card-head">
             <strong>${esc(v.brand || '')} ${esc(v.model || '')}</strong>
-            <a href="gestion-vehiculos.html" class="entity-edit"><i class="hgi-stroke hgi-edit-02"></i> Editar</a>
+            <button type="button" class="entity-edit" onclick="startEditVehicle()"><i class="hgi-stroke hgi-edit-02"></i> Editar</button>
         </div>
         <div class="entity-card-body">
             <div><span>Código</span>${esc(v.id)}</div>
@@ -58,6 +102,50 @@ function renderVehicleCard(v) {
             <div><span>Precio US$</span>$ ${formatMoney(usd)}</div>
         </div>
     </div>`;
+}
+function vehicleCardEdit(v) {
+    return `
+    <div class="entity-card">
+        <div class="entity-card-head"><strong>Editar vehículo · ${esc(v.id)}</strong></div>
+        <div class="entity-edit-form">
+            <div class="input-group"><label>Marca</label><input type="text" id="ev-brand" value="${esc(v.brand || '')}"></div>
+            <div class="input-group"><label>Modelo</label><input type="text" id="ev-model" value="${esc(v.model || '')}"></div>
+            <div class="input-group"><label>Año</label><input type="text" id="ev-year" value="${esc(v.year || '')}"></div>
+            <div class="input-group"><label>Precio S/</label><input type="text" id="ev-pen" value="${esc(v.priceSoles ?? v.price ?? '')}"></div>
+            <div class="input-group"><label>Precio US$</label><input type="text" id="ev-usd" value="${esc(v.priceDollars ?? '')}"></div>
+        </div>
+        <div class="entity-form-actions">
+            <button type="button" class="btn-secondary btn-inline" onclick="cancelEditVehicle()">Cancelar</button>
+            <button type="button" class="btn-login btn-inline" onclick="saveVehicleInline()">Guardar</button>
+        </div>
+    </div>`;
+}
+function renderVehicleInfo(editing) {
+    const el = document.getElementById('sim-car-info');
+    if (!el) return;
+    el.innerHTML = !activeVehicle ? '' : (editing ? vehicleCardEdit(activeVehicle) : vehicleCardView(activeVehicle));
+}
+function startEditVehicle() { renderVehicleInfo(true); }
+function cancelEditVehicle() { renderVehicleInfo(false); }
+function saveVehicleInline() {
+    const brand = document.getElementById('ev-brand').value.trim();
+    const model = document.getElementById('ev-model').value.trim();
+    const priceSoles = parseMoney(document.getElementById('ev-pen').value) || 0;
+    if (!brand || !model) { notify.err('Marca y modelo son obligatorios.'); return; }
+    if (priceSoles <= 0) { notify.err('Ingresa un precio en soles válido.'); return; }
+    const vehicles = JSON.parse(localStorage.getItem('system_vehicles')) || [];
+    const idx = vehicles.findIndex(x => x.id === activeVehicle.id);
+    if (idx === -1) { notify.err('No se encontró el vehículo en el sistema.'); return; }
+    vehicles[idx] = {
+        ...vehicles[idx], brand, model, priceSoles,
+        year: parseInt(document.getElementById('ev-year').value) || vehicles[idx].year,
+        priceDollars: parseMoney(document.getElementById('ev-usd').value) || 0
+    };
+    localStorage.setItem('system_vehicles', JSON.stringify(vehicles));
+    activeVehicle = vehicles[idx];
+    renderVehicleInfo(false);
+    updateLiveSummary();
+    notify.ok('Datos del vehículo actualizados.');
 }
 
 createTypeahead({
@@ -68,7 +156,7 @@ createTypeahead({
     emptyText: 'No hay clientes registrados.',
     onSelect: (c) => {
         activeClient = c;
-        document.getElementById('sim-client-info').innerHTML = c ? renderClientCard(c) : '';
+        renderClientInfo(false);
         validateFormHability();
     }
 });
@@ -81,7 +169,7 @@ createTypeahead({
     emptyText: 'No hay vehículos registrados.',
     onSelect: (v) => {
         activeVehicle = v;
-        document.getElementById('sim-car-info').innerHTML = v ? renderVehicleCard(v) : '';
+        renderVehicleInfo(false);
         validateFormHability();
         updateLiveSummary();
     }
@@ -97,6 +185,8 @@ function applyEntityConfig() {
     document.getElementById('sim-rate-val').value = ENTITY.teaReferencial;
     document.getElementById('sim-seg-desgravamen').value = ENTITY.segDesgravamen;
     document.getElementById('sim-seg-vehicular').value = ENTITY.segVehicular;
+    const tcEl = document.getElementById('sim-tc');
+    if (tcEl) tcEl.value = localStorage.getItem('system_tc') || '3.75';
     const dispType = document.getElementById('disp-rate-type');
     const dispCap = document.getElementById('disp-cap');
     if (dispType) dispType.textContent = ENTITY.tipoTasa === 'TE' ? 'Efectiva (TEA)' : 'Nominal (TNA)';
@@ -211,19 +301,35 @@ function calculateFinancialPlan() {
     const i = Math.pow(1 + TEA, periodDays / 360) - 1;
     const n = Math.round(years * 360 / periodDays);
 
-    // Cuota francesa ajustada por el valor presente de la cuota balloon
-    const pvBalloon = balloon / Math.pow(1 + i, n);
+    // Cuota nivelada: se calcula a la tasa combinada (interés + desgravamen) para que la cuota
+    // total sea CONSTANTE; la amortización absorbe la variación del seguro (modelo BBVA/Excel).
+    const er = i + segDesgPct;
+    const pvBalloon = balloon / Math.pow(1 + er, n);
     const base = montoFinanciar - pvBalloon;
-    const cuotaFija = i === 0 ? base / n : base * (i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1);
+    const cuotaFija = er === 0 ? base / n : base * (er * Math.pow(1 + er, n)) / (Math.pow(1 + er, n) - 1);
 
-    currentParams = { currency, precio, montoFinanciar, balloon, i, n, TEA, periodDays, segDesgPct, segVehPct, cuotaFija };
+    const tc = parseFloat(document.getElementById('sim-tc').value) || null;
+    currentParams = { currency, precio, montoFinanciar, balloon, i, n, TEA, periodDays, segDesgPct, segVehPct, cuotaFija, tc };
 
     baseSchedule = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct);
     workingSchedule = baseSchedule.map(r => ({ ...r }));
 
     processIndicators();
     renderScheduleTable(workingSchedule);
-    document.getElementById('simulation-report-section').style.display = 'block';
+    renderResultHero();
+    if (window.simShowResult) window.simShowResult();
+    else document.getElementById('simulation-report-section').style.display = 'block';
+}
+
+// Rellena la hoja resumen (cifras principales) del resultado
+function renderResultHero() {
+    const p = currentParams;
+    const sign = p.currency === 'PEN' ? 'S/' : '$';
+    document.getElementById('res-financiado').textContent = `${sign} ${formatMoney(p.montoFinanciar)}`;
+    document.getElementById('res-cuota').textContent = `${sign} ${formatMoney(workingSchedule[0].cuotaTotal)}`;
+    document.getElementById('res-plazo').textContent = `${p.n} cuotas`;
+    document.getElementById('res-tea').textContent = `${(p.TEA * 100).toFixed(2)} %`;
+    document.getElementById('res-tcea').textContent = document.getElementById('sbs-tcea').textContent;
 }
 
 // Construye el cronograma; la cuota balloon se paga como residual en el último periodo
@@ -233,20 +339,20 @@ function buildSchedule(monto, i, cuota, n, balloon, precio, dDesg, dVeh) {
 
     for (let k = 1; k <= n; k++) {
         const interes = saldo * i;
-        let amort = cuota - interes;
+        const segDesg = saldo * dDesg;
+        // La amortización es el residuo de la cuota nivelada tras interés y desgravamen
+        let amort = cuota - interes - segDesg;
         let bal = 0;
         let saldoFinal = saldo - amort;
 
         if (k === n) {
-            amort = cuota - interes;
-            bal = saldo - amort;   // residual real: absorbe el redondeo y equivale a la balloon
+            bal = saldoFinal;      // saldo remanente = cuota balloon; absorbe el redondeo
             saldoFinal = 0;
         }
 
-        const segDesg = saldo * dDesg;
         const segVeh = precio * dVeh;
-        const cuotaFin = interes + amort + bal;
-        const cuotaTotal = cuotaFin + segDesg + segVeh;
+        const cuotaFin = interes + amort + bal;               // capital + interés (valida VAN≈0 a tasa i)
+        const cuotaTotal = cuotaFin + segDesg + segVeh;       // = cuota nivelada + seg. vehicular (constante)
 
         rows.push({ num: k, saldoInicial: saldo, interes, amortizacion: amort, balloon: bal, segDesg, segVeh, cuota: cuotaFin, cuotaTotal, saldoFinal });
         saldo = saldoFinal;
@@ -355,6 +461,7 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
 
     for (let k = 1; k <= p.n; k++) {
         const interes = saldo * p.i;
+        const segDesg = saldo * p.segDesgPct;
         let amort, bal = 0, cuotaFin, saldoFinal;
 
         if (targetCuotas.includes(k) && type === 'TOTAL') {
@@ -366,7 +473,7 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
             cuotaFin = interes;             // paga solo interés
             saldoFinal = saldo;
         } else {
-            amort = p.cuotaFija - interes;
+            amort = p.cuotaFija - interes - segDesg;   // la amortización absorbe el desgravamen
             saldoFinal = saldo - amort;
             cuotaFin = interes + amort;
         }
@@ -377,7 +484,6 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
             cuotaFin = interes + amort + bal;
         }
 
-        const segDesg = saldo * p.segDesgPct;
         const segVeh = p.precio * p.segVehPct;
         rows.push({ num: k, saldoInicial: saldo, interes, amortizacion: amort, balloon: bal, segDesg, segVeh, cuota: cuotaFin, cuotaTotal: cuotaFin + segDesg + segVeh, saldoFinal });
         saldo = saldoFinal;
@@ -386,6 +492,7 @@ document.getElementById('btn-apply-gracia').addEventListener('click', () => {
     workingSchedule = rows;
     processIndicators();
     renderScheduleTable(workingSchedule);
+    renderResultHero();
     notify.ok('Cronograma recalculado con el periodo de gracia aplicado.');
 });
 
@@ -444,7 +551,8 @@ document.getElementById('btn-download-pdf').addEventListener('click', () => {
         ['Cliente', `${activeClient.name} (DNI ${activeClient.id})`],
         ['Vehículo', `${activeVehicle.brand || ''} ${activeVehicle.model}`],
         ['Moneda', p.currency === 'PEN' ? 'Soles' : 'Dólares'],
-        ['Cuota estimada', `${sign} ${formatMoney(workingSchedule[0].cuotaTotal)}`],
+        ...(p.currency === 'USD' && p.tc ? [['Tipo de cambio', `S/ ${p.tc.toFixed(2)} por US$`]] : []),
+        ['Cuota mensual', `${sign} ${formatMoney(workingSchedule[0].cuotaTotal)}`],
         ['Plazo', `${p.n} cuotas`],
         ['Tasa Efectiva Anual (TEA)', `${(p.TEA * 100).toFixed(2)} %`],
         ['TCEA Referencial', document.getElementById('sbs-tcea').innerText],
@@ -512,6 +620,7 @@ function resetSimulationWorkspace() {
     activeBank = ENTITY.nombre;
     currentParams = null;
     validateFormHability();
+    if (window.simResetWizard) window.simResetWizard();
 }
 
 // HISTORIAL
@@ -666,8 +775,9 @@ function updateLiveSummary() {
     const TEA = rateType === 'TE' ? rateVal : Math.pow(1 + rateVal / (360 / capDays), 360 / capDays) - 1;
     const i = Math.pow(1 + TEA, periodDays / 360) - 1;
     const n = Math.round(years * 360 / periodDays);
-    const base = montoFinanciar - balloon / Math.pow(1 + i, n);
-    const cuotaFija = i === 0 ? base / n : base * (i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1);
+    const er = i + segDesgPct;
+    const base = montoFinanciar - balloon / Math.pow(1 + er, n);
+    const cuotaFija = er === 0 ? base / n : base * (er * Math.pow(1 + er, n)) / (Math.pow(1 + er, n) - 1);
     const sched = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct);
     const total = sched.reduce((a, r) => a + r.cuotaTotal, 0);
     const flujo = [montoFinanciar];
@@ -678,7 +788,7 @@ function updateLiveSummary() {
     setLive(`${sign} ${formatMoney(sched[0].cuotaTotal)}`, `${(tcea * 100).toFixed(2)} %`, `${sign} ${formatMoney(total)}`);
 }
 
-['sim-currency', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-years', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular']
+['sim-currency', 'sim-tc', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-years', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular']
     .forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateLiveSummary);
@@ -723,6 +833,37 @@ function updateLiveSummary() {
     form.addEventListener('submit', (e) => {
         if (current !== 3) { e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
+
+    // Alternar entre el wizard y la hoja de resultado (el resultado reemplaza la vista, no cuelga abajo)
+    const wizardCard = document.querySelector('.wizard-card');
+    const reportSection = document.getElementById('simulation-report-section');
+    window.simShowResult = () => {
+        wizardCard.style.display = 'none';
+        if (liveBar) liveBar.style.display = 'none';
+        reportSection.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.simShowWizard = () => {
+        reportSection.style.display = 'none';
+        wizardCard.style.display = '';
+        if (liveBar) liveBar.style.display = current >= 2 ? 'flex' : 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.simResetWizard = () => { wizardCard.style.display = ''; goTo(1); };
+    const editBtn = document.getElementById('btn-edit-sim');
+    if (editBtn) editBtn.addEventListener('click', window.simShowWizard);
+
+    // Cronograma colapsable
+    const cronoToggle = document.getElementById('crono-toggle');
+    const cronoBody = document.getElementById('crono-body');
+    if (cronoToggle && cronoBody) {
+        cronoToggle.addEventListener('click', () => {
+            const open = cronoBody.hidden;
+            cronoBody.hidden = !open;
+            cronoToggle.closest('.collapsible').classList.toggle('open', open);
+            cronoToggle.setAttribute('aria-expanded', open);
+        });
+    }
 
     goTo(1);
 })();

@@ -125,12 +125,19 @@ body {
     display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
     font-size: 12.5px; font-weight: 700; color: var(--primary); text-decoration: none;
     padding: 5px 12px; border-radius: 999px; border: 1px solid var(--primary-soft);
-    transition: all 0.16s ease;
+    background: none; cursor: pointer; font-family: inherit; transition: all 0.16s ease;
 }
 .entity-edit:hover { background: var(--primary-soft); }
 .entity-card-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 9px 18px; }
 .entity-card-body > div { font-size: 13px; color: var(--text-main); }
 .entity-card-body span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 1px; }
+
+/* Formulario de edición inline (mismo estilo que el modal, sin overlay) */
+.entity-edit-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2px 16px; }
+.entity-edit-form .input-group { margin-bottom: 12px; }
+.entity-edit-form .input-group label { font-size: 12px; margin-bottom: 5px; }
+.entity-edit-form .input-group input { padding: 9px 12px; font-size: 13.5px; }
+.entity-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
 
 .input-group input.invalid,
 .input-group select.invalid {
@@ -257,6 +264,56 @@ body {
 .live-val.primary { color: var(--primary); }
 
 .lock-icon { font-size: 13px; color: var(--text-muted); vertical-align: -1px; }
+.tc-hint { font-weight: 400; color: var(--text-muted); font-size: 12px; }
+
+/* Bono / descuento: bloque agrupado (toggle + monto), no suelto */
+.bono-block { border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px 16px; background: #fdfbfc; }
+
+/* ---------- Resultado (hoja resumen estilo entidad) ---------- */
+.result-hero { background: linear-gradient(135deg, #fff 0%, #fdf3f6 100%); }
+.result-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--primary); }
+.result-hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 12px; }
+.result-label { font-size: 13px; color: var(--text-muted); }
+.result-amount { font-size: 38px; font-weight: 800; color: var(--accent-dark); letter-spacing: -0.8px; margin-top: 2px; }
+.result-badge { padding: 8px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; white-space: nowrap; }
+.result-figures {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border-soft);
+}
+.result-figures > div { text-align: center; }
+.result-figures span { display: block; font-size: 12px; color: var(--text-muted); }
+.result-figures strong { display: block; font-size: 19px; font-weight: 800; color: var(--accent-dark); margin-top: 4px; }
+.result-ratio { font-size: 13px; color: var(--text-muted); margin-top: 16px; }
+
+/* Indicadores SBS */
+.sbs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.sbs-item { text-align: center; padding: 16px; background: #faf7f8; border: 1px solid var(--border-soft); border-radius: var(--radius-md); }
+.sbs-item span { display: block; font-size: 12.5px; color: var(--text-muted); }
+.sbs-item strong { display: block; font-size: 20px; font-weight: 800; color: var(--accent-dark); margin-top: 6px; }
+
+/* Sección colapsable (cronograma) */
+.collapsible { padding: 0; overflow: hidden; }
+.collapsible-head {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 30px; background: none; border: none; cursor: pointer;
+    font-family: inherit; font-size: 16px; font-weight: 700; color: var(--accent-dark);
+}
+.collapsible-title { display: inline-flex; align-items: center; gap: 10px; }
+.collapsible-title i { color: var(--primary); font-size: 20px; }
+.collapsible-caret { color: var(--text-muted); font-size: 20px; transition: transform 0.2s ease; }
+.collapsible.open .collapsible-caret { transform: rotate(180deg); }
+.collapsible-body { padding: 0 30px 30px; }
+.report-summary { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+
+/* Cronograma con altura máxima: scroll interno en vez de una tabla eterna */
+.table-scroll { max-height: 460px; overflow-y: auto; }
+.table-scroll thead th { position: sticky; top: 0; z-index: 1; }
+
+@media (max-width: 720px) {
+    .result-figures { grid-template-columns: repeat(2, 1fr); }
+    .sbs-grid { grid-template-columns: 1fr; }
+    .collapsible-head, .collapsible-body { padding-left: 20px; padding-right: 20px; }
+}
 
 @media (max-width: 720px) {
     .wstep-label { display: none; }
