@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         NAV.map(n => `<a href="${n.href}" class="sidebar-link${n.href === page ? ' active' : ''}"><i class="hgi-stroke ${n.icon}"></i><span>${n.label}</span></a>`).join('') +
         '</nav>' +
         '<div class="sidebar-footer">' +
+        `<a href="ayuda.html" class="sidebar-help-link${page === 'ayuda.html' ? ' active' : ''}"><i class="hgi-stroke hgi-help-circle"></i><span>Ayuda y manuales</span></a>` +
         '<div class="sidebar-menu" id="user-menu">' +
         '<button class="sidebar-menu-item" id="app-logout"><i class="hgi-stroke hgi-logout-01"></i><span>Cerrar sesión</span></button>' +
         '</div>' +
