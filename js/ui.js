@@ -1,3 +1,30 @@
+// Tooltip global posicionado con position:fixed → no lo recorta ningún contenedor con overflow (modales, tablas)
+(function initTooltips() {
+    let tip = null;
+    function hide() { if (tip) { tip.remove(); tip = null; } }
+    function show(el) {
+        const text = el.getAttribute('data-tip');
+        if (!text) return;
+        hide();
+        tip = document.createElement('div');
+        tip.className = 'tip-floating';
+        tip.textContent = text;
+        document.body.appendChild(tip);
+        const r = el.getBoundingClientRect();
+        const t = tip.getBoundingClientRect();
+        let top = r.top - t.height - 8;
+        if (top < 8) top = r.bottom + 8;              // si no cabe arriba, va abajo
+        let left = r.left + r.width / 2 - t.width / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - t.width - 8)); // no sale de la pantalla
+        tip.style.top = top + 'px';
+        tip.style.left = left + 'px';
+        requestAnimationFrame(() => tip && tip.classList.add('visible'));
+    }
+    document.addEventListener('mouseover', e => { const el = e.target.closest('.help-tip'); if (el) show(el); });
+    document.addEventListener('mouseout', e => { if (e.target.closest('.help-tip')) hide(); });
+    window.addEventListener('scroll', hide, true);
+})();
+
 function formatMoney(value) {
     const n = Number(value);
     if (isNaN(n)) return '0.00';

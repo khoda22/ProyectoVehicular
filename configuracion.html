@@ -36,7 +36,7 @@
             <div class="input-grid-2">
                 <div class="input-group">
                     <label>Nombre de la Entidad
-                        <span class="help-tip" data-tip="Nombre de la entidad financiera que ofrece el crédito (aparece en el cronograma y el PDF).">?</span>
+                        <span class="help-tip" data-tip="Entidad que ofrece el crédito. Aparece en el cronograma y el PDF.">?</span>
                     </label>
                     <input type="text" id="ent-nombre" placeholder="Ej. Financiera Compra Inteligente">
                 </div>
@@ -51,7 +51,7 @@
             <div class="input-grid-2">
                 <div class="input-group">
                     <label>Tipo de Tasa
-                        <span class="help-tip" data-tip="Efectiva (TEA): ya incluye la capitalización. Nominal (TNA): requiere definir cada cuánto capitaliza. El enunciado exige definir esto en configuración.">?</span>
+                        <span class="help-tip" data-tip="Efectiva (TEA): ya capitalizada. Nominal (TNA): defines la capitalización.">?</span>
                     </label>
                     <select id="ent-tipo-tasa">
                         <option value="TE">Efectiva (TEA)</option>
@@ -60,7 +60,7 @@
                 </div>
                 <div class="input-group">
                     <label>Capitalización
-                        <span class="help-tip" data-tip="Solo aplica a la tasa nominal: cada cuántos días se capitalizan los intereses para convertir la TNA en efectiva.">?</span>
+                        <span class="help-tip" data-tip="Solo para tasa nominal: cada cuántos días capitaliza para volverse TEA.">?</span>
                     </label>
                     <select id="ent-capitalizacion" disabled>
                         <option value="1">Diaria (1 día)</option>
@@ -74,7 +74,7 @@
 
             <div class="input-group">
                 <label>Tasa referencial <strong id="lbl-ref-tipo">(TEA)</strong> — anual (%)
-                    <span class="help-tip" data-tip="Tasa anual de referencia de la entidad, según el tipo elegido arriba (efectiva o nominal). Precarga el campo del simulador, donde el asesor puede ajustarla según el perfil del cliente.">?</span>
+                    <span class="help-tip" data-tip="Tasa anual por defecto de la entidad. Precarga el simulador; el asesor la ajusta por operación.">?</span>
                 </label>
                 <input type="number" id="ent-tea" min="0" step="0.01" placeholder="12.5">
                 <p class="field-note" id="ent-tea-note"></p>
@@ -83,13 +83,13 @@
             <div class="input-grid-2">
                 <div class="input-group">
                     <label>Seg. Desgravamen (% mensual)
-                        <span class="help-tip" data-tip="Porcentaje mensual sobre el saldo pendiente. Lo fija la entidad/aseguradora; en el simulador se muestra como información, no editable.">?</span>
+                        <span class="help-tip" data-tip="Prima mensual sobre el saldo pendiente. La fija la entidad; solo lectura en el simulador.">?</span>
                     </label>
                     <input type="number" id="ent-seg-desg" min="0" step="0.0001" placeholder="0.0714">
                 </div>
                 <div class="input-group">
                     <label>Seg. Vehicular (% mensual)
-                        <span class="help-tip" data-tip="Porcentaje mensual sobre el valor del vehículo. Lo fija la entidad/aseguradora; en el simulador se muestra como información, no editable.">?</span>
+                        <span class="help-tip" data-tip="Prima mensual sobre el valor del vehículo. La fija la entidad; solo lectura en el simulador.">?</span>
                     </label>
                     <input type="number" id="ent-seg-veh" min="0" step="0.0001" placeholder="0.3200">
                 </div>
@@ -119,7 +119,7 @@
 
             <div class="input-group" style="margin-top: 25px; text-align: left;">
                 <label>Tipo de Cambio (S/ por US$)
-                    <span class="help-tip" data-tip="Tipo de cambio referencial S/ por US$. Es solo informativo: el cronograma calcula en la moneda elegida con el precio del vehículo en esa moneda, no lo convierte con este TC.">?</span>
+                    <span class="help-tip" data-tip="Tipo de cambio referencial S/ por US$. Informativo: no convierte los cálculos.">?</span>
                 </label>
                 <div style="display:flex; gap:8px;">
                     <input type="text" id="config-tc" placeholder="Ej. 3.75" style="flex:1;">

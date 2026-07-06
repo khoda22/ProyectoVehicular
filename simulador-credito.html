@@ -72,14 +72,14 @@
                         <div class="input-grid-2">
                             <div class="input-group">
                                 <label>Cliente
-                                    <span class="help-tip" data-tip="Escribe el DNI o el nombre del cliente para buscarlo.">?</span>
+                                    <span class="help-tip" data-tip="Busca por DNI o nombre.">?</span>
                                 </label>
                                 <input type="text" id="sim-client-id" placeholder="Buscar por DNI o nombre..." autocomplete="off" required>
                                 <div id="sim-client-info" class="status-msg"></div>
                             </div>
                             <div class="input-group">
                                 <label>Vehículo
-                                    <span class="help-tip" data-tip="Escribe el código, modelo o marca del vehículo para buscarlo.">?</span>
+                                    <span class="help-tip" data-tip="Busca por código, modelo o marca.">?</span>
                                 </label>
                                 <input type="text" id="sim-car-id" placeholder="Buscar por código, modelo o marca..." autocomplete="off" required>
                                 <div id="sim-car-info" class="status-msg"></div>
@@ -100,7 +100,7 @@
 
                         <div class="input-group">
                             <label>Moneda del contrato
-                                <span class="help-tip" data-tip="El cronograma y todos los montos se calculan en la moneda elegida (Soles o Dólares).">?</span>
+                                <span class="help-tip" data-tip="Toda la simulación se calcula en la moneda que elijas.">?</span>
                             </label>
                             <div class="pill-group full" id="currency-toggle" role="group" aria-label="Moneda del contrato">
                                 <button type="button" class="active" data-value="PEN">Soles (S/)</button>
@@ -111,7 +111,7 @@
 
                         <div class="input-group" id="tc-group">
                             <label>Tipo de cambio del contrato <span class="tc-hint">(S/ por US$)</span>
-                                <span class="help-tip" data-tip="Tipo de cambio S/ por US$ vigente al momento del contrato. Queda registrado en la cotización. Se toma de Configuración pero puedes ajustarlo.">?</span>
+                                <span class="help-tip" data-tip="Tipo de cambio S/ por US$ del contrato. Queda registrado en la cotización.">?</span>
                             </label>
                             <input type="text" id="sim-tc" placeholder="Ej. 3.75">
                         </div>
@@ -120,7 +120,7 @@
                             <div class="input-group">
                                 <div class="slider-row">
                                     <label>Cuota inicial
-                                        <span class="help-tip" data-tip="Por norma del sistema financiero peruano, la cuota inicial mínima suele ser 10% del valor del vehículo; el máximo (40%) responde a la política de crédito de la entidad.">?</span>
+                                        <span class="help-tip" data-tip="Pago al inicio: entre 10% y 40% del valor del vehículo.">?</span>
                                     </label>
                                     <span class="slider-value" id="val-downpayment">20 %</span>
                                 </div>
@@ -130,7 +130,7 @@
                             <div class="input-group">
                                 <div class="slider-row">
                                     <label>Plazo del crédito
-                                        <span class="help-tip" data-tip="Duración total del financiamiento en meses. En crédito vehicular BBVA llega hasta 72 meses (6 años).">?</span>
+                                        <span class="help-tip" data-tip="Duración del crédito, de 12 a 72 meses.">?</span>
                                     </label>
                                     <span class="slider-value" id="val-months">36 meses</span>
                                 </div>
@@ -143,7 +143,7 @@
                             <div class="input-group">
                                 <div class="slider-row">
                                     <label>Cuota final / Balloon
-                                        <span class="help-tip" data-tip="Cuota extraordinaria que se paga al final del crédito (modalidad Compra Inteligente). Reduce las cuotas mensuales. 0% = sin balloon.">?</span>
+                                        <span class="help-tip" data-tip="Cuota final grande que baja las mensuales (Compra Inteligente). 0% = sin balloon.">?</span>
                                     </label>
                                     <span class="slider-value" id="val-balloon">0 %</span>
                                 </div>
@@ -152,7 +152,7 @@
                             </div>
                             <div class="input-group">
                                 <label>Periodo de pago
-                                    <span class="help-tip" data-tip="El crédito vehicular en Perú se paga en cuotas mensuales de 30 días (método francés vencido ordinario). Es el estándar de BBVA y la SBS.">?</span>
+                                    <span class="help-tip" data-tip="Cuotas mensuales de 30 días (método francés vencido ordinario).">?</span>
                                 </label>
                                 <input type="text" value="Mensual (30 días)" disabled>
                                 <input type="hidden" id="sim-period" value="30">
@@ -162,7 +162,7 @@
                         <div class="input-group bono-block">
                             <div class="slider-row" style="margin-bottom:0;">
                                 <label style="margin-bottom:0;">Bono / Descuento <span class="tc-hint">(opcional)</span>
-                                    <span class="help-tip" data-tip="Descuento o bono buen pagador (BBVA lo llama 'subvención'). Reduce el monto a financiar. Actívalo solo si el cliente aplica.">?</span>
+                                    <span class="help-tip" data-tip="Bono o descuento que reduce el monto a financiar.">?</span>
                                 </label>
                                 <label class="switch">
                                     <input type="checkbox" id="sim-bono-toggle">
@@ -189,7 +189,7 @@
                         <div class="input-grid-2">
                             <div class="input-group">
                                 <label>Tipo de tasa
-                                    <span class="help-tip" data-tip="Elige si la tasa que vas a ingresar es efectiva (TEA) o nominal (TNA). Se precarga desde Configuración, pero puedes cambiarla en esta operación.">?</span>
+                                    <span class="help-tip" data-tip="La tasa puede ser efectiva (TEA) o nominal (TNA). Se precarga de Configuración.">?</span>
                                 </label>
                                 <select id="sim-rate-type">
                                     <option value="TE">Efectiva (TEA)</option>
@@ -198,7 +198,7 @@
                             </div>
                             <div class="input-group" id="cap-group" style="display:none;">
                                 <label>Capitalización
-                                    <span class="help-tip" data-tip="Solo para tasa nominal: cada cuántos días se capitalizan los intereses para convertir la TNA en TEA.">?</span>
+                                    <span class="help-tip" data-tip="Solo para tasa nominal: cada cuántos días capitaliza para volverse TEA.">?</span>
                                 </label>
                                 <select id="sim-capitalization">
                                     <option value="1">Diaria (1 día)</option>
@@ -212,7 +212,7 @@
 
                         <div class="input-group">
                             <label>Valor de tasa anual — <strong id="rate-type-label" style="color:var(--primary);">TEA</strong> (%) <span class="tc-hint">ajustable por operación</span>
-                                <span class="help-tip" data-tip="Ingresa el valor de la tasa según el tipo elegido. Si es nominal (TNA), el sistema la convierte automáticamente a efectiva (TEA) con la capitalización que elijas.">?</span>
+                                <span class="help-tip" data-tip="Valor de la tasa. Si es nominal, se convierte a TEA automáticamente.">?</span>
                             </label>
                             <input type="number" id="sim-rate-val" min="0" step="0.01">
                             <div class="error-msg" id="err-rate"></div>
@@ -284,15 +284,15 @@
                     <h3 style="font-size: 16px; color: var(--accent-dark); margin-bottom: 16px;">Indicadores obligatorios de transparencia (SBS)</h3>
                     <div class="sbs-grid">
                         <div class="sbs-item">
-                            <span>TCEA estimada <span class="help-tip" data-tip="Tasa de Costo Efectivo Anual: incluye intereses y seguros. Es el costo real anual del crédito (SBS).">?</span></span>
+                            <span>TCEA estimada <span class="help-tip" data-tip="Costo real anual del crédito: incluye intereses y seguros (SBS).">?</span></span>
                             <strong id="sbs-tcea" style="color: var(--primary-dark);">0.00 %</strong>
                         </div>
                         <div class="sbs-item">
-                            <span>VAN del deudor <span class="help-tip" data-tip="Valor Actual Neto del flujo del deudor, descontado a la tasa del crédito. Debe tender a 0: valida que el modelo de amortización es correcto.">?</span></span>
+                            <span>VAN del deudor <span class="help-tip" data-tip="VAN a la tasa del crédito. Tiende a 0: valida que el cálculo es correcto.">?</span></span>
                             <strong id="sbs-van">0.00</strong>
                         </div>
                         <div class="sbs-item">
-                            <span>TIR de la operación <span class="help-tip" data-tip="Tasa Interna de Retorno del flujo de caja del deudor por periodo.">?</span></span>
+                            <span>TIR de la operación <span class="help-tip" data-tip="Tasa Interna de Retorno del flujo, por periodo.">?</span></span>
                             <strong id="sbs-tir">0.00 %</strong>
                         </div>
                     </div>
@@ -329,7 +329,7 @@
                 <!-- Periodo de gracia + acciones -->
                 <div class="login-card" id="gracia-module" style="margin-top: 20px;">
                     <h3 style="color: var(--primary); font-size: 16px; margin-bottom: 15px;">Aplicar periodo de gracia adicional
-                        <span class="help-tip" data-tip="Gracia total: no se paga cuota y el interés se capitaliza. Gracia parcial: se paga solo el interés, sin amortizar capital.">?</span>
+                        <span class="help-tip" data-tip="Total: no pagas y el interés se capitaliza. Parcial: pagas solo el interés.">?</span>
                     </h3>
                     <div class="gracia-controls">
                         <div class="input-group">

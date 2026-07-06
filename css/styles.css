@@ -622,36 +622,18 @@ input[type="range"]::-moz-range-thumb {
     border-radius: 50%; background: var(--primary-soft); color: var(--primary-dark);
     font-size: 11px; font-weight: 700; cursor: help; position: relative;
 }
-/* Globo y flecha comparten fade + desplazamiento: se mueven como una sola pieza */
-.help-tip::before,
-.help-tip::after {
-    opacity: 0; pointer-events: none; z-index: 50;
-    transition: opacity 0.24s ease, transform 0.24s ease;
-}
-/* Globo */
-.help-tip::after {
-    content: attr(data-tip);
-    position: absolute; bottom: 145%; left: 50%;
-    transform: translate(-50%, 4px);
+/* Tooltip flotante (position:fixed vía JS) — escapa el recorte de modales, tablas y contenedores con overflow */
+.tip-floating {
+    position: fixed; z-index: 9999; pointer-events: none;
     width: max-content; max-width: 260px;
     background: var(--accent-dark); color: #fff;
-    font-size: 13px; font-weight: 400; line-height: 1.5; text-align: left;
-    padding: 10px 13px; border-radius: 8px;
+    font-size: 13px; font-weight: 400; line-height: 1.45; text-align: left;
+    padding: 9px 12px; border-radius: 8px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    opacity: 0; transform: translateY(4px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
 }
-/* Flecha: triángulo apuntando al badge, mismo color que el globo */
-.help-tip::before {
-    content: "";
-    position: absolute; bottom: calc(145% - 12px); left: 50%;
-    transform: translate(-50%, 4px);
-    border: 6px solid transparent;
-    border-top-color: var(--accent-dark);
-}
-.help-tip:hover::before,
-.help-tip:hover::after {
-    opacity: 1;
-    transform: translate(-50%, 0);
-}
+.tip-floating.visible { opacity: 1; transform: translateY(0); }
 
 /* ---------- Pestañas ---------- */
 .tabs-container {
