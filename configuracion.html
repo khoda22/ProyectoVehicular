@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E">
     <title>Configuración | Sistema de Crédito Vehicular</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/physics-toast.min.css">
+    <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
+    <script src="js/physics-toast.min.js"></script>
+    <script src="js/notify.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
 </head>
 <body>
 
@@ -20,10 +27,90 @@
     </header>
 
     <main class="dashboard-container">
-        <div class="login-card" style="max-width: 500px; margin: 0 auto;">
-            <div class="login-header">
-                <h1>Ajustes de Moneda</h1>
-                <p>Seleccione la moneda base para los cálculos del sistema</p>
+
+        <div class="login-card" style="max-width: 620px; margin: 0 auto 24px auto;">
+            <div class="login-header" style="text-align: left;">
+                <h2>Datos de la Entidad Financiera</h2>
+                <p>Parámetros de la entidad que ofrece el crédito. El simulador los toma de aquí.</p>
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Nombre de la Entidad
+                        <span class="help-tip" data-tip="Entidad que ofrece el crédito. Aparece en el cronograma y el PDF.">?</span>
+                    </label>
+                    <input type="text" id="ent-nombre" placeholder="Ej. Financiera Compra Inteligente">
+                </div>
+                <div class="input-group">
+                    <label>RUC
+                        <span class="help-tip" data-tip="RUC de 11 dígitos de la entidad.">?</span>
+                    </label>
+                    <input type="text" id="ent-ruc" placeholder="20512345678" maxlength="11">
+                </div>
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Tipo de Tasa
+                        <span class="help-tip" data-tip="Efectiva (TEA): ya capitalizada. Nominal (TNA): defines la capitalización.">?</span>
+                    </label>
+                    <select id="ent-tipo-tasa">
+                        <option value="TE">Efectiva (TEA)</option>
+                        <option value="TN">Nominal (TNA)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Capitalización
+                        <span class="help-tip" data-tip="Solo para tasa nominal: cada cuántos días capitaliza para volverse TEA.">?</span>
+                    </label>
+                    <select id="ent-capitalizacion" disabled>
+                        <option value="1">Diaria (1 día)</option>
+                        <option value="30" selected>Mensual (30 días)</option>
+                        <option value="90">Trimestral (90 días)</option>
+                        <option value="180">Semestral (180 días)</option>
+                        <option value="360">Anual (360 días)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Tasa referencial <strong id="lbl-ref-tipo">(TEA)</strong> — anual (%)
+                    <span class="help-tip" data-tip="Tasa anual por defecto de la entidad. Precarga el simulador; el asesor la ajusta por operación.">?</span>
+                </label>
+                <input type="number" id="ent-tea" min="0" step="0.01" placeholder="12.5">
+                <p class="field-note" id="ent-tea-note"></p>
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Seg. Desgravamen (% mensual)
+                        <span class="help-tip" data-tip="Prima mensual sobre el saldo pendiente. La fija la entidad; solo lectura en el simulador.">?</span>
+                    </label>
+                    <input type="number" id="ent-seg-desg" min="0" step="0.0001" placeholder="0.0714">
+                </div>
+                <div class="input-group">
+                    <label>Seg. Vehicular (% mensual)
+                        <span class="help-tip" data-tip="Prima mensual sobre el valor del vehículo. La fija la entidad; solo lectura en el simulador.">?</span>
+                    </label>
+                    <input type="number" id="ent-seg-veh" min="0" step="0.0001" placeholder="0.3200">
+                </div>
+            </div>
+
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Máx. periodos de gracia
+                        <span class="help-tip" data-tip="Límite de periodos de gracia (total o parcial) que la entidad permite otorgar al inicio de la operación.">?</span>
+                    </label>
+                    <input type="number" id="ent-gracia-max" min="0" step="1" placeholder="6">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="login-card" style="max-width: 620px; margin: 0 auto;">
+            <div class="login-header" style="text-align: left;">
+                <h2>Ajustes de Moneda</h2>
+                <p>Moneda base y tipo de cambio referencial del sistema</p>
             </div>
 
             <div class="settings-group">
@@ -32,7 +119,7 @@
                     <input type="radio" name="currency" value="PEN" id="radio-pen">
                     <span class="checkmark"></span>
                 </label>
-                
+
                 <label class="radio-container">
                     Dólares (US$)
                     <input type="radio" name="currency" value="USD" id="radio-usd">
@@ -40,26 +127,143 @@
                 </label>
             </div>
 
+            <div class="input-group" style="margin-top: 25px; text-align: left;">
+                <label>Tipo de Cambio (S/ por US$)
+                    <span class="help-tip" data-tip="Tipo de cambio referencial S/ por US$. Informativo: no convierte los cálculos.">?</span>
+                </label>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="config-tc" placeholder="Ej. 3.75" style="flex:1;">
+                    <button type="button" id="btn-fetch-tc" class="btn-secondary" style="white-space:nowrap;">Traer TC del día</button>
+                </div>
+                <div class="status-msg" id="tc-status"></div>
+                <p class="consent-note" style="margin-top:6px;">Fuente del “TC del día”: <strong>open.er-api.com</strong> (tasa de mercado, referencial). El tipo de cambio contable oficial lo publica la <strong>SBS</strong>.</p>
+            </div>
+
             <div style="margin-top: 30px;">
-                <button id="save-config" class="btn-login">Guardar Preferencias</button>
+                <button id="save-config" class="btn-login">Guardar Configuración</button>
             </div>
         </div>
     </main>
 
     <script src="js/main.js"></script>
     <script>
-        // Lógica específica para esta página
+        // Valores semilla de la entidad (primera vez)
+        const ENTITY_DEFAULTS = {
+            nombre: 'Financiera Compra Inteligente',
+            ruc: '20512345678',
+            tipoTasa: 'TE',
+            capitalizacion: 30,
+            teaReferencial: 12.5,
+            segDesgravamen: 0.0714,
+            segVehicular: 0.32,
+            graciaMax: 6
+        };
+
+        function loadEntity() {
+            const saved = JSON.parse(localStorage.getItem('system_entity')) || {};
+            return { ...ENTITY_DEFAULTS, ...saved };
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Configuración es exclusiva del administrador (parámetros institucionales de la entidad)
+            const activeUser = JSON.parse(sessionStorage.getItem('activeUser') || 'null');
+            if (!activeUser || activeUser.rol !== 'admin') {
+                notify.err('Configuración es exclusiva del administrador.');
+                setTimeout(() => location.href = 'simulador-credito.html', 1300);
+                return;
+            }
+
+            // Moneda + tipo de cambio
             const currentCurrency = localStorage.getItem('system_currency') || 'PEN';
             if (currentCurrency === 'PEN') document.getElementById('radio-pen').checked = true;
             else document.getElementById('radio-usd').checked = true;
+            document.getElementById('config-tc').value = localStorage.getItem('system_tc') || '3.75';
+
+            // Entidad
+            const ent = loadEntity();
+            document.getElementById('ent-nombre').value = ent.nombre;
+            document.getElementById('ent-ruc').value = ent.ruc;
+            document.getElementById('ent-tipo-tasa').value = ent.tipoTasa;
+            document.getElementById('ent-capitalizacion').value = ent.capitalizacion;
+            document.getElementById('ent-capitalizacion').disabled = ent.tipoTasa !== 'TN';
+            document.getElementById('lbl-ref-tipo').textContent = ent.tipoTasa === 'TN' ? '(TNA)' : '(TEA)';
+            updateConfigRateNote();
+            document.getElementById('ent-tea').value = ent.teaReferencial;
+            document.getElementById('ent-seg-desg').value = ent.segDesgravamen;
+            document.getElementById('ent-seg-veh').value = ent.segVehicular;
+            document.getElementById('ent-gracia-max').value = ent.graciaMax;
+        });
+
+        // La capitalización solo aplica a tasa nominal
+        // Muestra la TEA equivalente cuando la tasa configurada es nominal
+        function updateConfigRateNote() {
+            const type = document.getElementById('ent-tipo-tasa').value;
+            const note = document.getElementById('ent-tea-note');
+            if (!note) return;
+            if (type === 'TE') { note.textContent = 'Tasa efectiva: se usa directamente en el cálculo.'; return; }
+            const cap = parseInt(document.getElementById('ent-capitalizacion').value);
+            const m = 360 / cap;
+            const rv = parseFloat(document.getElementById('ent-tea').value) / 100;
+            const capTxt = { 1: 'diaria', 30: 'mensual', 90: 'trimestral', 180: 'semestral', 360: 'anual' }[cap] || (cap + ' días');
+            if (rv > 0) {
+                const tea = (Math.pow(1 + rv / m, m) - 1) * 100;
+                note.textContent = `Nominal (TNA), capitalización ${capTxt} → equivale a TEA ${tea.toFixed(2)} %.`;
+            } else {
+                note.textContent = `Nominal (TNA), capitalización ${capTxt}. Ingresa el valor de la tasa.`;
+            }
+        }
+
+        document.getElementById('ent-tipo-tasa').addEventListener('change', (e) => {
+            document.getElementById('ent-capitalizacion').disabled = e.target.value !== 'TN';
+            document.getElementById('lbl-ref-tipo').textContent = e.target.value === 'TN' ? '(TNA)' : '(TEA)';
+            updateConfigRateNote();
+        });
+        document.getElementById('ent-capitalizacion').addEventListener('change', updateConfigRateNote);
+        document.getElementById('ent-tea').addEventListener('input', updateConfigRateNote);
+
+        // Trae un tipo de cambio referencial (API gratuita, sin token)
+        document.getElementById('btn-fetch-tc').addEventListener('click', async () => {
+            const status = document.getElementById('tc-status');
+            status.textContent = 'Consultando...';
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                const pen = data && data.rates && data.rates.PEN;
+                if (!pen) throw new Error('sin dato');
+                document.getElementById('config-tc').value = Number(pen).toFixed(4);
+                status.innerHTML = '<span style="color:#166534;">✔ TC del día cargado desde open.er-api.com (mercado, referencial).</span>';
+            } catch (e) {
+                status.innerHTML = '<span style="color:var(--primary);">No se pudo obtener el TC. Ingréselo manualmente.</span>';
+            }
         });
 
         document.getElementById('save-config').addEventListener('click', () => {
+            // Moneda + TC
             const selected = document.querySelector('input[name="currency"]:checked').value;
             localStorage.setItem('system_currency', selected);
-            alert('Configuración de moneda actualizada exitosamente.');
-            window.location.href = 'simulador.html';
+            const tc = parseFloat(document.getElementById('config-tc').value);
+            if (!isNaN(tc) && tc > 0) localStorage.setItem('system_tc', tc);
+
+            // Entidad
+            const nombre = document.getElementById('ent-nombre').value.trim();
+            const ruc = document.getElementById('ent-ruc').value.trim();
+            if (!nombre) { notify.err('Ingresa el nombre de la entidad.'); return; }
+            if (!/^\d{11}$/.test(ruc)) { notify.err('El RUC debe tener 11 dígitos.'); return; }
+
+            const entity = {
+                nombre,
+                ruc,
+                tipoTasa: document.getElementById('ent-tipo-tasa').value,
+                capitalizacion: parseInt(document.getElementById('ent-capitalizacion').value),
+                teaReferencial: parseFloat(document.getElementById('ent-tea').value) || 0,
+                segDesgravamen: parseFloat(document.getElementById('ent-seg-desg').value) || 0,
+                segVehicular: parseFloat(document.getElementById('ent-seg-veh').value) || 0,
+                graciaMax: Math.max(0, parseInt(document.getElementById('ent-gracia-max').value) || 0)
+            };
+            localStorage.setItem('system_entity', JSON.stringify(entity));
+
+            notify.ok('Configuración actualizada exitosamente.');
+            setTimeout(() => window.location.href = 'simulador-credito.html', 800);
         });
     </script>
 </body>

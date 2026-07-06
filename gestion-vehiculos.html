@@ -3,35 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E" />
     <title>Vehículos | Sistema Vehicular</title>
     <link rel="stylesheet" href="css/styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-  </head>
+    <link rel="stylesheet" href="css/physics-toast.min.css">
+    <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
+    <script src="js/physics-toast.min.js"></script>
+    <script src="js/notify.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+</head>
   <body>
-    <header class="main-header">
-      <div class="header-content">
-        <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
-        <span class="panel-tag">| Gestión de Vehículos</span>
-      </div>
-      <div class="user-info">
-        <button
-          onclick="window.location.href = 'simulador.html'"
-          class="btn-secondary"
-        >
-          Volver al Inicio
-        </button>
-      </div>
-    </header>
+    <main class="dashboard-container" style="max-width: 1500px;">
+      <div class="login-card">
+        <div class="table-toolbar">
+          <div>
+            <h2 style="font-size:21px; font-weight:800; color:var(--accent-dark);">Vehículos</h2>
+            <p style="color:var(--text-muted); margin-top:4px; font-size:14px;">Unidades disponibles para financiamiento</p>
+          </div>
+          <div class="toolbar-actions">
+            <div class="search-box">
+              <i class="hgi-stroke hgi-search-01"></i>
+              <input type="text" id="vehicle-search" placeholder="Buscar por código, marca o modelo..." autocomplete="off" />
+            </div>
+            <button class="btn-login btn-inline" id="btn-new-vehicle">
+              <i class="hgi-stroke hgi-add-01"></i> Nuevo vehículo
+            </button>
+          </div>
+        </div>
 
-    <main class="dashboard-container" style="max-width: 1200px">
-      <div class="form-grid">
-        <div class="login-card">
-          <div class="login-header">
-            <h2>Registrar Vehículo</h2>
-            <p>Ingrese las unidades disponibles para financiamiento</p>
+        <div class="table-wrapper">
+          <table class="banking-table" id="table-vehicles-history">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Precio S/</th>
+                <th>Precio $</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal: crear / editar vehículo -->
+    <div class="modal-overlay" id="vehicle-modal" hidden>
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <h2 id="modal-title">Nuevo vehículo</h2>
+            <p id="modal-subtitle">Ingresa los datos de la unidad</p>
           </div>
           <form id="vehicle-form">
             <div class="input-group">
@@ -55,97 +85,38 @@
                 <span class="help-icon" data-tooltip="Valor de venta de lista total del auto sobre el cual se estructurará la cuota inicial y el financiamiento.">?</span>
               </div>
             </div>
-            <button type="submit" class="btn-login">Registrar Vehículo</button>
-          </form>
-        </div>
-
-        <div class="login-card">
-          <div class="login-header">
-            <h2>Buscar Vehículo</h2>
-            <p>Consulte o modifique la información por Código Interno</p>
           </div>
-
-          <div
-            class="input-group"
-            style="display: flex; gap: 10px; margin-bottom: 20px"
-          >
-            <input
-              type="text"
-              id="search-car-code"
-              placeholder="Ej. TOY-001"
-              style="margin: 0"
-            />
-            <button
-              type="button"
-              id="btn-search-car-panel"
-              class="btn-secondary"
-              style="padding: 12px 20px"
-            >
-              Buscar
-            </button>
+          <div class="input-group">
+            <label>Año de Fabricación
+              <span class="help-tip" data-tip="Año del vehículo (1900 a 2027).">?</span>
+            </label>
+            <input type="number" id="car-year" placeholder="Ej. 2026" min="1900" required />
+            <div class="error-msg" id="err-car-year"></div>
           </div>
-
-          <div
-            id="car-results-panel"
-            style="
-              display: none;
-              border-top: 1px solid var(--border-color);
-              padding-top: 20px;
-            "
-          >
+          <div class="input-grid-2">
             <div class="input-group">
-              <label>Marca y Modelo</label>
-              <input type="text" id="edit-car-model" disabled />
+              <label>Precio en Soles (S/)
+                <span class="help-tip" data-tip="Precio en soles. Ej: 60,000.00">?</span>
+              </label>
+              <input type="text" id="car-price-pen" placeholder="0.00" required />
+              <div class="error-msg" id="err-car-price-pen"></div>
             </div>
             <div class="input-group">
-              <label>Precio Base</label>
-              <input type="number" id="edit-car-price" disabled />
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px">
-              <button
-                type="button"
-                id="btn-enable-car-edit"
-                class="btn-secondary"
-                style="width: 100%"
-              >
-                Modificar Datos
-              </button>
-              <button
-                type="button"
-                id="btn-save-car-edit"
-                class="btn-login"
-                style="width: 100%; display: none"
-              >
-                Guardar Cambios
-              </button>
+              <label>Precio en Dólares ($)
+                <span class="help-tip" data-tip="Precio en dólares (para contratos en US$).">?</span>
+              </label>
+              <input type="text" id="car-price-usd" placeholder="0.00" required />
+              <div class="error-msg" id="err-car-price-usd"></div>
             </div>
           </div>
-        </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+            <button type="submit" class="btn-login btn-inline" id="btn-save-vehicle">Guardar</button>
+          </div>
+        </form>
       </div>
-    <div class="login-card" style="grid-column: span 2; margin-top: 30px;">
-                <div class="login-header" style="text-align: left; margin-bottom: 15px;">
-                    <h2>Historial de Vehículos en Stock</h2>
-                    <p>Unidades registradas en el catálogo de financiamiento</p>
-                </div>
-                <div class="table-wrapper">
-                    <table class="banking-table" id="table-vehicles-history">
-                        <thead>
-                            <tr>
-                                <th>Código Interno</th>
-                                <th>Marca y Modelo</th>
-                                <th>Precio Base</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-    
-    </main>
+    </div>
 
     <script src="js/main.js"></script>
     <script src="js/vehiculos.js"></script>

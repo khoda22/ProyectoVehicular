@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E">
+    <title>Ayuda y manuales | Sistema Vehicular</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/physics-toast.min.css">
+    <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
+    <script src="js/physics-toast.min.js"></script>
+    <script src="js/notify.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/jspdf.umd.min.js"></script>
+    <script src="js/jspdf.autotable.min.js"></script>
+</head>
+<body>
+    <main class="help-shell">
+        <section class="help-hero">
+            <div>
+                <span class="help-eyebrow">Centro de orientación</span>
+                <h1>¿Cómo podemos ayudarte?</h1>
+                <p>Guías paso a paso para operar el sistema de Crédito Vehicular con seguridad y confianza.</p>
+            </div>
+            <div class="help-hero-mark" aria-hidden="true">
+                <i class="hgi-stroke hgi-customer-support"></i>
+            </div>
+        </section>
+
+        <section class="help-toolbar">
+            <div class="help-role-switch" id="help-role-switch" role="tablist" aria-label="Seleccionar manual">
+                <button type="button" class="active" data-manual="asesor" role="tab">
+                    <i class="hgi-stroke hgi-user"></i>
+                    <span><small>Manual para</small>Asesor</span>
+                </button>
+                <button type="button" data-manual="admin" role="tab" id="admin-manual-tab">
+                    <i class="hgi-stroke hgi-shield-01"></i>
+                    <span><small>Manual para</small>Administrador</span>
+                </button>
+            </div>
+            <button type="button" class="help-download-btn" id="download-manual">
+                <i class="hgi-stroke hgi-download-04"></i>
+                <span>Descargar manual PDF</span>
+            </button>
+        </section>
+
+        <div class="help-layout">
+            <aside class="help-index" aria-label="Contenido del manual">
+                <div class="help-index-title">En este manual</div>
+                <nav id="help-index-nav"></nav>
+            </aside>
+
+            <section class="help-content" id="help-content" aria-live="polite"></section>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/ayuda.js"></script>
+</body>
+</html>

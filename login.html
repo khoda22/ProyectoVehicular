@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E">
     <title>Login | Sistema de Crédito Vehicular</title>
     <link rel="stylesheet" href="css/styles.css">
     <!-- Fuente Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/physics-toast.min.css">
+    <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
+    <script src="js/physics-toast.min.js"></script>
+    <script src="js/notify.js"></script>
 </head>
 <body class="login-body">
 
@@ -29,12 +34,24 @@
                     <input type="password" id="password" placeholder="••••••••" required>
                 </div>
 
+                <div class="input-group">
+                    <div class="captcha-widget" id="captcha-widget" role="button" tabindex="0" aria-label="No soy un robot">
+                        <div class="captcha-box">
+                            <span class="captcha-spinner"></span>
+                            <i class="hgi-stroke hgi-tick-02 captcha-tick"></i>
+                        </div>
+                        <span class="captcha-text">No soy un robot</span>
+                        <div class="captcha-brand">
+                            <i class="hgi-stroke hgi-shield-01"></i>
+                            <span>Protección<br><small>anti-bots</small></span>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn-login">Acceder al Sistema</button>
-                
+
                 <div class="login-footer">
-                    <a href="#">¿Olvidó su contraseña?</a>
-                    <span>|</span>
-                    <a href="registro.html">Registro</a>
+                    <a href="#" id="forgot-link">¿Olvidó su contraseña?</a>
                 </div>
             </form>
         </div>

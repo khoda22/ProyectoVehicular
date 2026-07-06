@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E">
+    <title>Administración | Sistema Vehicular</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/physics-toast.min.css">
+    <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
+    <script src="js/physics-toast.min.js"></script>
+    <script src="js/notify.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <span class="system-name">SISTEMA DE CRÉDITO VEHICULAR</span>
+            <span class="panel-tag">| Administración</span>
+        </div>
+        <div class="user-info">
+            <button onclick="window.location.href='simulador.html'" class="btn-secondary">Volver al Inicio</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container" style="max-width: 1200px;">
+        <div class="form-grid">
+            <div class="login-card">
+                <div class="login-header" style="text-align:left; margin-bottom:15px;">
+                    <h2>Gestión de Usuarios</h2>
+                    <p>Crear y administrar asesores y administradores</p>
+                </div>
+                <form id="admin-user-form">
+                    <div class="input-group">
+                        <label>Nombre completo</label>
+                        <input type="text" id="au-fullname" required>
+                    </div>
+                    <div class="input-grid-2">
+                        <div class="input-group">
+                            <label>Usuario</label>
+                            <input type="text" id="au-username" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Contraseña</label>
+                            <input type="text" id="au-password" placeholder="8+, mayús., minús., número y símbolo" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Rol</label>
+                        <select id="au-rol">
+                            <option value="asesor">Asesor</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-login">Crear Usuario</button>
+                </form>
+            </div>
+
+            <div class="login-card">
+                <div class="login-header" style="text-align:left; margin-bottom:15px;">
+                    <h2>Mantenimiento de Datos</h2>
+                    <p>Restablecer o limpiar registros del sistema (acción de corrección de datos)</p>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <button type="button" class="btn-secondary" id="btn-clear-clients">Limpiar Clientes</button>
+                    <button type="button" class="btn-secondary" id="btn-clear-vehicles">Limpiar Vehículos</button>
+                    <button type="button" class="btn-secondary" id="btn-clear-sims">Limpiar Simulaciones</button>
+                    <button type="button" class="btn-login" id="btn-reset-all" style="margin-top:8px;">Restablecer TODO el sistema</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-card" style="margin-top: 30px;">
+            <div class="login-header" style="text-align:left; margin-bottom:15px;">
+                <h2>Usuarios del Sistema</h2>
+                <p>Cuentas con acceso a la plataforma</p>
+            </div>
+            <div class="table-wrapper">
+                <table class="banking-table" id="table-users">
+                    <thead>
+                        <tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Acción</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
