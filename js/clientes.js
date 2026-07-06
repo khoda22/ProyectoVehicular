@@ -106,8 +106,18 @@ function renderClients(query = '') {
     tbody.innerHTML = '';
 
     if (clients.length === 0) {
-        const msg = query ? 'No hay clientes que coincidan con la búsqueda.' : 'No hay clientes registrados. Crea el primero con “Nuevo cliente”.';
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:26px;">${msg}</td></tr>`;
+        if (query) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:26px;">No hay clientes que coincidan con la búsqueda.</td></tr>`;
+        } else {
+            tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+                <div class="empty-state-icon"><i class="hgi-stroke hgi-user-group"></i></div>
+                <strong>Aún no hay clientes registrados</strong>
+                <p>Registra tu primer cliente para empezar a simular créditos vehiculares.</p>
+                <button type="button" class="btn-login btn-inline" id="empty-new-client"><i class="hgi-stroke hgi-add-01"></i> Registrar primer cliente</button>
+            </div></td></tr>`;
+            const btn = document.getElementById('empty-new-client');
+            if (btn) btn.addEventListener('click', () => openModal(null));
+        }
         return;
     }
 

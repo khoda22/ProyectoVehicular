@@ -154,3 +154,89 @@ function createTypeahead({ inputId, getList, match, label, onSelect, emptyText, 
         clear: () => { input.value = ''; selected = null; menu.style.display = 'none'; }
     };
 }
+
+// Confirmación con la identidad de la app (reemplaza al confirm() nativo). Devuelve Promise<boolean>.
+// Uso: if (!(await confirmDialog('¿Eliminar este cliente?'))) return;
+function confirmDialog(message, opts = {}) {
+    const { title = 'Confirmar acción', confirmText = 'Eliminar', cancelText = 'Cancelar', danger = true } = opts;
+    return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay confirm-overlay';
+
+        const card = document.createElement('div');
+        card.className = 'modal-card confirm-card';
+        card.setAttribute('role', 'alertdialog');
+        card.setAttribute('aria-modal', 'true');
+
+        const icon = document.createElement('div');
+        icon.className = 'confirm-icon' + (danger ? ' danger' : '');
+        icon.innerHTML = '<i class="hgi-stroke hgi-alert-02"></i>';
+
+        const h = document.createElement('h3');
+        h.className = 'confirm-title';
+        h.textContent = title;                         // textContent → seguro ante datos del usuario
+
+        const p = document.createElement('p');
+        p.className = 'confirm-message';
+        p.textContent = message;
+
+        const actions = document.createElement('div');
+        actions.className = 'modal-actions';
+        const btnCancel = document.createElement('button');
+        btnCancel.type = 'button';
+        btnCancel.className = 'btn-secondary btn-inline';
+        btnCancel.textContent = cancelText;
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = 'btn-inline ' + (danger ? 'btn-danger' : 'btn-login');
+        btnOk.textContent = confirmText;
+        actions.append(btnCancel, btnOk);
+
+        card.append(icon, h, p, actions);
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+
+        const close = (val) => {
+            document.removeEventListener('keydown', onKey);
+            overlay.remove();
+            resolve(val);
+        };
+        const onKey = (e) => {
+            if (e.key === 'Escape') close(false);
+            else if (e.key === 'Enter') close(true);
+        };
+        overlay.addEventListener('mousedown', e => { if (e.target === overlay) close(false); });
+        btnCancel.addEventListener('click', () => close(false));
+        btnOk.addEventListener('click', () => close(true));
+        document.addEventListener('keydown', onKey);
+        requestAnimationFrame(() => btnOk.focus());
+    });
+}
+window.confirmDialog = confirmDialog;
+
+// Marca visualmente los campos obligatorios (asterisco + leyenda) a partir del atributo required.
+// Es automático: cualquier form con [required] queda señalizado sin editar label por label.
+(function markRequiredFields() {
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+            const group = field.closest('.input-group, .form-group') || field.parentElement;
+            const label = group ? group.querySelector('label') : null;
+            // Se omiten los labels que envuelven al propio control (ej. checkboxes de consentimiento)
+            if (label && !label.querySelector('.label-req') && !label.querySelector('input, select, textarea')) {
+                const star = document.createElement('span');
+                star.className = 'label-req';
+                star.setAttribute('aria-hidden', 'true');
+                star.textContent = ' *';
+                label.appendChild(star);
+            }
+        });
+        document.querySelectorAll('form').forEach(form => {
+            if (form.querySelector('[required]') && !form.querySelector('.form-req-legend')) {
+                const legend = document.createElement('p');
+                legend.className = 'form-req-legend';
+                legend.innerHTML = '<span class="label-req">*</span> Campos obligatorios';
+                form.prepend(legend);
+            }
+        });
+    });
+})();

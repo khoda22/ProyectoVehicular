@@ -93,8 +93,18 @@ function renderVehicles(query = '') {
     tbody.innerHTML = '';
 
     if (vehicles.length === 0) {
-        const msg = query ? 'No hay vehículos que coincidan con la búsqueda.' : 'No hay vehículos registrados. Crea el primero con “Nuevo vehículo”.';
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:26px;">${msg}</td></tr>`;
+        if (query) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:26px;">No hay vehículos que coincidan con la búsqueda.</td></tr>`;
+        } else {
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+                <div class="empty-state-icon"><i class="hgi-stroke hgi-car-01"></i></div>
+                <strong>Aún no hay vehículos registrados</strong>
+                <p>Registra el primer vehículo de la oferta para poder cotizarlo.</p>
+                <button type="button" class="btn-login btn-inline" id="empty-new-vehicle"><i class="hgi-stroke hgi-add-01"></i> Registrar primer vehículo</button>
+            </div></td></tr>`;
+            const btn = document.getElementById('empty-new-vehicle');
+            if (btn) btn.addEventListener('click', () => openModal(null));
+        }
         return;
     }
 

@@ -228,6 +228,42 @@ body {
 .modal-close:hover { background: var(--primary-soft); color: var(--primary); }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
 
+/* Diálogo de confirmación (reemplaza al confirm() nativo) */
+.confirm-card { max-width: 440px; text-align: center; padding: 34px 30px 26px; }
+.confirm-icon {
+    width: 56px; height: 56px; margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: var(--primary-soft); color: var(--primary);
+}
+.confirm-icon i { font-size: 28px; }
+.confirm-icon.danger { background: #fee2e2; color: #b91c1c; }
+.confirm-title { font-size: 18px; font-weight: 800; color: var(--accent-dark); letter-spacing: -0.2px; }
+.confirm-message { font-size: 14px; color: var(--text-muted); margin: 8px 0 24px; line-height: 1.5; }
+.confirm-card .modal-actions { justify-content: center; }
+.btn-danger {
+    background: #b91c1c; color: #fff; border: none; cursor: pointer;
+    font-weight: 600; border-radius: 12px; transition: background 0.16s ease;
+}
+.btn-danger:hover { background: #991b1b; }
+
+/* Señalización de campos obligatorios */
+.label-req { color: var(--primary); font-weight: 700; }
+.form-req-legend { font-size: 12.5px; color: var(--text-muted); margin: 0 0 16px; }
+
+/* Estado vacío de listados (con acción para crear el primer registro) */
+.empty-state {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 8px; padding: 40px 20px;
+}
+.empty-state-icon {
+    width: 62px; height: 62px; margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: var(--primary-soft); color: var(--primary);
+}
+.empty-state-icon i { font-size: 30px; }
+.empty-state strong { font-size: 16px; color: var(--accent-dark); }
+.empty-state p { font-size: 13.5px; color: var(--text-muted); max-width: 340px; line-height: 1.5; margin-bottom: 8px; }
+
 /* ---------- Wizard (simulador por pasos) ---------- */
 .wizard-card { max-width: 880px; margin: 0 auto; }
 .wizard-steps { display: flex; align-items: center; margin-bottom: 26px; }

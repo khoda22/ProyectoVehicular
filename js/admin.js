@@ -52,7 +52,7 @@ function renderUsers() {
     });
 }
 
-function deleteUser(username) {
+async function deleteUser(username) {
     let users = JSON.parse(localStorage.getItem('users')) || [];
     const target = users.find(u => u.username === username);
     const admins = users.filter(u => u.rol === 'admin');
@@ -61,7 +61,8 @@ function deleteUser(username) {
         notify.err('No puede eliminar al único administrador del sistema.');
         return;
     }
-    if (!confirm(`¿Eliminar al usuario "${username}"?`)) return;
+    const ok = await confirmDialog(`Se eliminará al usuario "${username}". Esta acción no se puede deshacer.`, { title: 'Eliminar usuario' });
+    if (!ok) return;
 
     users = users.filter(u => u.username !== username);
     localStorage.setItem('users', JSON.stringify(users));
@@ -69,8 +70,9 @@ function deleteUser(username) {
     renderUsers();
 }
 
-function clearData(key, label) {
-    if (!confirm(`¿Eliminar todos los ${label}? Esta acción no se puede deshacer.`)) return;
+async function clearData(key, label) {
+    const ok = await confirmDialog(`Se eliminarán todos los ${label} del sistema. Esta acción no se puede deshacer.`, { title: `Eliminar ${label}`, confirmText: 'Eliminar todo' });
+    if (!ok) return;
     localStorage.removeItem(key);
     notify.ok(`${label.charAt(0).toUpperCase() + label.slice(1)} eliminados.`);
 }
@@ -79,8 +81,9 @@ document.getElementById('btn-clear-clients').addEventListener('click', () => cle
 document.getElementById('btn-clear-vehicles').addEventListener('click', () => clearData('system_vehicles', 'vehículos'));
 document.getElementById('btn-clear-sims').addEventListener('click', () => clearData('system_simulations', 'simulaciones'));
 
-document.getElementById('btn-reset-all').addEventListener('click', () => {
-    if (!confirm('¿Restablecer TODO el sistema (clientes, vehículos y simulaciones)? No se puede deshacer.')) return;
+document.getElementById('btn-reset-all').addEventListener('click', async () => {
+    const ok = await confirmDialog('Se restablecerá TODO el sistema: clientes, vehículos y simulaciones. Esta acción no se puede deshacer.', { title: 'Restablecer sistema', confirmText: 'Restablecer todo' });
+    if (!ok) return;
     ['system_clients', 'system_vehicles', 'system_simulations'].forEach(k => localStorage.removeItem(k));
     notify.ok('Sistema restablecido correctamente.');
 });
