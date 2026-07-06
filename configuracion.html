@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E">
     <title>Configuración | Sistema de Crédito Vehicular</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -95,6 +96,15 @@
                 </div>
             </div>
 
+            <div class="input-grid-2">
+                <div class="input-group">
+                    <label>Máx. periodos de gracia
+                        <span class="help-tip" data-tip="Límite de periodos de gracia (total o parcial) que la entidad permite otorgar al inicio de la operación.">?</span>
+                    </label>
+                    <input type="number" id="ent-gracia-max" min="0" step="1" placeholder="6">
+                </div>
+            </div>
+
         </div>
 
         <div class="login-card" style="max-width: 620px; margin: 0 auto;">
@@ -145,7 +155,8 @@
             capitalizacion: 30,
             teaReferencial: 12.5,
             segDesgravamen: 0.0714,
-            segVehicular: 0.32
+            segVehicular: 0.32,
+            graciaMax: 6
         };
 
         function loadEntity() {
@@ -180,6 +191,7 @@
             document.getElementById('ent-tea').value = ent.teaReferencial;
             document.getElementById('ent-seg-desg').value = ent.segDesgravamen;
             document.getElementById('ent-seg-veh').value = ent.segVehicular;
+            document.getElementById('ent-gracia-max').value = ent.graciaMax;
         });
 
         // La capitalización solo aplica a tasa nominal
@@ -245,7 +257,8 @@
                 capitalizacion: parseInt(document.getElementById('ent-capitalizacion').value),
                 teaReferencial: parseFloat(document.getElementById('ent-tea').value) || 0,
                 segDesgravamen: parseFloat(document.getElementById('ent-seg-desg').value) || 0,
-                segVehicular: parseFloat(document.getElementById('ent-seg-veh').value) || 0
+                segVehicular: parseFloat(document.getElementById('ent-seg-veh').value) || 0,
+                graciaMax: Math.max(0, parseInt(document.getElementById('ent-gracia-max').value) || 0)
             };
             localStorage.setItem('system_entity', JSON.stringify(entity));
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚗%3C/text%3E%3C/svg%3E">
     <title>Simulaciones | Sistema Vehicular</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -219,6 +220,26 @@
                             <p class="field-note" id="rate-note">—</p>
                         </div>
 
+                        <!-- Periodo de gracia: se define al inicio de la operación (enunciado) -->
+                        <div class="input-grid-2">
+                            <div class="input-group">
+                                <label>Tipo de gracia
+                                    <span class="help-tip" data-tip="Total: no pagas capital ni interés (el interés se capitaliza al saldo); solo pagas los seguros. Parcial: pagas solo el interés más los seguros. Se aplica a las primeras cuotas.">?</span>
+                                </label>
+                                <select id="sim-gracia-type">
+                                    <option value="NINGUNO">Sin gracia</option>
+                                    <option value="TOTAL">Total (no paga capital ni interés; solo seguros)</option>
+                                    <option value="PARCIAL">Parcial (paga solo interés)</option>
+                                </select>
+                            </div>
+                            <div class="input-group" id="sim-gracia-n-group" style="display:none;">
+                                <label>Periodos de gracia <span class="tc-hint">primeras N cuotas</span></label>
+                                <input type="number" id="sim-gracia-n" min="1" step="1" value="1">
+                                <div class="error-msg" id="err-gracia"></div>
+                                <p class="field-note" id="gracia-note">—</p>
+                            </div>
+                        </div>
+
                         <!-- Seguros: solo lectura, los fija la entidad en Configuración -->
                         <div class="readonly-info">
                             <div class="readonly-info-head">
@@ -326,29 +347,9 @@
                     </div>
                 </div>
 
-                <!-- Periodo de gracia + acciones -->
-                <div class="login-card" id="gracia-module" style="margin-top: 20px;">
-                    <h3 style="color: var(--primary); font-size: 16px; margin-bottom: 15px;">Aplicar periodo de gracia adicional
-                        <span class="help-tip" data-tip="Total: no pagas y el interés se capitaliza. Parcial: pagas solo el interés.">?</span>
-                    </h3>
-                    <div class="gracia-controls">
-                        <div class="input-group">
-                            <label>Tipo de gracia</label>
-                            <select id="gracia-type">
-                                <option value="NINGUNO">No aplicar / Rechazar</option>
-                                <option value="TOTAL">Total (cuota y amortización 0)</option>
-                                <option value="PARCIAL">Parcial (amortización 0)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Nro. de cuota(s) a aplicar</label>
-                            <input type="text" id="gracia-target" placeholder="Ej. 3, 4 (separar por comas)">
-                        </div>
-                        <div style="display: flex; align-items: flex-end; padding-bottom: 20px;">
-                            <button type="button" id="btn-apply-gracia" class="btn-secondary" style="width: 100%;">Procesar reajuste</button>
-                        </div>
-                    </div>
-                    <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                <!-- Acciones sobre la simulación generada -->
+                <div class="login-card" style="margin-top: 20px;">
+                    <div style="text-align: right; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
                         <button type="button" id="btn-download-pdf" class="btn-secondary btn-inline"><i class="hgi-stroke hgi-download-04"></i> Descargar PDF</button>
                         <button type="button" id="btn-save-final" class="btn-login btn-inline"><i class="hgi-stroke hgi-checkmark-circle-02"></i> Guardar simulación</button>
                     </div>

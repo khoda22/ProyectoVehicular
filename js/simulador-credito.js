@@ -1,8 +1,8 @@
 // Estado de trabajo de la simulación activa
 let activeClient = null;
 let activeVehicle = null;
-let baseSchedule = [];       // cronograma sin gracia adicional
-let workingSchedule = [];    // cronograma vigente (con gracia si aplica)
+let baseSchedule = [];       // cronograma generado (gracia ya incluida si aplica)
+let workingSchedule = [];    // cronograma vigente que se renderiza y guarda
 let currentParams = null;    // parámetros de la simulación en curso
 
 // Control de pestañas
@@ -15,7 +15,7 @@ function switchTab(tabId) {
 }
 
 // Somos la entidad: sus parámetros vienen de Configuración (system_entity)
-const ENTITY_DEFAULTS = { nombre: 'Financiera Compra Inteligente', ruc: '20512345678', tipoTasa: 'TE', capitalizacion: 30, teaReferencial: 12.5, segDesgravamen: 0.0714, segVehicular: 0.32 };
+const ENTITY_DEFAULTS = { nombre: 'Financiera Compra Inteligente', ruc: '20512345678', tipoTasa: 'TE', capitalizacion: 30, teaReferencial: 12.5, segDesgravamen: 0.0714, segVehicular: 0.32, graciaMax: 6 };
 const ENTITY = { ...ENTITY_DEFAULTS, ...(JSON.parse(localStorage.getItem('system_entity')) || {}) };
 
 // Buscadores typeahead (escribe y filtra; no listas completas)
@@ -305,6 +305,10 @@ function calculateFinancialPlan() {
     const segDesgPct = (parseFloat(document.getElementById('sim-seg-desgravamen').value) || 0) / 100;
     const segVehPct = (parseFloat(document.getElementById('sim-seg-vehicular').value) || 0) / 100;
 
+    // Periodo de gracia definido al inicio de la operación (aplica a las primeras N cuotas)
+    const graciaType = document.getElementById('sim-gracia-type').value;
+    const graciaN = graciaType === 'NINGUNO' ? 0 : (parseInt(document.getElementById('sim-gracia-n').value) || 0);
+
     const precio = currency === 'PEN'
         ? (activeVehicle.priceSoles ?? activeVehicle.price)
         : (activeVehicle.priceDollars ?? activeVehicle.price);
@@ -342,6 +346,14 @@ function calculateFinancialPlan() {
     const i = Math.pow(1 + TEA, periodDays / 360) - 1;
     const n = Math.round(months * 30 / periodDays);
 
+    // Validación del periodo de gracia contra el máximo que fija la entidad y el plazo total
+    if (graciaType !== 'NINGUNO') {
+        const graciaMax = ENTITY.graciaMax || 0;
+        if (graciaN < 1) { notify.err('Indica cuántos periodos de gracia aplicar (mínimo 1).'); return; }
+        if (graciaN > graciaMax) { notify.err(`La entidad permite un máximo de ${graciaMax} periodos de gracia (ajústalo en Configuración).`); return; }
+        if (graciaN >= n) { notify.err('Los periodos de gracia deben ser menores al plazo total del crédito.'); return; }
+    }
+
     // Cuota nivelada: se calcula a la tasa combinada (interés + desgravamen) para que la cuota
     // total sea CONSTANTE; la amortización absorbe la variación del seguro (modelo BBVA/Excel).
     const er = i + segDesgPct;
@@ -350,9 +362,9 @@ function calculateFinancialPlan() {
     const cuotaFija = er === 0 ? base / n : base * (er * Math.pow(1 + er, n)) / (Math.pow(1 + er, n) - 1);
 
     const tc = parseFloat(document.getElementById('sim-tc').value) || null;
-    currentParams = { currency, precio, montoFinanciar, balloon, i, n, TEA, periodDays, segDesgPct, segVehPct, cuotaFija, tc };
+    currentParams = { currency, precio, cuotaInicial, bono, montoFinanciar, balloon, i, n, TEA, periodDays, segDesgPct, segVehPct, cuotaFija, tc, graciaType, graciaN };
 
-    baseSchedule = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct);
+    baseSchedule = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct, graciaType, graciaN);
     workingSchedule = baseSchedule.map(r => ({ ...r }));
 
     processIndicators();
@@ -367,38 +379,66 @@ function renderResultHero() {
     const p = currentParams;
     const sign = p.currency === 'PEN' ? 'S/' : '$';
     document.getElementById('res-financiado').textContent = `${sign} ${formatMoney(p.montoFinanciar)}`;
-    document.getElementById('res-cuota').textContent = `${sign} ${formatMoney(workingSchedule[0].cuotaTotal)}`;
+    document.getElementById('res-cuota').textContent = `${sign} ${formatMoney(cuotaOrdinaria().cuotaTotal)}`;
     document.getElementById('res-plazo').textContent = `${p.n} cuotas`;
     document.getElementById('res-tea').textContent = `${(p.TEA * 100).toFixed(2)} %`;
     document.getElementById('res-tcea').textContent = document.getElementById('sbs-tcea').textContent;
 }
 
-// Construye el cronograma; la cuota balloon se paga como residual en el último periodo
-function buildSchedule(monto, i, cuota, n, balloon, precio, dDesg, dVeh) {
+// Construye el cronograma. El periodo de gracia (total/parcial) se define al inicio de la
+// operación y se aplica a las PRIMERAS graciaN cuotas. Tras la gracia la cuota se nivela sobre
+// el saldo resultante y los periodos restantes; la cuota balloon se paga como residual final.
+// La firma acepta gracia opcional (NINGUNO/0) para mantener compatibilidad con llamadas sin gracia.
+function buildSchedule(monto, i, cuotaBase, n, balloon, precio, dDesg, dVeh, graciaType = 'NINGUNO', graciaN = 0) {
     const rows = [];
+    const er = i + dDesg;                          // tasa combinada (interés + desgravamen)
+    const conGracia = graciaType !== 'NINGUNO' && graciaN > 0;
     let saldo = monto;
+    let cuota = 0;                                 // cuota nivelada de los periodos ordinarios
+    let cuotaSet = false;                          // se fija al entrar al primer periodo ordinario
 
     for (let k = 1; k <= n; k++) {
         const interes = saldo * i;
         const segDesg = saldo * dDesg;
-        // La amortización es el residuo de la cuota nivelada tras interés y desgravamen
-        let amort = cuota - interes - segDesg;
-        let bal = 0;
-        let saldoFinal = saldo - amort;
+        const segVeh = precio * dVeh;
+        const enGracia = conGracia && k <= graciaN;
+        let amort = 0, bal = 0, cuotaFin, saldoFinal;
 
-        if (k === n) {
-            bal = saldoFinal;      // saldo remanente = cuota balloon; absorbe el redondeo
-            saldoFinal = 0;
+        if (enGracia && graciaType === 'TOTAL') {
+            cuotaFin = 0;                          // no paga; el interés se capitaliza al saldo
+            saldoFinal = saldo + interes;
+        } else if (enGracia && graciaType === 'PARCIAL') {
+            cuotaFin = interes;                    // paga solo el interés; el saldo no varía
+            saldoFinal = saldo;
+        } else {
+            if (!cuotaSet) {                       // primer periodo ordinario: nivelar sobre el saldo actual
+                const rest = n - (k - 1);          // periodos ordinarios restantes (incluye este)
+                const baseAmort = saldo - balloon / Math.pow(1 + er, rest);
+                cuota = er === 0 ? baseAmort / rest : baseAmort * (er * Math.pow(1 + er, rest)) / (Math.pow(1 + er, rest) - 1);
+                cuotaSet = true;
+            }
+            amort = cuota - interes - segDesg;     // la amortización absorbe el desgravamen
+            saldoFinal = saldo - amort;
+            cuotaFin = interes + amort;
         }
 
-        const segVeh = precio * dVeh;
-        const cuotaFin = interes + amort + bal;               // capital + interés (valida VAN≈0 a tasa i)
-        const cuotaTotal = cuotaFin + segDesg + segVeh;       // = cuota nivelada + seg. vehicular (constante)
+        if (k === n) {
+            bal = saldoFinal;                      // saldo remanente = cuota balloon; absorbe el redondeo
+            saldoFinal = 0;
+            cuotaFin = interes + amort + bal;
+        }
 
-        rows.push({ num: k, saldoInicial: saldo, interes, amortizacion: amort, balloon: bal, segDesg, segVeh, cuota: cuotaFin, cuotaTotal, saldoFinal });
+        rows.push({ num: k, saldoInicial: saldo, interes, amortizacion: amort, balloon: bal, segDesg, segVeh, cuota: cuotaFin, cuotaTotal: cuotaFin + segDesg + segVeh, saldoFinal });
         saldo = saldoFinal;
     }
     return rows;
+}
+
+// Cuota "ordinaria": primera cuota fuera del periodo de gracia. Es la carga mensual sostenida
+// que importa para el semáforo y el titular; durante la gracia la cuota no refleja el esfuerzo real.
+function cuotaOrdinaria() {
+    const g = (currentParams && currentParams.graciaN) || 0;
+    return workingSchedule[Math.min(g, workingSchedule.length - 1)];
 }
 
 function processIndicators() {
@@ -419,11 +459,13 @@ function processIndicators() {
 
     const sign = p.currency === 'PEN' ? 'S/' : '$';
     document.getElementById('sbs-tcea').innerText = `${(tcea * 100).toFixed(2)} %`;
-    document.getElementById('sbs-van').innerText = `${sign} ${formatMoney(van)}`;
+    const vanShown = Math.abs(van) < 0.005 ? 0 : van;   // evita el "-0.00" por redondeo
+    document.getElementById('sbs-van').innerText = `${sign} ${formatMoney(vanShown)}`;
     document.getElementById('sbs-tir').innerText = `${(tirPeriodo * 100).toFixed(4)} % (per.)`;
 
-    // Semáforo de riesgo: carga financiera = primera cuota como % del ingreso mensual (regla SBS ≤ 40%)
-    const primeraCuota = workingSchedule[0].cuotaTotal;
+    // Semáforo de riesgo: carga financiera = cuota ordinaria como % del ingreso mensual (regla SBS ≤ 40%)
+    const primeraCuota = cuotaOrdinaria().cuotaTotal;
+    const conGracia = (p.graciaN || 0) > 0;
     const income = activeClient.income || 0;
     const container = document.getElementById('risk-semaphore-container');
     const badge = document.getElementById('risk-client-badge');
@@ -436,7 +478,8 @@ function processIndicators() {
         ratioText.innerText = 'El cliente no registra ingreso mensual; no se puede evaluar la capacidad de pago.';
     } else {
         const cargaPct = (primeraCuota / income) * 100;
-        ratioText.innerText = `La primera cuota representa el ${cargaPct.toFixed(0)}% del ingreso mensual del cliente (la SBS recomienda no superar el 40%).`;
+        const etiquetaCuota = conGracia ? 'La cuota mensual tras la gracia' : 'La primera cuota';
+        ratioText.innerText = `${etiquetaCuota} representa el ${cargaPct.toFixed(0)}% del ingreso mensual del cliente (la SBS recomienda no superar el 40%).`;
         if (cargaPct <= 40) {
             container.style.backgroundColor = '#dcfce7';
             container.style.color = '#166534';
@@ -484,67 +527,6 @@ function renderScheduleTable(data) {
         `Moneda: ${p.currency === 'PEN' ? 'Soles' : 'Dólares'} | TEA: ${(p.TEA * 100).toFixed(2)}% | Monto financiado: ${sign} ${formatMoney(p.montoFinanciar)} | Cuota balloon: ${sign} ${formatMoney(p.balloon)} | Total pagado: ${sign} ${formatMoney(totalPagado)}${tcTxt}`;
 }
 
-// GRACIA (total o parcial) sobre las cuotas indicadas — reconstruye el cronograma en cascada
-document.getElementById('btn-apply-gracia').addEventListener('click', () => {
-    if (!currentParams) return;
-    const type = document.getElementById('gracia-type').value;
-    const targetInput = document.getElementById('gracia-target').value;
-
-    if (type === 'NINGUNO') {
-        workingSchedule = baseSchedule.map(r => ({ ...r }));
-        processIndicators();
-        renderScheduleTable(workingSchedule);
-        notify.info('Periodos de gracia restablecidos.');
-        return;
-    }
-
-    const targetCuotas = targetInput.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
-    if (targetCuotas.length === 0) {
-        notify.err('Escriba al menos un número de cuota válido.');
-        return;
-    }
-
-    const p = currentParams;
-    const rows = [];
-    let saldo = p.montoFinanciar;
-
-    for (let k = 1; k <= p.n; k++) {
-        const interes = saldo * p.i;
-        const segDesg = saldo * p.segDesgPct;
-        let amort, bal = 0, cuotaFin, saldoFinal;
-
-        if (targetCuotas.includes(k) && type === 'TOTAL') {
-            amort = 0;
-            cuotaFin = 0;
-            saldoFinal = saldo + interes;   // el interés se capitaliza al saldo
-        } else if (targetCuotas.includes(k) && type === 'PARCIAL') {
-            amort = 0;
-            cuotaFin = interes;             // paga solo interés
-            saldoFinal = saldo;
-        } else {
-            amort = p.cuotaFija - interes - segDesg;   // la amortización absorbe el desgravamen
-            saldoFinal = saldo - amort;
-            cuotaFin = interes + amort;
-        }
-
-        if (k === p.n) {
-            bal = saldoFinal;               // el saldo remanente se cancela como cuota balloon
-            saldoFinal = 0;
-            cuotaFin = interes + amort + bal;
-        }
-
-        const segVeh = p.precio * p.segVehPct;
-        rows.push({ num: k, saldoInicial: saldo, interes, amortizacion: amort, balloon: bal, segDesg, segVeh, cuota: cuotaFin, cuotaTotal: cuotaFin + segDesg + segVeh, saldoFinal });
-        saldo = saldoFinal;
-    }
-
-    workingSchedule = rows;
-    processIndicators();
-    renderScheduleTable(workingSchedule);
-    renderResultHero();
-    notify.ok('Cronograma recalculado con el periodo de gracia aplicado.');
-});
-
 // GUARDAR SIMULACIÓN
 document.getElementById('btn-save-final').addEventListener('click', () => {
     if (!currentParams) return;
@@ -562,18 +544,25 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
         carModel: activeVehicle.model,
         bank: activeBank || ENTITY.nombre,
         currency: currentParams.currency,
+        tipoCambio: currentParams.tc,
+        periodoDias: currentParams.periodDays,
         tea: currentParams.TEA,
+        precioVenta: currentParams.precio,
+        cuotaInicial: currentParams.cuotaInicial,
+        bono: currentParams.bono,
         montoFinanciar: currentParams.montoFinanciar,
         balloon: currentParams.balloon,
+        graciaType: currentParams.graciaType,
+        graciaN: currentParams.graciaN,
         schedule: workingSchedule,
         indicators: {
-            cuota: workingSchedule[0].cuotaTotal,
+            cuota: cuotaOrdinaria().cuotaTotal,
             total,
             plazo: workingSchedule.length,
             tcea: tceaFromSchedule(workingSchedule, currentParams.montoFinanciar),
             van: calcularVAN(flujoFin, currentParams.i),
             tir: calcularTIR(flujoFin),
-            ratio: activeClient.income ? (activeClient.income / workingSchedule[0].cuotaTotal) * 100 : null
+            ratio: activeClient.income ? (cuotaOrdinaria().cuotaTotal / activeClient.income) * 100 : null
         }
     };
 
@@ -611,6 +600,9 @@ function buildQuotationPDF(d) {
         ['Vehículo', d.vehicleLabel],
         ['Moneda', d.currency === 'PEN' ? 'Soles' : 'Dólares'],
         ...(d.currency === 'USD' && d.tc ? [['Tipo de cambio', `S/ ${Number(d.tc).toFixed(2)} por US$`]] : []),
+        ...(d.precioVenta != null ? [['Precio del vehículo', `${sign} ${formatMoney(d.precioVenta)}`]] : []),
+        ...(d.cuotaInicial != null ? [['Cuota inicial', `${sign} ${formatMoney(d.cuotaInicial)}`]] : []),
+        ...(d.bono ? [['Bono / descuento', `- ${sign} ${formatMoney(d.bono)}`]] : []),
         ['Cuota mensual', `${sign} ${formatMoney(cuota(d.schedule[0]))}`],
         ['Plazo', `${d.schedule.length} cuotas`],
         ['Tasa Efectiva Anual (TEA)', `${(d.TEA * 100).toFixed(2)} %`],
@@ -677,6 +669,9 @@ document.getElementById('btn-download-pdf').addEventListener('click', () => {
         clientName: activeClient.name,
         clientId: activeClient.id,
         vehicleLabel: `${activeVehicle.brand || ''} ${activeVehicle.model}`.trim(),
+        precioVenta: p.precio,
+        cuotaInicial: p.cuotaInicial,
+        bono: p.bono,
         tc: p.tc,
         TEA: p.TEA,
         balloon: p.balloon,
@@ -699,7 +694,10 @@ function downloadSimPDF(id) {
         clientName: sim.clientName,
         clientId: sim.clientDni,
         vehicleLabel: sim.carModel,
-        tc: null,
+        precioVenta: sim.precioVenta,
+        cuotaInicial: sim.cuotaInicial,
+        bono: sim.bono,
+        tc: sim.tipoCambio ?? null,
         TEA: sim.tea,
         balloon: sim.balloon,
         schedule: sim.schedule,
@@ -738,8 +736,9 @@ function renderFullHistory() {
     buildHistoryCards(history, container);
 }
 
-function deleteSimulation(id) {
-    if (!confirm('¿Eliminar esta simulación? Esta acción no se puede deshacer.')) return;
+async function deleteSimulation(id) {
+    const ok = await confirmDialog(`Se eliminará la simulación ${id}. Esta acción no se puede deshacer.`, { title: 'Eliminar simulación' });
+    if (!ok) return;
     let history = JSON.parse(localStorage.getItem('system_simulations')) || [];
     history = history.filter(s => s.id !== id);
     localStorage.setItem('system_simulations', JSON.stringify(history));
@@ -900,21 +899,49 @@ function updateLiveSummary() {
     const er = i + segDesgPct;
     const base = montoFinanciar - balloon / Math.pow(1 + er, n);
     const cuotaFija = er === 0 ? base / n : base * (er * Math.pow(1 + er, n)) / (Math.pow(1 + er, n) - 1);
-    const sched = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct);
+
+    // Gracia (definida al inicio): el resumen en vivo también la refleja
+    const graciaType = document.getElementById('sim-gracia-type').value;
+    const graciaN = graciaType === 'NINGUNO' ? 0 : (parseInt(document.getElementById('sim-gracia-n').value) || 0);
+    // El preview usa el mismo criterio que la generación real: mínimo 1, tope de la entidad y menor al plazo
+    const graciaValida = graciaType === 'NINGUNO' || (graciaN >= 1 && graciaN <= (ENTITY.graciaMax || 0) && graciaN < n);
+    if (!graciaValida) { setLive('—', '—', '—'); return; }
+
+    const sched = buildSchedule(montoFinanciar, i, cuotaFija, n, balloon, precio, segDesgPct, segVehPct, graciaType, graciaN);
     const total = sched.reduce((a, r) => a + r.cuotaTotal, 0);
     const flujo = [montoFinanciar];
     sched.forEach(r => flujo.push(-r.cuotaTotal));
     const tcea = Math.pow(1 + calcularTIR(flujo), 360 / periodDays) - 1;
     const sign = currency === 'PEN' ? 'S/' : '$';
 
-    setLive(`${sign} ${formatMoney(sched[0].cuotaTotal)}`, `${(tcea * 100).toFixed(2)} %`, `${sign} ${formatMoney(total)}`);
+    // Cuota mostrada = cuota ordinaria (fuera de la gracia), la carga mensual sostenida
+    const idxOrd = Math.min(graciaN, sched.length - 1);
+    setLive(`${sign} ${formatMoney(sched[idxOrd].cuotaTotal)}`, `${(tcea * 100).toFixed(2)} %`, `${sign} ${formatMoney(total)}`);
 }
 
-['sim-currency', 'sim-tc', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-months', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular']
+['sim-currency', 'sim-tc', 'sim-downpayment', 'sim-balloon', 'sim-bono', 'sim-period', 'sim-months', 'sim-rate-type', 'sim-rate-val', 'sim-capitalization', 'sim-seg-desgravamen', 'sim-seg-vehicular', 'sim-gracia-n']
     .forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', updateLiveSummary);
     });
+
+// Gracia: el campo de periodos solo aparece si se elige un tipo de gracia; el máximo lo fija la entidad
+(function initGraciaControls() {
+    const typeEl = document.getElementById('sim-gracia-type');
+    if (!typeEl) return;
+    const group = document.getElementById('sim-gracia-n-group');
+    const note = document.getElementById('gracia-note');
+    const nEl = document.getElementById('sim-gracia-n');
+    const max = ENTITY.graciaMax || 0;
+    if (nEl && max > 0) nEl.setAttribute('max', max);
+    const sync = () => {
+        const on = typeEl.value !== 'NINGUNO';
+        group.style.display = on ? '' : 'none';
+        if (on && note) note.textContent = `Se aplica a las primeras cuotas. Máximo permitido por la entidad: ${max} periodos.`;
+        updateLiveSummary();
+    };
+    typeEl.addEventListener('change', sync);
+})();
 
 // Navegación del wizard: 3 pasos con acceso al estado del simulador
 (function initWizard() {
