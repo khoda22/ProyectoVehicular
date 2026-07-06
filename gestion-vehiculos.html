@@ -63,25 +63,27 @@
             <h2 id="modal-title">Nuevo vehículo</h2>
             <p id="modal-subtitle">Ingresa los datos de la unidad</p>
           </div>
-          <button class="modal-close" id="modal-close" aria-label="Cerrar"><i class="hgi-stroke hgi-cancel-01"></i></button>
-        </div>
-
-        <form id="vehicle-form">
-          <div class="input-group">
-            <label>Código Interno / ID de Auto
-              <span class="help-tip" data-tip="Código único del vehículo. Ej: TOY-001.">?</span>
-            </label>
-            <input type="text" id="car-id" placeholder="Ej. TOY-001" required />
-            <div class="error-msg" id="err-car-id"></div>
-          </div>
-          <div class="input-grid-2">
+          <form id="vehicle-form">
             <div class="input-group">
-              <label>Marca</label>
-              <input type="text" id="car-brand" placeholder="Ej. Toyota" required />
+              <label>Código Interno / ID de Auto</label>
+              <div class="help-container">
+                <input type="text" id="car-id" placeholder="Ej. TOY-001" required />
+                <span class="help-icon" data-tooltip="Código alfanumérico único para el control de inventario y stock del catálogo del simulador.">?</span>
+              </div>
             </div>
             <div class="input-group">
-              <label>Modelo</label>
-              <input type="text" id="car-model" placeholder="Ej. Corolla" required />
+              <label>Marca y Modelo</label>
+              <div class="help-container">
+                <input type="text" id="car-model" placeholder="Ej. Toyota Corolla" required />
+                <span class="help-icon" data-tooltip="Nombre comercial de fábrica de la unidad vehicular (Ej. Hyundai Elantra, Nissan Sentra).">?</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Precio Base</label>
+              <div class="help-container">
+                <input type="number" id="car-price" placeholder="0.00" required />
+                <span class="help-icon" data-tooltip="Valor de venta de lista total del auto sobre el cual se estructurará la cuota inicial y el financiamiento.">?</span>
+              </div>
             </div>
           </div>
           <div class="input-group">
