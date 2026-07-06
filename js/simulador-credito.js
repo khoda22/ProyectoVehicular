@@ -569,24 +569,20 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
     resetSimulationWorkspace();
 });
 
-// GENERAR PDF — hoja resumen estilo entidad financiera (transparencia SBS)
-document.getElementById('btn-download-pdf').addEventListener('click', () => {
-    if (!currentParams || !workingSchedule.length) {
-        notify.err('Genere primero una simulación.');
-        return;
-    }
+// PDF — hoja resumen estilo entidad financiera (transparencia SBS). Reutilizable: simulación activa o guardada.
+function buildQuotationPDF(d) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    const p = currentParams;
-    const sign = p.currency === 'PEN' ? 'S/' : '$';
-    const totalPagado = workingSchedule.reduce((a, r) => a + r.cuotaTotal, 0);
+    const sign = d.currency === 'PEN' ? 'S/' : '$';
+    const cuota = r => r.cuotaTotal ?? r.cuota;
+    const totalPagado = d.schedule.reduce((a, r) => a + cuota(r), 0);
     const crimson = [192, 32, 60];
 
     let y = 44;
     doc.setFontSize(17); doc.setFont(undefined, 'bold'); doc.setTextColor(23, 23, 28);
     doc.text('Cotización de Crédito Vehicular', 40, y);
     doc.setFontSize(10); doc.setFont(undefined, 'normal'); doc.setTextColor(120);
-    doc.text(activeBank || ENTITY.nombre, 40, y + 16);
+    doc.text(d.entidad, 40, y + 16);
     doc.setTextColor(150);
     doc.text('Compra Inteligente', 555, y + 16, { align: 'right' });
 
@@ -594,23 +590,22 @@ document.getElementById('btn-download-pdf').addEventListener('click', () => {
     doc.setTextColor(120); doc.setFontSize(10);
     doc.text('Importe financiado', 40, y);
     doc.setTextColor(192, 32, 60); doc.setFontSize(24); doc.setFont(undefined, 'bold');
-    doc.text(`${sign} ${formatMoney(p.montoFinanciar)}`, 40, y + 26);
+    doc.text(`${sign} ${formatMoney(d.montoFinanciar)}`, 40, y + 26);
 
     const resumen = [
-        ['Cliente', `${activeClient.name} (DNI ${activeClient.id})`],
-        ['Vehículo', `${activeVehicle.brand || ''} ${activeVehicle.model}`],
-        ['Moneda', p.currency === 'PEN' ? 'Soles' : 'Dólares'],
-        ...(p.currency === 'USD' && p.tc ? [['Tipo de cambio', `S/ ${p.tc.toFixed(2)} por US$`]] : []),
-        ['Cuota mensual', `${sign} ${formatMoney(workingSchedule[0].cuotaTotal)}`],
-        ['Plazo', `${p.n} cuotas`],
-        ['Tasa Efectiva Anual (TEA)', `${(p.TEA * 100).toFixed(2)} %`],
-        ['TCEA Referencial', document.getElementById('sbs-tcea').innerText],
-        ['Cuota final (balloon)', `${sign} ${formatMoney(p.balloon)}`],
+        ['Cliente', `${d.clientName}${d.clientId ? ` (DNI ${d.clientId})` : ''}`],
+        ['Vehículo', d.vehicleLabel],
+        ['Moneda', d.currency === 'PEN' ? 'Soles' : 'Dólares'],
+        ...(d.currency === 'USD' && d.tc ? [['Tipo de cambio', `S/ ${Number(d.tc).toFixed(2)} por US$`]] : []),
+        ['Cuota mensual', `${sign} ${formatMoney(cuota(d.schedule[0]))}`],
+        ['Plazo', `${d.schedule.length} cuotas`],
+        ['Tasa Efectiva Anual (TEA)', `${(d.TEA * 100).toFixed(2)} %`],
+        ['TCEA Referencial', d.tceaText],
+        ['Cuota final (balloon)', `${sign} ${formatMoney(d.balloon)}`],
         ['Total a pagar', `${sign} ${formatMoney(totalPagado)}`]
     ];
     doc.autoTable({
-        startY: y + 44,
-        theme: 'plain',
+        startY: y + 44, theme: 'plain',
         styles: { fontSize: 10, cellPadding: 3 },
         columnStyles: { 0: { textColor: 120 }, 1: { halign: 'right', fontStyle: 'bold', textColor: 40 } },
         body: resumen
@@ -622,15 +617,9 @@ document.getElementById('btn-download-pdf').addEventListener('click', () => {
     doc.autoTable({
         startY: doc.lastAutoTable.finalY + 30,
         head: [['Nro', 'Saldo Inicial', 'Interés', 'Amortiz.', 'Desgrav.', 'Seg. Veh.', 'Cuota Total', 'Saldo Final']],
-        body: workingSchedule.map(r => [
-            r.num,
-            formatMoney(r.saldoInicial),
-            formatMoney(r.interes),
-            formatMoney(r.amortizacion),
-            formatMoney(r.segDesg),
-            formatMoney(r.segVeh),
-            formatMoney(r.cuotaTotal),
-            formatMoney(r.saldoFinal)
+        body: d.schedule.map(r => [
+            r.num, formatMoney(r.saldoInicial), formatMoney(r.interes), formatMoney(r.amortizacion),
+            formatMoney(r.segDesg), formatMoney(r.segVeh), formatMoney(cuota(r)), formatMoney(r.saldoFinal)
         ]),
         theme: 'striped',
         headStyles: { fillColor: crimson, fontSize: 7.5 },
@@ -649,9 +638,61 @@ document.getElementById('btn-download-pdf').addEventListener('click', () => {
         'La TCEA incluye intereses y seguros según la norma de transparencia de la SBS.'
     ].forEach((t, i) => doc.text('•  ' + t, 40, ny + 14 + i * 12));
 
-    doc.save(`cotizacion-${activeClient.id}.pdf`);
+    doc.save(d.fileName);
     notify.ok('PDF generado.');
+}
+
+// TCEA a partir de un cronograma guardado (por si no se guardó el indicador)
+function tceaFromSchedule(schedule, montoFinanciar) {
+    const flujo = [montoFinanciar];
+    schedule.forEach(r => flujo.push(-(r.cuotaTotal ?? r.cuota)));
+    return Math.pow(1 + calcularTIR(flujo), 12) - 1; // meses de 30 días → 360/30 = 12
+}
+
+// PDF de la simulación activa (botón del reporte)
+document.getElementById('btn-download-pdf').addEventListener('click', () => {
+    if (!currentParams || !workingSchedule.length) {
+        notify.err('Genere primero una simulación.');
+        return;
+    }
+    const p = currentParams;
+    buildQuotationPDF({
+        entidad: activeBank || ENTITY.nombre,
+        currency: p.currency,
+        montoFinanciar: p.montoFinanciar,
+        clientName: activeClient.name,
+        clientId: activeClient.id,
+        vehicleLabel: `${activeVehicle.brand || ''} ${activeVehicle.model}`.trim(),
+        tc: p.tc,
+        TEA: p.TEA,
+        balloon: p.balloon,
+        schedule: workingSchedule,
+        tceaText: document.getElementById('sbs-tcea').innerText,
+        fileName: `cotizacion-${activeClient.id}.pdf`
+    });
 });
+
+// PDF de una simulación guardada (botón del historial)
+function downloadSimPDF(id) {
+    const history = JSON.parse(localStorage.getItem('system_simulations')) || [];
+    const sim = history.find(s => s.id === id);
+    if (!sim) { notify.err('No se encontró la simulación.'); return; }
+    const tcea = tceaFromSchedule(sim.schedule, sim.montoFinanciar);
+    buildQuotationPDF({
+        entidad: sim.bank || ENTITY.nombre,
+        currency: sim.currency,
+        montoFinanciar: sim.montoFinanciar,
+        clientName: sim.clientName,
+        clientId: sim.clientDni,
+        vehicleLabel: sim.carModel,
+        tc: null,
+        TEA: sim.tea,
+        balloon: sim.balloon,
+        schedule: sim.schedule,
+        tceaText: `${(tcea * 100).toFixed(2)} %`,
+        fileName: `cotizacion-${sim.id}.pdf`
+    });
+}
 
 function resetSimulationWorkspace() {
     document.getElementById('simulation-engine-form').reset();
@@ -735,7 +776,10 @@ function buildHistoryCards(list, container) {
                         <p style="font-size:12.5px; color:var(--text-muted);">${sim.carModel} | ${sim.bank} | Total: ${sign} ${formatMoney(totalPagado)}</p>
                     </div>
                 </div>
-                <button class="btn-secondary" style="padding:8px 16px;" onclick="deleteSimulation('${sim.id}')">Eliminar</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-secondary btn-inline" onclick="downloadSimPDF('${sim.id}')"><i class="hgi-stroke hgi-download-04"></i> PDF</button>
+                    <button class="btn-secondary btn-inline" onclick="deleteSimulation('${sim.id}')"><i class="hgi-stroke hgi-delete-02"></i> Eliminar</button>
+                </div>
             </div>
             <div class="history-detail" style="display:none; margin-top:16px;">
                 <div class="table-wrapper">
