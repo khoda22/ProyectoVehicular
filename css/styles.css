@@ -360,6 +360,17 @@ body {
 .collapsible-body { padding: 0 30px 30px; }
 .report-summary { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
 
+/* Resumen de indicadores en cada tarjeta del historial */
+.history-figures {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-soft);
+}
+.history-figures > div { text-align: center; }
+.history-figures span { display: block; font-size: 10.5px; color: var(--text-muted); }
+.history-figures strong { display: block; font-size: 14px; font-weight: 800; color: var(--accent-dark); margin-top: 2px; }
+.history-figures strong.primary { color: var(--primary); }
+@media (max-width: 720px) { .history-figures { grid-template-columns: repeat(3, 1fr); } }
+
 /* Cronograma con altura máxima: scroll interno en vez de una tabla eterna */
 .table-scroll { max-height: 460px; overflow-y: auto; }
 .table-scroll thead th { position: sticky; top: 0; z-index: 1; }

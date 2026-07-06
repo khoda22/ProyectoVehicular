@@ -550,6 +550,11 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
     if (!currentParams) return;
     const history = JSON.parse(localStorage.getItem('system_simulations')) || [];
 
+    // Guardar también los indicadores del reporte (para verlos en el historial sin recalcular)
+    const total = workingSchedule.reduce((a, r) => a + r.cuotaTotal, 0);
+    const flujoFin = [currentParams.montoFinanciar];
+    workingSchedule.forEach(r => flujoFin.push(-r.cuota));
+
     const sim = {
         id: 'SIM-' + (history.length + 1).toString().padStart(4, '0'),
         clientDni: activeClient.id,
@@ -560,7 +565,16 @@ document.getElementById('btn-save-final').addEventListener('click', () => {
         tea: currentParams.TEA,
         montoFinanciar: currentParams.montoFinanciar,
         balloon: currentParams.balloon,
-        schedule: workingSchedule
+        schedule: workingSchedule,
+        indicators: {
+            cuota: workingSchedule[0].cuotaTotal,
+            total,
+            plazo: workingSchedule.length,
+            tcea: tceaFromSchedule(workingSchedule, currentParams.montoFinanciar),
+            van: calcularVAN(flujoFin, currentParams.i),
+            tir: calcularTIR(flujoFin),
+            ratio: activeClient.income ? (activeClient.income / workingSchedule[0].cuotaTotal) * 100 : null
+        }
     };
 
     history.push(sim);
@@ -751,6 +765,13 @@ function buildHistoryCards(list, container) {
         const sign = sim.currency === 'PEN' ? 'S/' : '$';
         const totalPagado = sim.schedule.reduce((a, r) => a + (r.cuotaTotal ?? r.cuota), 0);
 
+        // Indicadores: usa los guardados; si es una simulación antigua, los recalcula del cronograma
+        const ind = sim.indicators || {};
+        const cuota = ind.cuota ?? (sim.schedule[0].cuotaTotal ?? sim.schedule[0].cuota);
+        const tceaPct = ind.tcea != null ? (ind.tcea * 100).toFixed(2) : (tceaFromSchedule(sim.schedule, sim.montoFinanciar) * 100).toFixed(2);
+        const vanTxt = ind.van != null ? `${sign} ${formatMoney(ind.van)}` : '—';
+        const tirTxt = ind.tir != null ? `${(ind.tir * 100).toFixed(2)} %` : '—';
+
         const card = document.createElement('div');
         card.className = 'history-item-card';
 
@@ -780,6 +801,14 @@ function buildHistoryCards(list, container) {
                     <button class="btn-secondary btn-inline" onclick="downloadSimPDF('${sim.id}')"><i class="hgi-stroke hgi-download-04"></i> PDF</button>
                     <button class="btn-secondary btn-inline" onclick="deleteSimulation('${sim.id}')"><i class="hgi-stroke hgi-delete-02"></i> Eliminar</button>
                 </div>
+            </div>
+            <div class="history-figures">
+                <div><span>Cuota mensual</span><strong class="primary">${sign} ${formatMoney(cuota)}</strong></div>
+                <div><span>TEA</span><strong>${(sim.tea * 100).toFixed(2)} %</strong></div>
+                <div><span>TCEA</span><strong>${tceaPct} %</strong></div>
+                <div><span>VAN</span><strong>${vanTxt}</strong></div>
+                <div><span>TIR</span><strong>${tirTxt}</strong></div>
+                <div><span>Total a pagar</span><strong>${sign} ${formatMoney(totalPagado)}</strong></div>
             </div>
             <div class="history-detail" style="display:none; margin-top:16px;">
                 <div class="table-wrapper">
